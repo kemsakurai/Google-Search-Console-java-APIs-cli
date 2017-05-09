@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/Google-Search-Console-java-APIs-cli.iml" filepath="$PROJECT_DIR$/.idea/modules/Google-Search-Console-java-APIs-cli.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/Google-Search-Console-java-APIs-cli_main.iml" filepath="$PROJECT_DIR$/.idea/modules/Google-Search-Console-java-APIs-cli_main.iml" group="Google-Search-Console-java-APIs-cli" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/Google-Search-Console-java-APIs-cli_test.iml" filepath="$PROJECT_DIR$/.idea/modules/Google-Search-Console-java-APIs-cli_test.iml" group="Google-Search-Console-java-APIs-cli" />
+    </modules>
+  </component>
+</project>
