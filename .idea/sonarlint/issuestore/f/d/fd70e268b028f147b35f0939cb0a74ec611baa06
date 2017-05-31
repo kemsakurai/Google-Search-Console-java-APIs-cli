@@ -1,10 +1,0 @@
-
-Bsquid:S1068"-Remove this unused "formatter" private field.(ê”Àê
-fsquid:S1450"RRemove the "cmd" field and declare it as a local variable in the relevant methods.(ƒÑğ%
-msquid:S1450"XRemove the "formatter" field and declare it as a local variable in the relevant methods.(ê”Àê
-T
-squid:S106";Replace this usage of System.out or System.err by a logger.(¦¦­åùÿÿÿÿ
-N
-squid:S106";Replace this usage of System.out or System.err by a logger.(‘ÃòL
-T
-squid:S106";Replace this usage of System.out or System.err by a logger.(¦¦­åùÿÿÿÿ
