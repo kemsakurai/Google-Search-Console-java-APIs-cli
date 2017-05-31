@@ -1,7 +1,8 @@
-package xyz.monotalk.google.webmaster.cli.subcommands;
+package xyz.monotalk.google.webmaster.cli.subcommands.sitemaps;
 
 import com.google.api.services.webmasters.Webmasters;
 import com.google.api.services.webmasters.model.SitemapsListResponse;
+import org.kohsuke.args4j.Option;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import xyz.monotalk.google.webmaster.cli.Command;
@@ -10,36 +11,36 @@ import xyz.monotalk.google.webmaster.cli.WebmastersFactory;
 import java.io.IOException;
 
 /**
- * SiteMapsCommand
+ * SiteMapsListCommand
  */
 @Component
-public class SiteMapsCommand implements Command {
+public class SiteMapsListCommand implements Command {
 
     @Autowired
     private WebmastersFactory factory;
 
+    @Option(name = "-siteUrl", usage = "Url of site", required = true)
+    private String siteUrl = null;
 
     @Override
     public void execute() {
         Webmasters webmasters = factory.create();
-        Webmasters.Sitemaps.List siteMaps = null;
+        Webmasters.Sitemaps.List siteMaps;
         try {
-            siteMaps = webmasters.sitemaps().list("https://www.monotalk.xyz");
+            siteMaps = webmasters.sitemaps().list(siteUrl);
         } catch (IOException e) {
-            e.printStackTrace();
+            throw new IllegalStateException(e);
         }
-        SitemapsListResponse response = null;
+        SitemapsListResponse response;
         try {
             response = siteMaps.execute();
         } catch (IOException e) {
-            e.printStackTrace();
+            throw new IllegalStateException(e);
         }
-        System.out.print("-------------------------sitemaps");
         try {
-            System.out.print(response.toPrettyString());
+            System.out.println(response.toPrettyString());
         } catch (IOException e) {
-            e.printStackTrace();
+            throw new IllegalStateException(e);
         }
-        System.out.print("-------------------------sitemaps");
     }
 }
