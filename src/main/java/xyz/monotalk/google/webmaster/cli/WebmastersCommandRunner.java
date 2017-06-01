@@ -32,7 +32,8 @@ public class WebmastersCommandRunner implements CommandLineRunner {
      */
     @Argument(handler = SubCommandHandler.class)
     @SubCommands(
-            {@SubCommand(name = "sitemaps.list", impl = SiteMapsListCommand.class),
+            {
+                @SubCommand(name = "sitemaps.list", impl = SiteMapsListCommand.class),
                 @SubCommand(name = "sitemaps.delete", impl = SiteMapsDeleteCommand.class),
                 @SubCommand(name = "sitemaps.get", impl = SiteMapsGetCommand.class),
                 @SubCommand(name = "sitemaps.submit", impl = SiteMapsSubmitCommand.class)

@@ -30,7 +30,7 @@ public class WebmastersFactory {
      * @return
      */
     public Webmasters create() {
-        HttpTransport httpTransport = null;
+        HttpTransport httpTransport;
         try {
             httpTransport = GoogleNetHttpTransport.newTrustedTransport();
         } catch (GeneralSecurityException e) {
@@ -39,7 +39,7 @@ public class WebmastersFactory {
             throw new IllegalStateException(e);
         }
         JsonFactory jsonFactory = JacksonFactory.getDefaultInstance();
-        GoogleCredential credential = null;
+        GoogleCredential credential;
         try {
             credential = GoogleCredential.fromStream(new FileInputStream(keyFileLocation)).createScoped(Collections.singleton(WebmastersScopes.WEBMASTERS));
         } catch (IOException e) {
