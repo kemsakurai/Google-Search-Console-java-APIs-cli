@@ -10,6 +10,7 @@ import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
+import xyz.monotalk.google.webmaster.cli.subcommands.SearchAnalyticsCommand;
 import xyz.monotalk.google.webmaster.cli.subcommands.sitemaps.SiteMapsDeleteCommand;
 import xyz.monotalk.google.webmaster.cli.subcommands.sitemaps.SiteMapsGetCommand;
 import xyz.monotalk.google.webmaster.cli.subcommands.sitemaps.SiteMapsListCommand;
@@ -36,7 +37,8 @@ public class WebmastersCommandRunner implements CommandLineRunner {
                 @SubCommand(name = "sitemaps.list", impl = SiteMapsListCommand.class),
                 @SubCommand(name = "sitemaps.delete", impl = SiteMapsDeleteCommand.class),
                 @SubCommand(name = "sitemaps.get", impl = SiteMapsGetCommand.class),
-                @SubCommand(name = "sitemaps.submit", impl = SiteMapsSubmitCommand.class)
+                @SubCommand(name = "sitemaps.submit", impl = SiteMapsSubmitCommand.class),
+                @SubCommand(name = "search.analytics", impl = SearchAnalyticsCommand.class),
             })
     private Command command;
 

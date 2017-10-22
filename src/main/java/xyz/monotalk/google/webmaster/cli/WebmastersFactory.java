@@ -21,8 +21,7 @@ import java.util.Collections;
 @Component
 public class WebmastersFactory {
 
-    @Value("${application.keyFileLocation}")
-    private String keyFileLocation;
+    @Value("${application.keyFileLocation}") private String keyFileLocation;
 
     /**
      * Create Webmasters instance.

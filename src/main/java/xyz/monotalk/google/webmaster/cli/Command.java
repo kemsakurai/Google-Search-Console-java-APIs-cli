@@ -1,8 +1,11 @@
 package xyz.monotalk.google.webmaster.cli;
 
 /**
- * interface Command
+ * Command interface
  */
 public interface Command {
+    /**
+     * Main Method
+     */
     void execute();
 }
