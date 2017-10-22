@@ -66,4 +66,9 @@ public class UrlCrawErrorsCountsCommand implements Command {
         out.println("<<<END");
 
     }
+
+    @Override
+    public String usage() {
+        return null;
+    }
 }

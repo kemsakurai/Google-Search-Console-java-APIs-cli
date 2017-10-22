@@ -15,12 +15,9 @@ import java.io.IOException;
 @Component
 public class SiteMapsSubmitCommand implements Command {
 
-    @Autowired
-    private WebmastersFactory factory;
-    @Option(name = "-siteUrl", usage = "Url of site", required = true)
-    private String siteUrl = null;
-    @Option(name = "-feedPath", usage = "Url of feedPath", required = true)
-    private String feedPath = null;
+    @Autowired private WebmastersFactory factory;
+    @Option(name = "-siteUrl", usage = "Url of site", required = true) private String siteUrl = null;
+    @Option(name = "-feedPath", usage = "Url of feedPath", required = true) private String feedPath = null;
 
     @Override
     public void execute() {
@@ -38,5 +35,10 @@ public class SiteMapsSubmitCommand implements Command {
             throw new IllegalStateException(e);
         }
         System.out.println("Done.");
+    }
+
+    @Override
+    public String usage() {
+        return "Submits a sitemap for a site.";
     }
 }

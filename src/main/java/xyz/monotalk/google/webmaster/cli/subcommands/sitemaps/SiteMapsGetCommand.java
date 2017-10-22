@@ -42,4 +42,9 @@ public class SiteMapsGetCommand implements Command {
             throw new IllegalStateException(e);
         }
     }
+
+    @Override
+    public String usage() {
+        return null;
+    }
 }

@@ -71,6 +71,11 @@ public class SearchAnalyticsCommand implements Command {
         }
     }
 
+    @Override
+    public String usage() {
+        return null;
+    }
+
     private static List<ApiDimensionFilterGroup> getApiDimensionFilterGroups() {
         ApiDimensionFilter javaFilter = new ApiDimensionFilter();
         javaFilter.setDimension("page");

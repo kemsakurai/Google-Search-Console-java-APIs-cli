@@ -1,6 +1,9 @@
 package xyz.monotalk.google.webmaster.cli;
 
+import org.apache.commons.lang3.tuple.Pair;
+import org.apache.commons.text.StrBuilder;
 import org.kohsuke.args4j.Argument;
+import org.kohsuke.args4j.CmdLineException;
 import org.kohsuke.args4j.CmdLineParser;
 import org.kohsuke.args4j.spi.SubCommand;
 import org.kohsuke.args4j.spi.SubCommandHandler;
@@ -16,8 +19,11 @@ import xyz.monotalk.google.webmaster.cli.subcommands.sitemaps.SiteMapsGetCommand
 import xyz.monotalk.google.webmaster.cli.subcommands.sitemaps.SiteMapsListCommand;
 import xyz.monotalk.google.webmaster.cli.subcommands.sitemaps.SiteMapsSubmitCommand;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.StringJoiner;
 
 /**
  * WebmastersCommandRunner
@@ -25,21 +31,13 @@ import java.util.List;
 @Component
 public class WebmastersCommandRunner implements CommandLineRunner {
 
-    @Autowired
-    private ApplicationContext context;
+    @Autowired private ApplicationContext context;
 
     /**
      * 引数によって実行するオブジェクトを切り替える
      */
     @Argument(handler = SubCommandHandler.class)
-    @SubCommands(
-            {
-                @SubCommand(name = "sitemaps.list", impl = SiteMapsListCommand.class),
-                @SubCommand(name = "sitemaps.delete", impl = SiteMapsDeleteCommand.class),
-                @SubCommand(name = "sitemaps.get", impl = SiteMapsGetCommand.class),
-                @SubCommand(name = "sitemaps.submit", impl = SiteMapsSubmitCommand.class),
-                @SubCommand(name = "search.analytics", impl = SearchAnalyticsCommand.class),
-            })
+    @SubCommands({@SubCommand(name = "sitemaps.list", impl = SiteMapsListCommand.class), @SubCommand(name = "sitemaps.delete", impl = SiteMapsDeleteCommand.class), @SubCommand(name = "sitemaps.get", impl = SiteMapsGetCommand.class), @SubCommand(name = "sitemaps.submit", impl = SiteMapsSubmitCommand.class), @SubCommand(name = "search.analytics", impl = SearchAnalyticsCommand.class),})
     private Command command;
 
     @Override
@@ -53,9 +51,89 @@ public class WebmastersCommandRunner implements CommandLineRunner {
                 cmdArgs.add(arg);
             }
         }
-        new CmdLineParser(this).parseArgument(cmdArgs);
-        AutowireCapableBeanFactory autowireCapableBeanFactory = context.getAutowireCapableBeanFactory();
-        autowireCapableBeanFactory.autowireBean(this.command);
-        this.command.execute();
+        if (cmdArgs.isEmpty()) {
+            printUsage();
+            return;
+        }
+        CmdLineParser parser = new CmdLineParser(this);
+        try {
+            parser.parseArgument(cmdArgs);
+            AutowireCapableBeanFactory autowireCapableBeanFactory = context.getAutowireCapableBeanFactory();
+            autowireCapableBeanFactory.autowireBean(this.command);
+            this.command.execute();
+        } catch (CmdLineException e) {
+            System.err.println(e.getMessage());
+            parser.printUsage(System.err);
+            return;
+        }
     }
+
+    /**
+     * printUsage
+     */
+    private void printUsage() {
+
+//        // packageName
+//        String scanPackageName = ClassUtils.getPackageName(this.getClass());
+//        // assignableClass
+//        Class<Command> assignableClass = Command.class;
+//        Set<Class<Command>> classes = scanPackage(scanPackageName, assignableClass);
+//        for (Class<Command> clazz : classes) {
+//            try {
+//                Command command = clazz.newInstance();
+//                command.usage();
+//            } catch (InstantiationException | IllegalAccessException e) {
+//                throw new IllegalStateException(e);
+//            }
+//        }
+
+        StrBuilder sb = new StrBuilder();
+        sb.appendln("usage: xyz.monotalk.google.webmaster.cli.CliApplication");
+        sb.appendNewLine();
+        Field field;
+        try {
+            field = this.getClass().getDeclaredField("command");
+        } catch (NoSuchFieldException e) {
+            throw new IllegalStateException(e);
+        }
+        SubCommands subCommands = field.getAnnotation(SubCommands.class);
+        StringJoiner joiner = new StringJoiner(",", "{", "}");
+        Arrays.stream(subCommands.value()).forEach(e -> joiner.add(e.name()));
+        sb.appendln("         " + joiner.toString());
+        sb.appendln("         " + "...");
+        sb.appendNewLine();
+        sb.appendln("positional arguments:");
+        sb.appendln("  " + joiner.toString());
+        Arrays.stream(subCommands.value()).map(e -> {
+            try {
+                return Pair.of(e.name(), (Command) e.impl().newInstance());
+            } catch (InstantiationException | IllegalAccessException ex) {
+                throw new IllegalStateException(ex);
+            }
+        }).forEach(e -> {
+            sb.appendln("    " + e.getLeft() + "    " + e.getRight().usage());
+        });
+        sb.appendln("optional arguments:");
+        sb.appendln("    " + "-?, --help" + "    " + "show this help message and exit");
+        System.out.println(sb.toString());
+    }
+//    /**
+//     * scanPackage
+//     *
+//     * @param scanPackageName
+//     * @param assignableClass
+//     * @return
+//     */
+//    private <T> Set<Class<T>> scanPackage(String scanPackageName, Class<T> assignableClass) {
+//        ClassPathScanningCandidateComponentProvider scanner = new ClassPathScanningCandidateComponentProvider(true);
+//        scanner.addIncludeFilter(new AssignableTypeFilter(assignableClass));
+//        Set<Class<T>> classes = scanner.findCandidateComponents(scanPackageName).stream().map(BeanDefinition::getBeanClassName).map(cn -> {
+//            try {
+//                return (Class<T>) ClassUtils.forName(cn, getClass().getClassLoader());
+//            } catch (ReflectiveOperationException e) {
+//                throw new RuntimeException(e);
+//            }
+//        }).collect(Collectors.toSet());
+//        return classes;
+//    }
 }

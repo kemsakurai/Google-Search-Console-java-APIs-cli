@@ -41,4 +41,9 @@ public class SitesCommand implements Command {
         }
         System.out.print("-------------------------siteList");
     }
+
+    @Override
+    public String usage() {
+        return null;
+    }
 }

@@ -39,4 +39,9 @@ public class SiteMapsDeleteCommand implements Command {
         }
         System.out.println("Done.");
     }
+
+    @Override
+    public String usage() {
+        return null;
+    }
 }

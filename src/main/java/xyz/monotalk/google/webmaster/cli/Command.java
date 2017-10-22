@@ -8,4 +8,11 @@ public interface Command {
      * Main Method
      */
     void execute();
+
+    /**
+     * Usage
+     * @return
+     */
+    String usage();
+
 }

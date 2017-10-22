@@ -43,4 +43,9 @@ public class SiteMapsListCommand implements Command {
             throw new IllegalStateException(e);
         }
     }
+
+    @Override
+    public String usage() {
+        return null;
+    }
 }
