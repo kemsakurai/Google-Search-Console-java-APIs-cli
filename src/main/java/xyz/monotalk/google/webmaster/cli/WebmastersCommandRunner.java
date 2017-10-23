@@ -5,6 +5,7 @@ import org.apache.commons.text.StrBuilder;
 import org.kohsuke.args4j.Argument;
 import org.kohsuke.args4j.CmdLineException;
 import org.kohsuke.args4j.CmdLineParser;
+import org.kohsuke.args4j.Option;
 import org.kohsuke.args4j.spi.SubCommand;
 import org.kohsuke.args4j.spi.SubCommandHandler;
 import org.kohsuke.args4j.spi.SubCommands;
@@ -25,6 +26,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.StringJoiner;
 
+import static java.lang.System.out;
+
 /**
  * WebmastersCommandRunner
  */
@@ -37,8 +40,14 @@ public class WebmastersCommandRunner implements CommandLineRunner {
      * 引数によって実行するオブジェクトを切り替える
      */
     @Argument(handler = SubCommandHandler.class)
-    @SubCommands({@SubCommand(name = "sitemaps.list", impl = SiteMapsListCommand.class), @SubCommand(name = "sitemaps.delete", impl = SiteMapsDeleteCommand.class), @SubCommand(name = "sitemaps.get", impl = SiteMapsGetCommand.class), @SubCommand(name = "sitemaps.submit", impl = SiteMapsSubmitCommand.class), @SubCommand(name = "search.analytics", impl = SearchAnalyticsCommand.class),})
+    @SubCommands({@SubCommand(name = "webmasters.sitemaps.list", impl = SiteMapsListCommand.class), @SubCommand(
+            name = "webmasters.sitemaps.delete", impl = SiteMapsDeleteCommand.class), @SubCommand(
+            name = "webmasters.sitemaps.get", impl = SiteMapsGetCommand.class), @SubCommand(
+            name = "webmasters.sitemaps.submit", impl = SiteMapsSubmitCommand.class), @SubCommand(
+            name = "webmasters.searchanalytics.query", impl = SearchAnalyticsCommand.class),})
     private Command command;
+
+    @Option(name = "-?", aliases = "--help", usage = "show this help message and exit") private boolean usageFlag;
 
     @Override
     public void run(String... args) throws Exception {
@@ -52,41 +61,42 @@ public class WebmastersCommandRunner implements CommandLineRunner {
             }
         }
         if (cmdArgs.isEmpty()) {
-            printUsage();
+            CmdLineParser parser = new CmdLineParser(this);
+            parser.parseArgument(cmdArgs);
+            out.println("--------------------------------------------------------------------------");
+            out.println(usage());
+            parser.printUsage(out);
+            out.println("------------");
             return;
         }
         CmdLineParser parser = new CmdLineParser(this);
         try {
             parser.parseArgument(cmdArgs);
+            // Output help
+            if (usageFlag) {
+                out.println("--------------------------------------------------------------------------");
+                out.println(usage());
+                parser.printUsage(out);
+                out.println("---------------------------");
+                return;
+            }
             AutowireCapableBeanFactory autowireCapableBeanFactory = context.getAutowireCapableBeanFactory();
             autowireCapableBeanFactory.autowireBean(this.command);
             this.command.execute();
         } catch (CmdLineException e) {
-            System.err.println(e.getMessage());
-            parser.printUsage(System.err);
+            out.println("error occurred: " + e.getMessage());
+            out.println("--------------------------------------------------------------------------");
+            out.println(usage());
+            parser.printUsage(out);
+            out.println("------------");
             return;
         }
     }
 
     /**
-     * printUsage
+     * usage
      */
-    private void printUsage() {
-
-//        // packageName
-//        String scanPackageName = ClassUtils.getPackageName(this.getClass());
-//        // assignableClass
-//        Class<Command> assignableClass = Command.class;
-//        Set<Class<Command>> classes = scanPackage(scanPackageName, assignableClass);
-//        for (Class<Command> clazz : classes) {
-//            try {
-//                Command command = clazz.newInstance();
-//                command.usage();
-//            } catch (InstantiationException | IllegalAccessException e) {
-//                throw new IllegalStateException(e);
-//            }
-//        }
-
+    private String usage() {
         StrBuilder sb = new StrBuilder();
         sb.appendln("usage: xyz.monotalk.google.webmaster.cli.CliApplication");
         sb.appendNewLine();
@@ -99,10 +109,11 @@ public class WebmastersCommandRunner implements CommandLineRunner {
         SubCommands subCommands = field.getAnnotation(SubCommands.class);
         StringJoiner joiner = new StringJoiner(",", "{", "}");
         Arrays.stream(subCommands.value()).forEach(e -> joiner.add(e.name()));
-        sb.appendln("         " + joiner.toString());
-        sb.appendln("         " + "...");
+        sb.appendln("  " + joiner.toString());
+        sb.appendln("  " + "...");
         sb.appendNewLine();
         sb.appendln("positional arguments:");
+        sb.appendNewLine();
         sb.appendln("  " + joiner.toString());
         Arrays.stream(subCommands.value()).map(e -> {
             try {
@@ -113,27 +124,9 @@ public class WebmastersCommandRunner implements CommandLineRunner {
         }).forEach(e -> {
             sb.appendln("    " + e.getLeft() + "    " + e.getRight().usage());
         });
-        sb.appendln("optional arguments:");
-        sb.appendln("    " + "-?, --help" + "    " + "show this help message and exit");
-        System.out.println(sb.toString());
+        sb.appendNewLine();
+        sb.append("optional arguments:");
+        sb.appendNewLine();
+        return sb.toString();
     }
-//    /**
-//     * scanPackage
-//     *
-//     * @param scanPackageName
-//     * @param assignableClass
-//     * @return
-//     */
-//    private <T> Set<Class<T>> scanPackage(String scanPackageName, Class<T> assignableClass) {
-//        ClassPathScanningCandidateComponentProvider scanner = new ClassPathScanningCandidateComponentProvider(true);
-//        scanner.addIncludeFilter(new AssignableTypeFilter(assignableClass));
-//        Set<Class<T>> classes = scanner.findCandidateComponents(scanPackageName).stream().map(BeanDefinition::getBeanClassName).map(cn -> {
-//            try {
-//                return (Class<T>) ClassUtils.forName(cn, getClass().getClassLoader());
-//            } catch (ReflectiveOperationException e) {
-//                throw new RuntimeException(e);
-//            }
-//        }).collect(Collectors.toSet());
-//        return classes;
-//    }
 }
