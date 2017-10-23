@@ -1,7 +1,6 @@
 package xyz.monotalk.google.webmaster.cli.subcommands;
 
 import com.google.api.services.webmasters.model.*;
-import org.kohsuke.args4j.Option;
 import org.springframework.beans.factory.annotation.Autowired;
 import xyz.monotalk.google.webmaster.cli.Command;
 import xyz.monotalk.google.webmaster.cli.WebmastersFactory;
@@ -13,15 +12,11 @@ import java.util.List;
 import static java.lang.System.out;
 
 /**
- * SearchAnalyticsExample
+ * SearchAnalyticsCommand
  */
 public class SearchAnalyticsCommand implements Command {
 
-    @Autowired
-    private WebmastersFactory factory;
-
-    @Option(name = "-id", usage = "ID to delete")
-    private String id = "setme";
+    @Autowired private WebmastersFactory factory;
 
     @Override
     public void execute() {
