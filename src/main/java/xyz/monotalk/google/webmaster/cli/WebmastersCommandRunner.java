@@ -2,23 +2,15 @@ package xyz.monotalk.google.webmaster.cli;
 
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.text.StrBuilder;
-import org.kohsuke.args4j.Argument;
-import org.kohsuke.args4j.CmdLineException;
-import org.kohsuke.args4j.CmdLineParser;
-import org.kohsuke.args4j.Option;
-import org.kohsuke.args4j.spi.SubCommand;
-import org.kohsuke.args4j.spi.SubCommandHandler;
-import org.kohsuke.args4j.spi.SubCommands;
+import org.kohsuke.args4j.*;
+import org.kohsuke.args4j.spi.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 import xyz.monotalk.google.webmaster.cli.subcommands.SearchAnalyticsCommand;
-import xyz.monotalk.google.webmaster.cli.subcommands.sitemaps.SiteMapsDeleteCommand;
-import xyz.monotalk.google.webmaster.cli.subcommands.sitemaps.SiteMapsGetCommand;
-import xyz.monotalk.google.webmaster.cli.subcommands.sitemaps.SiteMapsListCommand;
-import xyz.monotalk.google.webmaster.cli.subcommands.sitemaps.SiteMapsSubmitCommand;
+import xyz.monotalk.google.webmaster.cli.subcommands.sitemaps.*;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -26,7 +18,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.StringJoiner;
 
-import static java.lang.System.out;
+import static java.lang.System.err;
 
 /**
  * WebmastersCommandRunner
@@ -39,7 +31,7 @@ public class WebmastersCommandRunner implements CommandLineRunner {
     /**
      * 引数によって実行するオブジェクトを切り替える
      */
-    @Argument(handler = SubCommandHandler.class)
+    @Argument(handler = SubCommandHandler.class, metaVar = "subCommands")
     @SubCommands({@SubCommand(name = "webmasters.sitemaps.list", impl = SiteMapsListCommand.class), @SubCommand(
             name = "webmasters.sitemaps.delete", impl = SiteMapsDeleteCommand.class), @SubCommand(
             name = "webmasters.sitemaps.get", impl = SiteMapsGetCommand.class), @SubCommand(
@@ -63,10 +55,10 @@ public class WebmastersCommandRunner implements CommandLineRunner {
         if (cmdArgs.isEmpty()) {
             CmdLineParser parser = new CmdLineParser(this);
             parser.parseArgument(cmdArgs);
-            out.println("--------------------------------------------------------------------------");
-            out.println(usage());
-            parser.printUsage(out);
-            out.println("------------");
+            err.println("--------------------------------------------------------------------------");
+            err.println(usage());
+            parser.printUsage(err);
+            err.println("------------");
             return;
         }
         CmdLineParser parser = new CmdLineParser(this);
@@ -74,21 +66,21 @@ public class WebmastersCommandRunner implements CommandLineRunner {
             parser.parseArgument(cmdArgs);
             // Output help
             if (usageFlag) {
-                out.println("--------------------------------------------------------------------------");
-                out.println(usage());
-                parser.printUsage(out);
-                out.println("---------------------------");
+                err.println("--------------------------------------------------------------------------");
+                err.println(usage());
+                parser.printUsage(err);
+                err.println("---------------------------");
                 return;
             }
             AutowireCapableBeanFactory autowireCapableBeanFactory = context.getAutowireCapableBeanFactory();
             autowireCapableBeanFactory.autowireBean(this.command);
             this.command.execute();
         } catch (CmdLineException e) {
-            out.println("error occurred: " + e.getMessage());
-            out.println("--------------------------------------------------------------------------");
-            out.println(usage());
-            parser.printUsage(out);
-            out.println("------------");
+            err.println("error occurred: " + e.getMessage());
+            err.println("--------------------------------------------------------------------------");
+            err.println(usage());
+            parser.printUsage(err);
+            err.println("------------");
             return;
         }
     }
