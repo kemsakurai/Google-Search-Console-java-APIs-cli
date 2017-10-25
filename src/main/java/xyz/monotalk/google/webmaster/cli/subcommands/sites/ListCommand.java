@@ -1,4 +1,4 @@
-package xyz.monotalk.google.webmaster.cli.subcommands;
+package xyz.monotalk.google.webmaster.cli.subcommands.sites;
 
 import com.google.api.services.webmasters.Webmasters;
 import com.google.api.services.webmasters.model.SitesListResponse;
@@ -10,10 +10,10 @@ import xyz.monotalk.google.webmaster.cli.WebmastersFactory;
 import java.io.IOException;
 
 /**
- * SitesCommand
+ * ListCommand
  */
 @Component
-public class SitesCommand implements Command {
+public class ListCommand implements Command {
 
     @Autowired
     private WebmastersFactory factory;

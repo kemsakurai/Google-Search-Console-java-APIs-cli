@@ -1,4 +1,4 @@
-package xyz.monotalk.google.webmaster.cli.subcommands;
+package xyz.monotalk.google.webmaster.cli.subcommands.urlcrawlerrorssamples;
 
 import com.google.api.services.webmasters.Webmasters;
 import com.google.api.services.webmasters.model.UrlCrawlErrorsSample;
@@ -14,9 +14,9 @@ import java.util.List;
 import static java.lang.System.out;
 
 /**
- * UrlsCrawlErrorsSamplesCommand
+ * ListCommand
  */
-public class UrlsCrawlErrorsSamplesCommand implements Command {
+public class ListCommand implements Command {
 
     @Autowired
     private WebmastersFactory factory;

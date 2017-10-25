@@ -10,16 +10,13 @@ import xyz.monotalk.google.webmaster.cli.WebmastersFactory;
 import java.io.IOException;
 
 /**
- * SiteMapsGetCommand
+ * GetCommand
  */
-public class SiteMapsGetCommand implements Command {
+public class GetCommand implements Command {
 
-    @Autowired
-    private WebmastersFactory factory;
-    @Option(name = "-siteUrl", usage = "Url of site", required = true)
-    private String siteUrl = null;
-    @Option(name = "-feedPath", usage = "Url of feedPath", required = true)
-    private String feedPath = null;
+    @Autowired private WebmastersFactory factory;
+    @Option(name = "-siteUrl", usage = "Url of site", required = true) private String siteUrl = null;
+    @Option(name = "-feedPath", usage = "Url of feedPath", required = true) private String feedPath = null;
 
     @Override
     public void execute() {
@@ -45,6 +42,6 @@ public class SiteMapsGetCommand implements Command {
 
     @Override
     public String usage() {
-        return null;
+        return "Retrieves information about a specific sitemap.";
     }
 }

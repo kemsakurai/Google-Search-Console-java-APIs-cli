@@ -1,4 +1,4 @@
-package xyz.monotalk.google.webmaster.cli.subcommands;
+package xyz.monotalk.google.webmaster.cli.subcommands.searchanalytics;
 
 import com.google.api.services.webmasters.model.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,9 +12,9 @@ import java.util.List;
 import static java.lang.System.out;
 
 /**
- * SearchAnalyticsCommand
+ * QueryCommand
  */
-public class SearchAnalyticsCommand implements Command {
+public class QueryCommand implements Command {
 
     @Autowired private WebmastersFactory factory;
 
@@ -68,7 +68,7 @@ public class SearchAnalyticsCommand implements Command {
 
     @Override
     public String usage() {
-        return null;
+        return "Query your data with filters and parameters that you define. Returns zero or more rows grouped by the row keys that you define. You must define a date range of one or more days. When date is one of the group by values, any days without data are omitted from the result list. If you need to know which days have data, issue a broad date range query grouped by date for any metric, and see which day rows are returned.";
     }
 
     private static List<ApiDimensionFilterGroup> getApiDimensionFilterGroups() {

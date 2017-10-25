@@ -10,10 +10,10 @@ import xyz.monotalk.google.webmaster.cli.WebmastersFactory;
 import java.io.IOException;
 
 /**
- * SiteMapsSubmitCommand
+ * SubmitCommand
  */
 @Component
-public class SiteMapsSubmitCommand implements Command {
+public class SubmitCommand implements Command {
 
     @Autowired private WebmastersFactory factory;
     @Option(name = "-siteUrl", usage = "Url of site", required = true) private String siteUrl = null;

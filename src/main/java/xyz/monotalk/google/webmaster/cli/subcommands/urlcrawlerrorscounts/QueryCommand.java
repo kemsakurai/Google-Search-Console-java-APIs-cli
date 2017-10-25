@@ -1,4 +1,4 @@
-package xyz.monotalk.google.webmaster.cli.subcommands;
+package xyz.monotalk.google.webmaster.cli.subcommands.urlcrawlerrorscounts;
 
 import com.google.api.services.webmasters.Webmasters;
 import com.google.api.services.webmasters.model.UrlCrawlErrorCount;
@@ -14,15 +14,14 @@ import java.util.List;
 import static java.lang.System.out;
 
 /**
- * UrlCrawErrorsCountsCommand
+ * QueryCommand
  */
-public class UrlCrawErrorsCountsCommand implements Command {
+public class QueryCommand implements Command {
+
+    @Autowired private WebmastersFactory factory;
 
     @Autowired
-    private WebmastersFactory factory;
-
-    @Autowired
-    public UrlCrawErrorsCountsCommand(WebmastersFactory factory) {
+    public QueryCommand(WebmastersFactory factory) {
         this.factory = factory;
     }
 

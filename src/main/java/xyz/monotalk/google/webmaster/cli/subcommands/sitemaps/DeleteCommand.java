@@ -10,17 +10,14 @@ import xyz.monotalk.google.webmaster.cli.WebmastersFactory;
 import java.io.IOException;
 
 /**
- * SiteMapsDeleteCommand
+ * DeleteCommand
  */
 @Component
-public class SiteMapsDeleteCommand implements Command {
+public class DeleteCommand implements Command {
 
-    @Autowired
-    private WebmastersFactory factory;
-    @Option(name = "-siteUrl", usage = "Url of site", required = true)
-    private String siteUrl = null;
-    @Option(name = "-feedPath", usage = "Url of feedPath", required = true)
-    private String feedPath = null;
+    @Autowired private WebmastersFactory factory;
+    @Option(name = "-siteUrl", usage = "Url of site", required = true) private String siteUrl = null;
+    @Option(name = "-feedPath", usage = "Url of feedPath", required = true) private String feedPath = null;
 
     @Override
     public void execute() {
@@ -42,6 +39,6 @@ public class SiteMapsDeleteCommand implements Command {
 
     @Override
     public String usage() {
-        return null;
+        return "Deletes a sitemap from this site.";
     }
 }

@@ -2,15 +2,18 @@ package xyz.monotalk.google.webmaster.cli;
 
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.text.StrBuilder;
-import org.kohsuke.args4j.*;
-import org.kohsuke.args4j.spi.*;
+import org.kohsuke.args4j.Argument;
+import org.kohsuke.args4j.CmdLineException;
+import org.kohsuke.args4j.CmdLineParser;
+import org.kohsuke.args4j.Option;
+import org.kohsuke.args4j.spi.SubCommand;
+import org.kohsuke.args4j.spi.SubCommandHandler;
+import org.kohsuke.args4j.spi.SubCommands;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
-import xyz.monotalk.google.webmaster.cli.subcommands.SearchAnalyticsCommand;
-import xyz.monotalk.google.webmaster.cli.subcommands.sitemaps.*;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -32,11 +35,33 @@ public class WebmastersCommandRunner implements CommandLineRunner {
      * 引数によって実行するオブジェクトを切り替える
      */
     @Argument(handler = SubCommandHandler.class, metaVar = "subCommands")
-    @SubCommands({@SubCommand(name = "webmasters.sitemaps.list", impl = SiteMapsListCommand.class), @SubCommand(
-            name = "webmasters.sitemaps.delete", impl = SiteMapsDeleteCommand.class), @SubCommand(
-            name = "webmasters.sitemaps.get", impl = SiteMapsGetCommand.class), @SubCommand(
-            name = "webmasters.sitemaps.submit", impl = SiteMapsSubmitCommand.class), @SubCommand(
-            name = "webmasters.searchanalytics.query", impl = SearchAnalyticsCommand.class),})
+    @SubCommands({@SubCommand(name = "webmasters.searchanalytics.query",
+            impl = xyz.monotalk.google.webmaster.cli.subcommands.searchanalytics.QueryCommand.class), @SubCommand(
+            name = "webmasters.sitemaps.list",
+            impl = xyz.monotalk.google.webmaster.cli.subcommands.sitemaps.ListCommand.class), @SubCommand(
+            name = "webmasters.sitemaps.delete",
+            impl = xyz.monotalk.google.webmaster.cli.subcommands.sitemaps.DeleteCommand.class), @SubCommand(
+            name = "webmasters.sitemaps.get",
+            impl = xyz.monotalk.google.webmaster.cli.subcommands.sitemaps.GetCommand.class), @SubCommand(
+            name = "webmasters.sitemaps.submit",
+            impl = xyz.monotalk.google.webmaster.cli.subcommands.sitemaps.SubmitCommand.class), @SubCommand(
+            name = "webmasters.sites.add",
+            impl = xyz.monotalk.google.webmaster.cli.subcommands.sites.AddCommand.class), @SubCommand(
+            name = "webmasters.sites.delete",
+            impl = xyz.monotalk.google.webmaster.cli.subcommands.sites.DeleteCommand.class), @SubCommand(
+            name = "webmasters.sites.get",
+            impl = xyz.monotalk.google.webmaster.cli.subcommands.sites.GetCommand.class), @SubCommand(
+            name = "webmasters.sites.list",
+            impl = xyz.monotalk.google.webmaster.cli.subcommands.sites.ListCommand.class), @SubCommand(
+            name = "webmasters.urlcrawlerrorscounts.query",
+            impl = xyz.monotalk.google.webmaster.cli.subcommands.urlcrawlerrorscounts.QueryCommand.class), @SubCommand(
+            name = "webmasters.urlcrawlerrorssamples.get",
+            impl = xyz.monotalk.google.webmaster.cli.subcommands.urlcrawlerrorssamples.GetCommand.class), @SubCommand(
+            name = "webmasters.urlcrawlerrorssamples.list",
+            impl = xyz.monotalk.google.webmaster.cli.subcommands.urlcrawlerrorssamples.ListCommand.class), @SubCommand(
+            name = "webmasters.urlcrawlerrorssamples.markAsFixed",
+            impl = xyz.monotalk.google.webmaster.cli.subcommands.urlcrawlerrorssamples.MarkAsFixedCommand.class),})
+
     private Command command;
 
     @Option(name = "-?", aliases = "--help", usage = "show this help message and exit") private boolean usageFlag;
@@ -75,7 +100,7 @@ public class WebmastersCommandRunner implements CommandLineRunner {
             AutowireCapableBeanFactory autowireCapableBeanFactory = context.getAutowireCapableBeanFactory();
             autowireCapableBeanFactory.autowireBean(this.command);
             this.command.execute();
-        } catch (CmdLineException e) {
+        } catch (CmdLineArgmentException | CmdLineException e) {
             err.println("error occurred: " + e.getMessage());
             err.println("--------------------------------------------------------------------------");
             err.println(usage());
@@ -114,7 +139,7 @@ public class WebmastersCommandRunner implements CommandLineRunner {
                 throw new IllegalStateException(ex);
             }
         }).forEach(e -> {
-            sb.appendln("    " + e.getLeft() + "    " + e.getRight().usage());
+            sb.appendln("    " + e.getLeft() + "  |  " + e.getRight().usage());
         });
         sb.appendNewLine();
         sb.append("optional arguments:");

@@ -1,14 +1,14 @@
-package xyz.monotalk.google.webmaster.cli.subcommands;
+package xyz.monotalk.google.webmaster.cli.subcommands.sites;
 
 import xyz.monotalk.google.webmaster.cli.Command;
 
 /**
  * Created by kensakurai on 2017/05/10.
  */
-public class DeleteCommand implements Command {
+public class GetCommand implements Command {
     @Override
     public void execute() {
-
+        throw new UnsupportedOperationException("TODO not implemented..");
     }
     @Override
     public String usage() {

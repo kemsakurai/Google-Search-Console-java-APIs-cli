@@ -16,7 +16,7 @@
 |webmasters.sites.get|Retrieves information about specific site.|
 |webmasters.sites.list|Lists the user's Search Console sites.|
 |webmasters.urlcrawlerrorscounts.query|Retrieves a time series of the number of URL crawl errors per error category and platform.
-webmasters.urlcrawlerrorssamples.get|Retrieves details about crawl errors for a site's sample URL.|
+|webmasters.urlcrawlerrorssamples.get|Retrieves details about crawl errors for a site's sample URL.|
 |webmasters.urlcrawlerrorssamples.list|Lists a site's sample URLs for the specified crawl error category and platform.|
 |webmasters.urlcrawlerrorssamples.markAsFixed|Marks the provided site's sample URL as fixed, and removes it from the samples list.|
 
