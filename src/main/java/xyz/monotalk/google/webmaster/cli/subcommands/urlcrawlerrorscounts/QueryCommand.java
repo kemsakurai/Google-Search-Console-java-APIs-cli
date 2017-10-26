@@ -20,11 +20,6 @@ public class QueryCommand implements Command {
 
     @Autowired private WebmastersFactory factory;
 
-    @Autowired
-    public QueryCommand(WebmastersFactory factory) {
-        this.factory = factory;
-    }
-
     @Override
     public void execute() {
         Webmasters.Urlcrawlerrorscounts.Query request = null;

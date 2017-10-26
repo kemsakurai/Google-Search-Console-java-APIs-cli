@@ -27,7 +27,7 @@ public class ListCommand implements Command {
 
     @Autowired private WebmastersFactory factory;
 
-    @Option(name = "-siteUrl", usage = "Url of site", required = true, metaVar = "<siteUrl>",
+    @Option(name = "-siteUrl", usage = "Url of site", metaVar = "<siteUrl>", required = true,
             handler = URLOptionHandler.class) private URL siteUrl = null;
 
     @Option(name = "-format", usage = "Format of output ",
