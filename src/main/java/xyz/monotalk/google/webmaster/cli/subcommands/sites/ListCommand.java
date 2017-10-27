@@ -44,6 +44,6 @@ public class ListCommand implements Command {
 
     @Override
     public String usage() {
-        return null;
+        return "Lists the user's Search Console sites.";
     }
 }

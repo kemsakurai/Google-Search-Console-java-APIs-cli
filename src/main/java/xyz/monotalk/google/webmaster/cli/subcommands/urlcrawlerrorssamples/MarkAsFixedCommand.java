@@ -18,6 +18,6 @@ public class MarkAsFixedCommand implements Command {
 
     @Override
     public String usage() {
-        return null;
+        return "Marks the provided site's sample URL as fixed, and removes it from the samples list.";
     }
 }

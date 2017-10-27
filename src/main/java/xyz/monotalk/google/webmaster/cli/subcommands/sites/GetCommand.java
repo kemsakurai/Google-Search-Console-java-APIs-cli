@@ -12,6 +12,6 @@ public class GetCommand implements Command {
     }
     @Override
     public String usage() {
-        return null;
+        return "Retrieves information about specific site.";
     }
 }

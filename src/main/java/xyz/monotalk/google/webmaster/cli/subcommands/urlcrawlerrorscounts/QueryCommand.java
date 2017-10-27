@@ -63,6 +63,6 @@ public class QueryCommand implements Command {
 
     @Override
     public String usage() {
-        return null;
+        return "Retrieves a time series of the number of URL crawl errors per error category and platform.";
     }
 }

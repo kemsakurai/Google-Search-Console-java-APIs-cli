@@ -49,6 +49,6 @@ public class ListCommand implements Command {
 
     @Override
     public String usage() {
-        return null;
+        return "Lists a site's sample URLs for the specified crawl error category and platform.";
     }
 }

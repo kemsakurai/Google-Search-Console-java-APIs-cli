@@ -12,6 +12,6 @@ public class AddCommand implements Command {
     }
     @Override
     public String usage() {
-        return null;
+        return "Adds a site to the set of the user's sites in Search Console.";
     }
 }

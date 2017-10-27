@@ -12,6 +12,6 @@ public class DeleteCommand implements Command {
     }
     @Override
     public String usage() {
-        return null;
+        return "Removes a site from the set of the user's Search Console sites.";
     }
 }

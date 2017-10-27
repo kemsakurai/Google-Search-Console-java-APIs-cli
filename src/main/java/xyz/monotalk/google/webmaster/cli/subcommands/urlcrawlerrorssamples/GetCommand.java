@@ -19,6 +19,6 @@ public class GetCommand implements Command {
 
     @Override
     public String usage() {
-        return null;
+        return "Retrieves details about crawl errors for a site's sample URL.";
     }
 }
