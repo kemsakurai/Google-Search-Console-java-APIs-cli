@@ -2,22 +2,18 @@ package xyz.monotalk.google.webmaster.cli.subcommands.sitemaps;
 
 import com.google.api.services.webmasters.Webmasters;
 import com.google.api.services.webmasters.model.SitemapsListResponse;
-import org.apache.commons.lang3.StringUtils;
 import org.kohsuke.args4j.CmdLineException;
 import org.kohsuke.args4j.Option;
 import org.kohsuke.args4j.spi.URLOptionHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import xyz.monotalk.google.webmaster.cli.CmdLineArgmentException;
 import xyz.monotalk.google.webmaster.cli.Command;
+import xyz.monotalk.google.webmaster.cli.Format;
+import xyz.monotalk.google.webmaster.cli.ResponseWriter;
 import xyz.monotalk.google.webmaster.cli.WebmastersFactory;
 
-import java.io.BufferedWriter;
 import java.io.IOException;
 import java.net.URL;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 
 /**
  * ListCommand
@@ -51,40 +47,9 @@ public class ListCommand implements Command {
         } catch (IOException e) {
             throw new IllegalStateException(e);
         }
-        // Output
-        try {
-            switch (format) {
-                // for format console
-                case CONSOLE:
-                    System.out.println(response.toPrettyString());
-                    break;
-                // for format json
-                case JSON:
-                    if (StringUtils.isEmpty(filePath)) {
-                        throw new CmdLineArgmentException("For JSON format, filepath is mandatory.");
-                    }
-                    String json = response.toPrettyString();
-                    Path path = Paths.get(filePath);
-                    try (BufferedWriter writer = Files.newBufferedWriter(path)) {
-                        writer.write(json);
-                        writer.flush();
-                    }
-                    break;
-                default:
-                    throw new AssertionError();
-            }
-        } catch (IOException e) {
-            throw new IllegalStateException(e);
-        }
+        ResponseWriter.writeJson(response, format, filePath);
     }
 
-    /**
-     * Format enum for Option
-     */
-
-    public enum Format {
-        CONSOLE, JSON;
-    }
 
     @Override
     public String usage() {
