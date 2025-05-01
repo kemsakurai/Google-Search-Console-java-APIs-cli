@@ -2,46 +2,63 @@ package xyz.monotalk.google.webmaster.cli.subcommands.sitemaps;
 
 import com.google.api.services.webmasters.Webmasters;
 import com.google.api.services.webmasters.model.WmxSitemap;
+import org.kohsuke.args4j.CmdLineException;
 import org.kohsuke.args4j.Option;
+import org.kohsuke.args4j.spi.URLOptionHandler;
 import org.springframework.beans.factory.annotation.Autowired;
-import xyz.monotalk.google.webmaster.cli.Command;
-import xyz.monotalk.google.webmaster.cli.WebmastersFactory;
+import org.springframework.stereotype.Component;
+import xyz.monotalk.google.webmaster.cli.*;
 
 import java.io.IOException;
+import java.net.URL;
 
 /**
  * GetCommand
  */
+@Component
 public class GetCommand implements Command {
 
-    @Autowired private WebmastersFactory factory;
-    @Option(name = "-siteUrl", usage = "Url of site", required = true) private String siteUrl = null;
-    @Option(name = "-feedPath", usage = "Url of feedPath", required = true) private String feedPath = null;
+    @Autowired
+    protected WebmastersFactory factory;
+
+    @Option(name = "-siteUrl", usage = "Site URL", metaVar = "<siteUrl>", required = true,
+            handler = URLOptionHandler.class)
+    protected URL siteUrl = null;
+
+    @Option(name = "-feedpath", usage = "Feed path", required = true)
+    protected String feedpath = null;
+
+    @Option(name = "-format", usage = "Output format", metaVar = "[console or json]")
+    protected Format format = Format.CONSOLE;
+
+    @Option(name = "-filePath", usage = "JSON file path", metaVar = "<filename>", depends = {"-format"})
+    protected String filePath = null;
 
     @Override
-    public void execute() {
-        Webmasters webmasters = factory.create();
-        Webmasters.Sitemaps.Get get;
-        try {
-            get = webmasters.sitemaps().get(siteUrl, feedPath);
-        } catch (IOException e) {
-            throw new IllegalStateException(e);
+    public void execute() throws CmdLineException {
+        if (siteUrl == null) {
+            throw new CmdLineArgmentException("Site URL is required");
         }
-        WmxSitemap wmxSitemap;
-        try {
-            wmxSitemap = get.execute();
-        } catch (IOException e) {
-            throw new IllegalStateException(e);
+        if (feedpath == null) {
+            throw new CmdLineArgmentException("Feed path is required");
         }
+
         try {
-            System.out.println(wmxSitemap.toPrettyString());
+            Webmasters webmasters = factory.create();
+            if (webmasters == null) {
+                throw new CmdLineIOException(new IOException("Failed to create Webmasters client"));
+            }
+            
+            Webmasters.Sitemaps.Get request = webmasters.sitemaps().get(siteUrl.toString(), feedpath);
+            WmxSitemap response = request.execute();
+            ResponseWriter.writeJson(response, format, filePath);
         } catch (IOException e) {
-            throw new IllegalStateException(e);
+            throw new CmdLineIOException(e);
         }
     }
 
     @Override
     public String usage() {
-        return "Retrieves information about a specific sitemap.";
+        return "Gets information about a specific sitemap.";
     }
 }
