@@ -35,7 +35,7 @@ Google Search Console APIにアクセスするためのコマンドラインツ�
 
 ### 前提条件
 - Java 8以上
-- Gradle 2.2.1以上
+- Gradle 7.0以上
 
 ### ビルド方法
 
