@@ -1,35 +1,80 @@
-# Google Search Console java APIs CLI
+# Google Search Console Java APIs CLI
+
+Google Search Console APIにアクセスするためのコマンドラインツールです。Spring Bootを使用して実装されています。
 
 ------------------------------------------------------------
-## APIs
+## 特徴
+
+- Google Search Console APIへのアクセスを提供
+- Spring Bootベースのコマンドラインインターフェース
+- 複数の出力形式（コンソール出力、JSONファイル）に対応
+- OAuth2.0認証による安全なAPI呼び出し
+
+------------------------------------------------------------
+## 対応API
 [Google APIs Explorer](https://developers.google.com/apis-explorer/#p/webmasters/v3/)
 
-|name|description|
+|コマンド|説明|
 |:---|:----------|
-|webmasters.searchanalytics.query|Query your data with filters and parameters that you define. Returns zero or more rows grouped by the row keys that you define. You must define a date range of one or more days. When date is one of the group by values, any days without data are omitted from the result list. If you need to know which days have data, issue a broad date range query grouped by date for any metric, and see which day rows are returned.|
-|webmasters.sitemaps.delete|Deletes a sitemap from this site.|
-|webmasters.sitemaps.get|Retrieves information about a specific sitemap.|
-|webmasters.sitemaps.list|Lists the sitemaps-entries submitted for this site, or included in the sitemap index file (if sitemapIndex is specified in the request).|
-|webmasters.sitemaps.submit|Submits a sitemap for a site.|
-|webmasters.sites.add|Adds a site to the set of the user's sites in Search Console.|
-|webmasters.sites.delete|Removes a site from the set of the user's Search Console sites.|
-|webmasters.sites.get|Retrieves information about specific site.|
-|webmasters.sites.list|Lists the user's Search Console sites.|
-|webmasters.urlcrawlerrorscounts.query|Retrieves a time series of the number of URL crawl errors per error category and platform.
-|webmasters.urlcrawlerrorssamples.get|Retrieves details about crawl errors for a site's sample URL.|
-|webmasters.urlcrawlerrorssamples.list|Lists a site's sample URLs for the specified crawl error category and platform.|
-|webmasters.urlcrawlerrorssamples.markAsFixed|Marks the provided site's sample URL as fixed, and removes it from the samples list.|
-
+|webmasters.searchanalytics.query|指定したフィルタやパラメータでデータをクエリします。定義した行キーでグループ化された0個以上の行を返します。1日以上の日付範囲を定義する必要があります。日付がグループ化の値の1つである場合、データのない日は結果リストから除外されます。|
+|webmasters.sitemaps.delete|サイトからサイトマップを削除します。|
+|webmasters.sitemaps.get|特定のサイトマップに関する情報を取得します。|
+|webmasters.sitemaps.list|このサイトに送信されたサイトマップエントリを一覧表示します。|
+|webmasters.sitemaps.submit|サイトにサイトマップを送信します。|
+|webmasters.sites.add|ユーザーのSearch Consoleサイトセットにサイトを追加します。|
+|webmasters.sites.delete|ユーザーのSearch Consoleサイトセットからサイトを削除します。|
+|webmasters.sites.get|特定のサイトに関する情報を取得します。|
+|webmasters.sites.list|ユーザーのSearch Consoleサイトを一覧表示します。|
+|webmasters.urlcrawlerrorscounts.query|エラーカテゴリとプラットフォームごとのURLクロールエラー数の時系列を取得します。|
+|webmasters.urlcrawlerrorssamples.get|サイトのサンプルURLに関するクロールエラーの詳細を取得します。|
+|webmasters.urlcrawlerrorssamples.list|指定されたクロールエラーカテゴリとプラットフォームのサイトのサンプルURLを一覧表示します。|
+|webmasters.urlcrawlerrorssamples.markAsFixed|提供されたサイトのサンプルURLを修正済みとしてマークし、サンプルリストから削除します。|
 
 ------------------------------------------------------------
-## Usage
-* **sitemaps.list** 
+## セットアップ
+
+### 前提条件
+- Java 8以上
+- Gradle 7.0以上
+
+### ビルド方法
 
 ```console
-java -jar xyz.monotalk.google.webmaster.cli-0.0.1.jar --application.keyFileLocation={your_key_file} sitemaps.list -siteUrl {your_site_url} 
+./gradlew clean build
 ```
 
+### Google API認証情報の設定
+1. [Google Cloud Console](https://console.cloud.google.com/)でプロジェクトを作成
+2. Search Console APIを有効化
+3. 認証情報（サービスアカウントキー）を作成しダウンロード
+4. ダウンロードしたJSONキーファイルをプロジェクトディレクトリに配置
+
+------------------------------------------------------------
+## 使用方法
+
+### 基本的なコマンド形式
+
 ```console
+java -jar xyz.monotalk.google.webmaster.cli-0.0.1.jar --application.keyFileLocation={認証キーファイルパス} {コマンド名} [オプション]
+```
+
+### 出力フォーマット
+
+多くのコマンドでは出力形式を指定できます：
+
+- `-format console`: コンソールに出力（デフォルト）
+- `-format json -filePath {ファイル名}`: 結果をJSONファイルとして保存
+
+### 使用例
+
+#### サイトマップ一覧の取得
+
+```console
+java -jar xyz.monotalk.google.webmaster.cli-0.0.1.jar --application.keyFileLocation=credentials.json webmasters.sitemaps.list -siteUrl https://www.example.com
+```
+
+レスポンス例:
+```json
 {
   "sitemap" : [ {
     "contents" : [ {
@@ -42,17 +87,57 @@ java -jar xyz.monotalk.google.webmaster.cli-0.0.1.jar --application.keyFileLocat
     "isSitemapsIndex" : false,
     "lastDownloaded" : "2017-10-19T19:17:56.817Z",
     "lastSubmitted" : "2017-10-04T22:47:39.579Z",
-    "path" : "your_site_url",
+    "path" : "https://www.example.com/sitemap.xml",
     "type" : "sitemap",
     "warnings" : "50"
   } ]
 }
 ```
 
-----------------------------------------------------------
-## Reference
+#### サイトのリスト表示       
 
-* [Reflections、Scannotation（とSpring）で、クラスパス上から特定のアノテーションが付与されたクラスを探し出す - CLOVER](http://d.hatena.ne.jp/Kazuhira/20150408/1428503151)
+```console
+java -jar xyz.monotalk.google.webmaster.cli-0.0.1.jar --application.keyFileLocation=service_account.json webmasters.sites.list
+```
 
-* [Java Code Example org.springframework.core.type.filter.AssignableTypeFilter](https://www.programcreek.com/java-api-examples/index.php?api=org.springframework.core.type.filter.AssignableTypeFilter)   
+#### サイトマップの送信
+
+```console
+java -jar xyz.monotalk.google.webmaster.cli-0.0.1.jar --application.keyFileLocation=credentials.json webmasters.sitemaps.submit -siteUrl https://www.example.com -feedPath https://www.example.com/sitemap.xml
+```
+
+#### 検索アナリティクスデータの取得
+
+```console
+java -jar xyz.monotalk.google.webmaster.cli-0.0.1.jar --application.keyFileLocation=credentials.json webmasters.searchanalytics.query -siteUrl https://www.example.com -startDate 2025-01-01 -endDate 2025-04-30
+```
+
+#### URLクロールエラー情報の取得
+
+```console
+java -jar xyz.monotalk.google.webmaster.cli-0.0.1.jar --application.keyFileLocation=credentials.json webmasters.urlcrawlerrorscounts.query -siteUrl https://www.example.com -format json -filePath errors.json
+```
+
+------------------------------------------------------------
+## プロジェクト構造
+
+- `xyz.monotalk.google.webmaster.cli` - メインパッケージ
+  - `CliApplication.java` - Spring Boot アプリケーションのエントリーポイント
+  - `Command.java` - CLI コマンドインターフェース 
+  - `WebmastersFactory.java` - Google Webmasters APIクライアント生成ファクトリ
+  - `WebmastersCommandRunner.java` - コマンド実行ハンドラ
+  - `Format.java` - 出力フォーマット設定用enum
+  - `ResponseWriter.java` - レスポンス出力処理
+  - サブコマンドは `xyz.monotalk.google.webmaster.cli.subcommands` パッケージ以下
+
+------------------------------------------------------------
+## ライセンス
+
+Apache License 2.0
+
+------------------------------------------------------------
+## 参考資料
+
+* [Google Search Console API ドキュメント](https://developers.google.com/webmaster-tools/search-console-api-original)
+* [Spring Boot ドキュメント](https://docs.spring.io/spring-boot/docs/current/reference/html/)
 
