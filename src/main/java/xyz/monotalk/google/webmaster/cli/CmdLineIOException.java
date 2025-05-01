@@ -5,10 +5,24 @@ package xyz.monotalk.google.webmaster.cli;
  */
 public class CmdLineIOException extends IllegalStateException {
     /**
-     * @param t
+     * @param message エラーメッセージ
      */
-    public CmdLineIOException(Throwable t) {
-        super(t);
+    public CmdLineIOException(String message) {
+        super(message);
     }
 
+    /**
+     * @param message エラーメッセージ
+     * @param cause 原因となった例外
+     */
+    public CmdLineIOException(String message, Throwable cause) {
+        super(message, cause);
+    }
+
+    /**
+     * @param cause 原因となった例外
+     */
+    public CmdLineIOException(Throwable cause) {
+        super(cause);
+    }
 }

@@ -15,9 +15,9 @@ import java.io.IOException;
 @Component
 public class DeleteCommand implements Command {
 
-    @Autowired private WebmastersFactory factory;
-    @Option(name = "-siteUrl", usage = "Url of site", required = true) private String siteUrl = null;
-    @Option(name = "-feedPath", usage = "Url of feedPath", required = true) private String feedPath = null;
+    @Autowired protected WebmastersFactory factory;
+    @Option(name = "-siteUrl", usage = "Url of site", required = true) protected String siteUrl = null;
+    @Option(name = "-feedPath", usage = "Url of feedPath", required = true) protected String feedPath = null;
 
     @Override
     public void execute() {

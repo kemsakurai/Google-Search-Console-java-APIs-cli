@@ -1,15 +1,11 @@
 package xyz.monotalk.google.webmaster.cli;
 
 import com.google.api.client.json.GenericJson;
-import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.io.FileUtils;
 
-import java.io.BufferedWriter;
+import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-
-import static java.lang.System.out;
+import java.nio.charset.StandardCharsets;
 
 /**
  * ResponseWriter
@@ -17,35 +13,53 @@ import static java.lang.System.out;
 public class ResponseWriter {
 
     /**
-     * Write Json according to Option
+     * Write response to JSON
      *
-     * @param response
-     * @param format
-     * @param filePath
+     * @param response response object
+     * @param format   output format
+     * @param path     file path for JSON output
+     * @throws CmdLineArgmentException if command line arguments are invalid
+     * @throws CmdLineIOException if IO error occurs
      */
-    public static void writeJson(GenericJson response, Format format, String filePath) {
-        // Output
+    public static void writeJson(Object response, Format format, String path) throws CmdLineArgmentException, CmdLineIOException {
+        if (format == null) {
+            throw new CmdLineArgmentException("Format must be specified");
+        }
+
+        String jsonString;
         try {
-            switch (format) {
-                // for format console
-                case CONSOLE:
-                    out.println(response.toPrettyString());
-                    break;
-                // for format json
-                case JSON:
-                    if (StringUtils.isEmpty(filePath)) {
-                        throw new CmdLineArgmentException("For JSON format, filepath is mandatory.");
-                    }
-                    String json = response.toPrettyString();
-                    Path path = Paths.get(filePath);
-                    try (BufferedWriter writer = Files.newBufferedWriter(path)) {
-                        writer.write(json);
-                        writer.flush();
-                    }
-                    break;
-                default:
-                    throw new AssertionError("Illegal argument format = [" + format.name() + "]");
+            if (response == null) {
+                jsonString = "{}";
+            } else if (response instanceof GenericJson) {
+                jsonString = ((GenericJson) response).toPrettyString();
+            } else {
+                jsonString = response.toString();
             }
+        } catch (IOException e) {
+            throw new CmdLineIOException("Failed to convert response to JSON", e);
+        }
+
+        if (format == Format.JSON) {
+            if (path == null || path.trim().isEmpty()) {
+                throw new CmdLineArgmentException("For JSON format, filepath is mandatory.");
+            }
+            writeToFile(path, jsonString);
+        } else if (format == Format.CONSOLE) {
+            System.out.println(jsonString);
+        } else {
+            throw new CmdLineArgmentException("Unsupported format: " + format);
+        }
+    }
+
+    private static void writeToFile(String path, String content) throws CmdLineIOException {
+        File file = new File(path);
+        File parentDir = file.getParentFile();
+        
+        try {
+            if (parentDir != null && !parentDir.exists()) {
+                FileUtils.forceMkdir(parentDir);
+            }
+            FileUtils.write(file, content, StandardCharsets.UTF_8);
         } catch (IOException e) {
             throw new CmdLineIOException(e);
         }

@@ -5,12 +5,15 @@ import com.google.api.services.webmasters.model.SitesListResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import xyz.monotalk.google.webmaster.cli.Command;
+import xyz.monotalk.google.webmaster.cli.CmdLineIOException;
+import xyz.monotalk.google.webmaster.cli.Format;
+import xyz.monotalk.google.webmaster.cli.ResponseWriter;
 import xyz.monotalk.google.webmaster.cli.WebmastersFactory;
 
 import java.io.IOException;
 
 /**
- * ListCommand
+ * サイト一覧を取得するコマンド
  */
 @Component
 public class ListCommand implements Command {
@@ -19,27 +22,14 @@ public class ListCommand implements Command {
     private WebmastersFactory factory;
 
     @Override
-    public void execute() {
+    public void execute() throws CmdLineIOException {
         Webmasters webmasters = factory.create();
-        Webmasters.Sites.List request = null;
         try {
-            request = webmasters.sites().list();
+            SitesListResponse response = webmasters.sites().list().execute();
+            ResponseWriter.writeJson(response, Format.CONSOLE, null);
         } catch (IOException e) {
-            e.printStackTrace();
+            throw new CmdLineIOException("Failed to execute API request: " + e.getMessage(), e);
         }
-        SitesListResponse siteList = null;
-        try {
-            siteList = request.execute();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        System.out.print("-------------------------siteList");
-        try {
-            System.out.print(siteList.toPrettyString());
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        System.out.print("-------------------------siteList");
     }
 
     @Override

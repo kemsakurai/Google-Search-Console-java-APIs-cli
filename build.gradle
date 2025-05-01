@@ -10,6 +10,7 @@ plugins {
     id 'java'
     id 'org.springframework.boot' version '2.7.18'
     id 'io.spring.dependency-management' version '1.0.15.RELEASE'
+    id 'jacoco'
 }
 
 group = 'xyz.monotalk'
@@ -40,15 +41,66 @@ dependencies {
     implementation 'com.google.api-client:google-api-client:1.22.0'
     implementation 'com.google.apis:google-api-services-webmasters:v3-rev22-1.22.0'
     implementation 'com.google.guava:guava:20.0'
+    implementation 'commons-io:commons-io:2.15.1'
     
     compileOnly 'org.projectlombok:lombok:1.18.30'
     annotationProcessor 'org.projectlombok:lombok:1.18.30'
     
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'org.mockito:mockito-core:4.11.0'
+    testImplementation 'org.mockito:mockito-inline:4.11.0'
+    testImplementation 'junit:junit:4.13.2'
+}
+
+jacoco {
+    toolVersion = "0.8.11"
+}
+
+jacocoTestReport {
+    reports {
+        xml.required = true
+        csv.required = false
+        html.required = true
+        html.outputLocation = layout.buildDirectory.dir('jacocoHtml')
+    }
 }
 
 test {
-    useJUnitPlatform()
+    useJUnit() // JUnit 4を使用するように変更
+    testLogging {
+        events "passed", "skipped", "failed"
+        exceptionFormat "full"
+        showStandardStreams = true
+    }
+    jvmArgs '--add-opens', 'java.base/java.lang=ALL-UNNAMED'
+    finalizedBy jacocoTestReport // テスト完了後にカバレッジレポートを生成
+}
+
+jacocoTestCoverageVerification {
+    violationRules {
+        rule {
+            limit {
+                minimum = 0.7 // 最低70%のカバレッジを要求
+            }
+        }
+
+        rule {
+            element = 'CLASS'
+            excludes = ['*.CmdLineArgmentException', '*.CmdLineIOException']
+
+            limit {
+                counter = 'LINE'
+                value = 'COVEREDRATIO'
+                minimum = 0.7
+            }
+
+            limit {
+                counter = 'BRANCH'
+                value = 'COVEREDRATIO'
+                minimum = 0.7
+            }
+        }
+    }
 }
 
 springBoot {

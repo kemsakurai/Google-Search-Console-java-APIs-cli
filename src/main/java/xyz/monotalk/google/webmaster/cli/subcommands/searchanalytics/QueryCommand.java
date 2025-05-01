@@ -51,17 +51,25 @@ public class QueryCommand implements Command {
         }
         out.println("searchAnalyticsQueryResponse#.toPrettyString() START>>>");
         try {
-            out.println(searchAnalyticsQueryResponse.toPrettyString());
+            if (searchAnalyticsQueryResponse != null) {
+                out.println(searchAnalyticsQueryResponse.toPrettyString());
+            } else {
+                out.println("検索結果はnullです");
+            }
         } catch (IOException e) {
+            out.println("Pretty print error: " + e.getMessage());
             e.printStackTrace();
         }
         out.println("<<<END");
 
-        for (ApiDataRow row : searchAnalyticsQueryResponse.getRows()) {
-            try {
-                out.println(row.toPrettyString());
-            } catch (IOException e) {
-                e.printStackTrace();
+        if (searchAnalyticsQueryResponse != null && searchAnalyticsQueryResponse.getRows() != null) {
+            for (ApiDataRow row : searchAnalyticsQueryResponse.getRows()) {
+                try {
+                    out.println(row.toPrettyString());
+                } catch (IOException e) {
+                    out.println("Row pretty print error: " + e.getMessage());
+                    e.printStackTrace();
+                }
             }
         }
     }
