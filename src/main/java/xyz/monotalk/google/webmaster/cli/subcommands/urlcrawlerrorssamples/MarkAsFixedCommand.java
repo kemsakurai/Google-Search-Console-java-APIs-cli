@@ -4,7 +4,7 @@ import com.google.api.services.webmasters.Webmasters;
 import org.kohsuke.args4j.Option;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import xyz.monotalk.google.webmaster.cli.CmdLineArgumentException;
+import xyz.monotalk.google.webmaster.cli.CmdLineArgmentException;
 import xyz.monotalk.google.webmaster.cli.CmdLineIOException;
 import xyz.monotalk.google.webmaster.cli.Command;
 import xyz.monotalk.google.webmaster.cli.WebmastersFactory;
@@ -36,7 +36,7 @@ public class MarkAsFixedCommand implements Command {
     @Override
     public void execute() {
         if (url == null) {
-            throw new CmdLineArgumentException("URL must be specified");
+            throw new CmdLineArgmentException("URL must be specified");
         }
 
         try {

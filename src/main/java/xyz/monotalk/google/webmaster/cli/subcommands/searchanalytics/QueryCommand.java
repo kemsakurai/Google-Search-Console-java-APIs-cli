@@ -4,6 +4,8 @@ import com.google.api.services.webmasters.model.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import xyz.monotalk.google.webmaster.cli.Command;
 import xyz.monotalk.google.webmaster.cli.WebmastersFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -17,6 +19,7 @@ import static java.lang.System.out;
 public class QueryCommand implements Command {
 
     @Autowired private WebmastersFactory factory;
+    private static final Logger logger = LoggerFactory.getLogger(QueryCommand.class);
 
     @Override
     public void execute() {
@@ -47,7 +50,7 @@ public class QueryCommand implements Command {
         try {
             searchAnalyticsQueryResponse = factory.create().searchanalytics().query("https://www.monotalk.xyz", query).execute();
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.error("Row pretty print error: {}", e.getMessage(), e);
         }
         out.println("searchAnalyticsQueryResponse#.toPrettyString() START>>>");
         try {

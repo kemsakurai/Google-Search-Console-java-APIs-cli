@@ -9,6 +9,7 @@ Google Search Console APIにアクセスするためのコマンドラインツ�
 - Spring Bootベースのコマンドラインインターフェース
 - 複数の出力形式（コンソール出力、JSONファイル）に対応
 - OAuth2.0認証による安全なAPI呼び出し
+- 静的解析ツールによるコード品質の維持
 
 ------------------------------------------------------------
 ## 対応API
@@ -129,6 +130,67 @@ java -jar xyz.monotalk.google.webmaster.cli-0.0.1.jar --application.keyFileLocat
   - `Format.java` - 出力フォーマット設定用enum
   - `ResponseWriter.java` - レスポンス出力処理
   - サブコマンドは `xyz.monotalk.google.webmaster.cli.subcommands` パッケージ以下
+
+------------------------------------------------------------
+## 開発者向け情報
+
+### 静的解析ツール
+
+このプロジェクトでは以下の静的解析ツールを使用してコード品質を維持しています：
+
+#### Checkstyle
+
+Javaコードの標準スタイルを確認し、一貫性のあるコードを保つためのツールです。
+Google Java Style Guide をベースとした設定を使用しています。
+
+ローカル実行:
+```console
+./gradlew checkstyleMain checkstyleTest
+```
+
+レポート:
+- `build/reports/checkstyle/main.html`
+- `build/reports/checkstyle/test.html`
+
+#### PMD
+
+ソースコードの潜在的な問題（未使用変数、最適化可能なコード、複雑すぎるロジックなど）を検出します。
+カスタマイズされたルールセットを `config/pmd/ruleset.xml` で定義しています。
+
+ローカル実行:
+```console
+./gradlew pmdMain pmdTest
+```
+
+レポート:
+- `build/reports/pmd/main.html`
+- `build/reports/pmd/test.html`
+
+#### SpotBugs
+
+バイトコードを解析して潜在的なバグやセキュリティの問題を検出します。
+
+ローカル実行:
+```console
+./gradlew spotbugsMain spotbugsTest
+```
+
+レポート:
+- `build/reports/spotbugs/main/spotbugs.html`
+- `build/reports/spotbugs/test/spotbugs.html`
+
+### すべての静的解析の実行
+
+以下のコマンドですべての静的解析ツールを一度に実行できます:
+
+```console
+./gradlew check
+```
+
+### CI/CD統合
+
+GitHub Actionsによる自動静的解析を実装しています。プルリクエストや主要ブランチへのプッシュ時に自動的に実行されます。
+設定ファイル: `.github/workflows/static-analysis.yml`
 
 ------------------------------------------------------------
 ## ライセンス

@@ -11,6 +11,9 @@ plugins {
     id 'org.springframework.boot' version '2.7.18'
     id 'io.spring.dependency-management' version '1.0.15.RELEASE'
     id 'jacoco'
+    id 'checkstyle'
+    id 'pmd'
+    id 'com.github.spotbugs' version '5.0.14'
 }
 
 group = 'xyz.monotalk'
@@ -110,5 +113,46 @@ springBoot {
 jar {
     manifest {
         attributes 'Main-Class': 'xyz.monotalk.google.webmaster.cli.CliApplication'
+    }
+}
+
+// Checkstyleの設定
+checkstyle {
+    toolVersion = '8.45.1'
+    configFile = file("${rootDir}/config/checkstyle/checkstyle.xml")
+    ignoreFailures = false
+    maxWarnings = 0
+}
+
+// PMDの設定
+pmd {
+    toolVersion = '6.55.0'
+    ruleSetFiles = files("${rootDir}/config/pmd/ruleset.xml")
+    ignoreFailures = false
+    consoleOutput = true
+}
+
+// SpotBugsの設定
+spotbugs {
+    ignoreFailures = false
+    effort = 'default'
+    reportLevel = 'medium'
+}
+
+spotbugsMain {
+    reports {
+        html {
+            required = true
+            outputLocation = file("${buildDir}/reports/spotbugs/main/spotbugs.html")
+        }
+    }
+}
+
+spotbugsTest {
+    reports {
+        html {
+            required = true
+            outputLocation = file("${buildDir}/reports/spotbugs/test/spotbugs.html")
+        }
     }
 }

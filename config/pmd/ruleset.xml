@@ -1,0 +1,81 @@
+<?xml version="1.0"?>
+<ruleset name="Custom PMD Ruleset"
+    xmlns="http://pmd.sourceforge.net/ruleset/2.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://pmd.sourceforge.net/ruleset/2.0.0 https://pmd.sourceforge.io/ruleset_2_0_0.xsd">
+
+    <description>
+        プロジェクト推奨のPMDルールセット。
+        Best Practices, Error Prone, Code Style, Design を中心に構成。
+    </description>
+
+    <!-- 推奨カテゴリのルールを読み込む -->
+    <rule ref="category/java/bestpractices.xml">
+        <!-- プロジェクトに合わない、または過剰なルールを除外する例 -->
+        <exclude name="GuardLogStatement" />
+        <exclude name="JUnitAssertionsShouldIncludeMessage" />
+        <exclude name="JUnitTestContainsTooManyAsserts" />
+        <exclude name="AvoidPrintStackTrace" />
+    </rule>
+
+    <rule ref="category/java/codestyle.xml">
+        <!-- プロジェクトに合わない、または過剰なルールを除外する例 -->
+        <exclude name="LongVariable" />
+        <exclude name="ShortVariable" />
+        <exclude name="CommentDefaultAccessModifier" />
+        <exclude name="DefaultPackage" />
+        <exclude name="AtLeastOneConstructor" />
+        <exclude name="OnlyOneReturn" />
+        <exclude name="UseUnderscoresInNumericLiterals" />
+        <exclude name="LocalVariableCouldBeFinal" />
+        <exclude name="MethodArgumentCouldBeFinal" />
+        <exclude name="MethodNamingConventions" />
+        <exclude name="UseDiamondOperator" />
+    </rule>
+
+    <rule ref="category/java/design.xml">
+        <!-- プロジェクトに合わない、または過剰なルールを除外する例 -->
+        <exclude name="LawOfDemeter" />
+        <exclude name="LoosePackageCoupling" />
+        <exclude name="TooManyMethods" />
+        <exclude name="CyclomaticComplexity" />
+        <exclude name="NPathComplexity" />
+        <exclude name="ExcessiveImports" />
+        <exclude name="DataClass" />
+        <exclude name="GodClass" />
+        <exclude name="UseUtilityClass" />
+    </rule>
+
+    <rule ref="category/java/errorprone.xml">
+        <!-- プロジェクトに合わない、または過剰なルールを除外する例 -->
+        <exclude name="BeanMembersShouldSerialize" />
+        <exclude name="DataflowAnomalyAnalysis" />
+        <exclude name="AvoidLiteralsInIfCondition" />
+        <exclude name="NullAssignment" />
+        <exclude name="MissingSerialVersionUID" />
+        <exclude name="AvoidUncheckedExceptionsInSignatures" />
+    </rule>
+
+    <rule ref="category/java/multithreading.xml">
+        <!-- 必要に応じて除外するルールを追加 -->
+        <exclude name="UseConcurrentHashMap" />
+        <exclude name="DoNotUseThreads" />
+    </rule>
+
+    <rule ref="category/java/performance.xml">
+        <!-- 必要に応じて除外するルールを追加 -->
+        <exclude name="AvoidInstantiatingObjectsInLoops" />
+        <exclude name="InefficientEmptyStringCheck" />
+        <exclude name="AvoidFileStream" />
+    </rule>
+
+    <rule ref="category/java/security.xml" />
+
+    <!-- 個別ルールの設定をカスタマイズする例 -->
+    <rule ref="category/java/design.xml/TooManyFields">
+        <properties>
+            <property name="maxfields" value="15" />
+        </properties>
+    </rule>
+
+</ruleset>
