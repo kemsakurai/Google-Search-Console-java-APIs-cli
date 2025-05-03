@@ -1,0 +1,47 @@
+name: 静的解析
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  static-analysis:
+    runs-on: ubuntu-latest
+    steps:
+    - name: コードのチェックアウト
+      uses: actions/checkout@v4
+    
+    - name: JDK 8 セットアップ
+      uses: actions/setup-java@v4
+      with:
+        distribution: 'corretto'
+        java-version: '8'
+    
+    - name: Gradleラッパーに実行権限付与
+      run: chmod +x gradlew
+    
+    - name: Gradle キャッシュ
+      uses: actions/cache@v3
+      with:
+        path: |
+          ~/.gradle/caches
+          ~/.gradle/wrapper
+        key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+        restore-keys: |
+          ${{ runner.os }}-gradle-
+    
+    - name: 静的解析を実行
+      run: ./gradlew check
+      continue-on-error: true  # 初期導入時は失敗を許容
+    
+    - name: レポートをアップロード
+      uses: actions/upload-artifact@v3
+      if: always()
+      with:
+        name: static-analysis-reports
+        path: |
+          build/reports/checkstyle/
+          build/reports/pmd/
+          build/reports/spotbugs/
