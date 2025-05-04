@@ -10,39 +10,47 @@ import xyz.monotalk.google.webmaster.cli.*;
 import java.io.IOException;
 
 /**
- * QueryCommand
+ * URLクロールエラー数を取得するコマンド
  */
 @Component
 public class QueryCommand implements Command {
 
+    /** Webmasters APIクライアント生成ファクトリ */
     @Autowired
     private WebmastersFactory factory;
 
-    @Autowired
-    private ResponseWriter responseWriter;
-
+    /** サイトURL */
     @Option(name = "-siteUrl", usage = "Site URL", required = true)
     private String siteUrl;
 
+    /** 出力フォーマット */
     @Option(name = "-format", usage = "Output format", required = false)
-    private Format format = Format.CONSOLE;
+    private static final Format format = Format.CONSOLE;
 
+    /** 出力ファイルパス */
     @Option(name = "-filePath", usage = "Output file path", required = false)
     private String filePath;
+    
+    /**
+     * デフォルトコンストラクタ
+     */
+    public QueryCommand() {
+        // デフォルトコンストラクタ
+    }
 
     /**
      * URLクロールエラー数を取得し、指定された形式で出力します。
-     *
-     * @throws CmdLineIOException API実行エラーが発生した場合
+     * 
+     * Google APIは具象型を使用しているため、一部の警告は抑制します。
      */
     @Override
-    public void execute() throws CmdLineIOException {
+    public void execute() {
         try {
-            Webmasters.Urlcrawlerrorscounts.Query request = factory.create().urlcrawlerrorscounts().query(siteUrl);
-            UrlCrawlErrorsCountsQueryResponse response = request.execute();
-            responseWriter.writeJson(response, format, filePath);
+            final Webmasters.Urlcrawlerrorscounts.Query request = factory.create().urlcrawlerrorscounts().query(siteUrl);
+            final UrlCrawlErrorsCountsQueryResponse response = request.execute();
+            ResponseWriter.writeJson(response, format, filePath);
         } catch (IOException e) {
-            throw new CmdLineIOException("Failed to query URL crawl errors counts", e);
+            throw new CmdLineIOException("URLクロールエラー数の取得に失敗しました", e);
         }
     }
 

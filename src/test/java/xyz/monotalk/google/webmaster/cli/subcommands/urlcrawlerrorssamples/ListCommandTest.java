@@ -8,6 +8,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.MockedStatic;
+import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
 import xyz.monotalk.google.webmaster.cli.CmdLineIOException;
 import xyz.monotalk.google.webmaster.cli.Format;
@@ -34,9 +36,6 @@ public class ListCommandTest {
     private WebmastersFactory factory;
 
     @Mock
-    private ResponseWriter responseWriter;
-
-    @Mock
     private Webmasters webmasters;
 
     @Mock
@@ -50,12 +49,15 @@ public class ListCommandTest {
 
     @Before
     public void setUp() throws IOException {
+        // テスト対象コマンドの初期設定
+        command.setSiteUrl("https://www.monotalk.xyz");
+        command.setCategory("notFound");
+        command.setPlatform("web");
+        
+        // モックの設定
         when(factory.create()).thenReturn(webmasters);
         when(webmasters.urlcrawlerrorssamples()).thenReturn(urlcrawlerrorssamples);
         when(urlcrawlerrorssamples.list(anyString(), anyString(), anyString())).thenReturn(request);
-        
-        // ResponseWriterのモックセットアップ
-        doNothing().when(responseWriter).writeJson(any(), any(Format.class), anyString());
     }
 
     /**
@@ -63,7 +65,7 @@ public class ListCommandTest {
      * URLクロールエラーサンプルが正常に取得されることを検証
      */
     @Test
-    public void testExecute_WithValidParameters_ShouldReturnErrorSamples() throws IOException {
+    public void testExecute_WithValidParameters_ShouldReturnErrorSamples() throws IOException, CmdLineIOException {
         // Given
         UrlCrawlErrorsSamplesListResponse response = new UrlCrawlErrorsSamplesListResponse();
         UrlCrawlErrorsSample sample = new UrlCrawlErrorsSample();
@@ -72,15 +74,21 @@ public class ListCommandTest {
         
         when(request.execute()).thenReturn(response);
 
-        // When
-        command.execute();
+        // ResponseWriter.writeJsonをモック化
+        try (MockedStatic<ResponseWriter> mockedStatic = Mockito.mockStatic(ResponseWriter.class)) {
+            // When
+            command.execute();
 
-        // Then
-        verify(factory).create();
-        verify(webmasters).urlcrawlerrorssamples();
-        verify(urlcrawlerrorssamples).list(eq("https://www.monotalk.xyz"), eq("notFound"), eq("web"));
-        verify(request).execute();
-        verify(responseWriter).writeJson(eq(response), any(Format.class), anyString());
+            // Then
+            verify(factory).create();
+            verify(webmasters).urlcrawlerrorssamples();
+            verify(urlcrawlerrorssamples).list(eq("https://www.monotalk.xyz"), eq("notFound"), eq("web"));
+            verify(request).execute();
+            
+            // 静的メソッドの呼び出しを検証
+            mockedStatic.verify(() -> 
+                ResponseWriter.writeJson(anyString(), eq(Format.CONSOLE), eq(null)));
+        }
     }
 
     /**
@@ -88,7 +96,7 @@ public class ListCommandTest {
      * IOExceptionがCmdLineIOExceptionとしてスローされることを確認
      */
     @Test(expected = CmdLineIOException.class)
-    public void testExecute_WhenApiCallFails_ShouldThrowCmdLineIOException() throws IOException {
+    public void testExecute_WhenApiCallFails_ShouldThrowCmdLineIOException() throws IOException, CmdLineIOException {
         // Given
         when(request.execute()).thenThrow(new IOException("API Error"));
 

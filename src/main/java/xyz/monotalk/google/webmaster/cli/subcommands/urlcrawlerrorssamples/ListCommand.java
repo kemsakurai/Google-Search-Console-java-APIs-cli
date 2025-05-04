@@ -27,10 +27,6 @@ public class ListCommand implements Command {
     @Autowired
     private WebmastersFactory factory;
     
-    /** 応答出力処理 */
-    @Autowired
-    private ResponseWriter responseWriter;
-
     /** サイトURL */
     @Option(name = "-siteUrl", usage = "Site URL", required = true)
     private String siteUrl;
@@ -48,6 +44,33 @@ public class ListCommand implements Command {
      */
     public ListCommand() {
         // デフォルトコンストラクタ
+    }
+
+    /**
+     * サイトURLを設定します
+     * 
+     * @param siteUrl 設定するサイトURL
+     */
+    public void setSiteUrl(String siteUrl) {
+        this.siteUrl = siteUrl;
+    }
+    
+    /**
+     * エラーカテゴリを設定します
+     * 
+     * @param category 設定するエラーカテゴリ
+     */
+    public void setCategory(String category) {
+        this.category = category;
+    }
+    
+    /**
+     * プラットフォームを設定します
+     * 
+     * @param platform 設定するプラットフォーム
+     */
+    public void setPlatform(String platform) {
+        this.platform = platform;
     }
 
     /**
@@ -73,7 +96,7 @@ public class ListCommand implements Command {
             if (output.length() == 0) {
                 output.append("No crawl error samples found.");
             }
-            responseWriter.writeJson(output.toString(), Format.CONSOLE, null);
+            ResponseWriter.writeJson(output.toString(), Format.CONSOLE, null);
         } catch (IOException e) {
             throw new CmdLineIOException("URLクロールエラーサンプルの一覧取得に失敗しました", e);
         }

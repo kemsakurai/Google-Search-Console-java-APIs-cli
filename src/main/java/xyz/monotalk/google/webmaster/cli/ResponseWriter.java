@@ -31,7 +31,7 @@ public final class ResponseWriter {
      * @param path 出力先のファイルパス
      * @throws CmdLineIOException 入出力エラーが発生した場合
      */
-    public void writeJson(final Object response, final Format format, final String path) throws CmdLineIOException {
+    public static void writeJson(final Object response, final Format format, final String path) throws CmdLineIOException {
         if (format == null) {
             throw new CmdLineArgmentException("Format must be specified");
         }

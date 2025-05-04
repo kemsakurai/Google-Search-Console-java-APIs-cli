@@ -21,9 +21,6 @@ public class ListCommand implements Command {
     @Autowired
     private WebmastersFactory factory;
 
-    @Autowired
-    private ResponseWriter responseWriter;
-
     @Option(name = "-siteUrl", usage = "Site URL", required = true)
     protected String siteUrl;
 
@@ -49,7 +46,12 @@ public class ListCommand implements Command {
             Webmasters webmasters = factory.create();
             Webmasters.Sitemaps.List list = webmasters.sitemaps().list(siteUrl);
             SitemapsListResponse response = list.execute();
-            responseWriter.writeJson(response, format, filePath);
+            
+            // コンソール出力の場合、空の文字列をfilePathとして渡す
+            String outputPath = (format == Format.CONSOLE && (filePath == null || filePath.isEmpty())) 
+                ? "" : filePath;
+                
+            ResponseWriter.writeJson(response, format, outputPath);
             LOGGER.info("Command completed successfully.");
         } catch (IOException e) {
             LOGGER.error("API execution failed", e);

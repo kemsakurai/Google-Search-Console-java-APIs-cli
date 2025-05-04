@@ -21,9 +21,6 @@ public class ListCommand implements Command {
     @Autowired
     private WebmastersFactory factory;
 
-    @Autowired
-    private ResponseWriter responseWriter;
-
     /**
      * サイト一覧を取得し、指定された形式で出力します。
      *
@@ -35,7 +32,7 @@ public class ListCommand implements Command {
             Webmasters webmasters = factory.create();
             Webmasters.Sites.List list = webmasters.sites().list();
             SitesListResponse response = list.execute();
-            responseWriter.writeJson(response, Format.CONSOLE, null);
+            ResponseWriter.writeJson(response, Format.CONSOLE, null);
         } catch (IOException e) {
             throw new CmdLineIOException("Failed to list sites", e);
         }

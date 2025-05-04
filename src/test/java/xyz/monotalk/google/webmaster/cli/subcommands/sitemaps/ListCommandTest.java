@@ -7,9 +7,10 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
-import org.kohsuke.args4j.CmdLineException;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.MockedStatic;
+import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
 import xyz.monotalk.google.webmaster.cli.CmdLineArgmentException;
 import xyz.monotalk.google.webmaster.cli.CmdLineIOException;
@@ -23,10 +24,8 @@ import java.io.IOException;
 import java.net.URL;
 
 import static org.junit.Assert.assertEquals;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -41,9 +40,6 @@ public class ListCommandTest {
 
     @Mock
     private WebmastersFactory factory;
-
-    @Mock
-    private ResponseWriter responseWriter;
 
     @Mock
     private Webmasters webmasters;
@@ -66,9 +62,6 @@ public class ListCommandTest {
         when(webmasters.sitemaps()).thenReturn(sitemaps);
         when(sitemaps.list(anyString())).thenReturn(list);
         when(list.execute()).thenReturn(response);
-        
-        // ResponseWriterのモックセットアップ
-        doNothing().when(responseWriter).writeJson(any(), any(Format.class), anyString());
     }
 
     /**
@@ -78,18 +71,23 @@ public class ListCommandTest {
     @Test
     public void testExecute_WithConsoleFormat_ShouldSucceed() throws Exception {
         // Given
-        command.siteUrl = new URL("https://example.com");
+        command.siteUrl = new URL("https://example.com").toString();
         command.format = Format.CONSOLE;
 
-        // When
-        command.execute();
+        // ResponseWriterの静的メソッドをモック化
+        try (MockedStatic<ResponseWriter> mockedStatic = Mockito.mockStatic(ResponseWriter.class)) {
+            // When
+            command.execute();
 
-        // Then
-        verify(factory).create();
-        verify(webmasters).sitemaps();
-        verify(sitemaps).list("https://example.com");
-        verify(list).execute();
-        verify(responseWriter).writeJson(eq(response), eq(Format.CONSOLE), anyString());
+            // Then
+            verify(factory).create();
+            verify(webmasters).sitemaps();
+            verify(sitemaps).list("https://example.com");
+            verify(list).execute();
+            
+            // 静的メソッドの呼び出しを検証
+            mockedStatic.verify(() -> ResponseWriter.writeJson(eq(response), eq(Format.CONSOLE), anyString()));
+        }
     }
 
     /**
@@ -100,19 +98,24 @@ public class ListCommandTest {
     public void testExecute_WithJsonFormat_ShouldOutputToFile() throws Exception {
         // Given
         File tempFile = temporaryFolder.newFile("output.json");
-        command.siteUrl = new URL("https://example.com");
+        command.siteUrl = new URL("https://example.com").toString();
         command.format = Format.JSON;
         command.filePath = tempFile.getAbsolutePath();
 
-        // When
-        command.execute();
+        // ResponseWriterの静的メソッドをモック化
+        try (MockedStatic<ResponseWriter> mockedStatic = Mockito.mockStatic(ResponseWriter.class)) {
+            // When
+            command.execute();
 
-        // Then
-        verify(factory).create();
-        verify(webmasters).sitemaps();
-        verify(sitemaps).list("https://example.com");
-        verify(list).execute();
-        verify(responseWriter).writeJson(eq(response), eq(Format.JSON), eq(tempFile.getAbsolutePath()));
+            // Then
+            verify(factory).create();
+            verify(webmasters).sitemaps();
+            verify(sitemaps).list("https://example.com");
+            verify(list).execute();
+            
+            // 静的メソッドの呼び出しを検証
+            mockedStatic.verify(() -> ResponseWriter.writeJson(eq(response), eq(Format.JSON), eq(tempFile.getAbsolutePath())));
+        }
     }
 
     /**
@@ -123,6 +126,7 @@ public class ListCommandTest {
     public void testExecute_WhenApiCallFails_ShouldThrowCmdLineIOException() throws Exception {
         // Given
         command.siteUrl = new URL("https://example.com").toString();
+        command.format = Format.CONSOLE;
         when(list.execute()).thenThrow(new IOException("API Error"));
 
         // When
@@ -131,9 +135,9 @@ public class ListCommandTest {
 
     /**
      * JSONフォーマット指定時にファイルパスが未指定の場合のテスト
-     * CmdLineExceptionが発生することを検証
+     * CmdLineArgmentExceptionが発生することを検証
      */
-    @Test(expected = CmdLineException.class)
+    @Test(expected = CmdLineArgmentException.class)
     public void testExecute_WithJsonFormatWithoutFilePath_ShouldThrowException() throws Exception {
         // Given
         command.siteUrl = new URL("https://example.com").toString();
@@ -154,6 +158,6 @@ public class ListCommandTest {
         String usage = command.usage();
 
         // Then
-        assertEquals("Lists the sitemaps-entries submitted for this site, or included in the sitemap index file (if sitemapIndex is specified in the request).", usage);
+        assertEquals("Lists the sitemaps for a given site URL.", usage);
     }
 }

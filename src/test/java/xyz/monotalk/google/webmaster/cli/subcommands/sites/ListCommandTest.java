@@ -7,6 +7,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.MockedStatic;
+import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
 import xyz.monotalk.google.webmaster.cli.CmdLineIOException;
 import xyz.monotalk.google.webmaster.cli.Format;
@@ -16,8 +18,6 @@ import xyz.monotalk.google.webmaster.cli.WebmastersFactory;
 import java.io.IOException;
 
 import static org.junit.Assert.assertEquals;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
@@ -29,9 +29,6 @@ public class ListCommandTest {
 
     @Mock
     private WebmastersFactory factory;
-
-    @Mock
-    private ResponseWriter responseWriter;
 
     @Mock
     private Webmasters webmasters;
@@ -54,9 +51,6 @@ public class ListCommandTest {
         when(webmasters.sites()).thenReturn(sites);
         when(sites.list()).thenReturn(request);
         when(request.execute()).thenReturn(response);
-        
-        // ResponseWriterのモックセットアップ
-        doNothing().when(responseWriter).writeJson(any(), any(Format.class), anyString());
     }
 
     /**
@@ -64,16 +58,21 @@ public class ListCommandTest {
      * サイト一覧が正常に取得されることを検証
      */
     @Test
-    public void testExecute_WithValidParameters_ShouldReturnSitesList() throws IOException {
-        // 実行
-        command.execute();
+    public void testExecute_WithValidParameters_ShouldReturnSitesList() throws IOException, CmdLineIOException {
+        // ResponseWriterの静的メソッドをモック化
+        try (MockedStatic<ResponseWriter> mockedStatic = Mockito.mockStatic(ResponseWriter.class)) {
+            // 実行
+            command.execute();
 
-        // 検証
-        verify(factory).create();
-        verify(webmasters).sites();
-        verify(sites).list();
-        verify(request).execute();
-        verify(responseWriter).writeJson(eq(response), any(Format.class), anyString());
+            // 検証
+            verify(factory).create();
+            verify(webmasters).sites();
+            verify(sites).list();
+            verify(request).execute();
+            
+            // 静的メソッドの呼び出しを検証
+            mockedStatic.verify(() -> ResponseWriter.writeJson(eq(response), eq(Format.CONSOLE), eq(null)));
+        }
     }
 
     /**
@@ -81,7 +80,7 @@ public class ListCommandTest {
      * IOExceptionがCmdLineIOExceptionとしてスローされることを確認
      */
     @Test(expected = CmdLineIOException.class)
-    public void testExecute_WhenApiCallFails_ShouldThrowCmdLineIOException() throws IOException {
+    public void testExecute_WhenApiCallFails_ShouldThrowCmdLineIOException() throws IOException, CmdLineIOException {
         // 準備
         when(request.execute()).thenThrow(new IOException("API Error"));
         

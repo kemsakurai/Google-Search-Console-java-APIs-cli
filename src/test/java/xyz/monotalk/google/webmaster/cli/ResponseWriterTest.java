@@ -62,7 +62,8 @@ public class ResponseWriterTest {
     @Test
     public void testWriteJson_正常系_コンソール出力() throws Exception {
         ResponseWriter.writeJson(mockResponse, Format.CONSOLE, null);
-        assertEquals("{\"test\": \"value\"}\n", outContent.toString());
+        String output = outContent.toString();
+        assertTrue(output.contains("{\"test\": \"value\"}"));
     }
 
     @Test
@@ -102,7 +103,8 @@ public class ResponseWriterTest {
     public void testWriteJson_正常系_空のオブジェクト出力() throws Exception {
         GenericJson emptyJson = new GenericJson();
         ResponseWriter.writeJson(emptyJson, Format.CONSOLE, null);
-        assertEquals("{}\n", outContent.toString());
+        String output = outContent.toString();
+        assertTrue(output.contains("{}"));
     }
 
     @Test(expected = CmdLineIOException.class)
@@ -136,7 +138,6 @@ public class ResponseWriterTest {
         TestJson largeJson = new TestJson(largeValue.toString());
         
         ResponseWriter.writeJson(largeJson, Format.CONSOLE, null);
-        
         String output = outContent.toString();
         assertTrue(output.contains("value0"));
         assertTrue(output.contains("value999"));

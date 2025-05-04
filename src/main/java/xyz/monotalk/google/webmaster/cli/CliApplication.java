@@ -11,13 +11,13 @@ import org.springframework.context.annotation.ComponentScan;
  */
 @SpringBootApplication
 @ComponentScan(nameGenerator = FQCNBeanNameGenerator.class)
-public final class CliApplication {
+public class CliApplication {
     
     /**
      * インスタンス化を防ぐためのプライベートコンストラクタ。
      * このクラスはユーティリティクラスとして機能し、静的メソッドのみを提供します。
      */
-    private CliApplication() {
+    public CliApplication() {
         // インスタンス化防止のためのコンストラクタ
     }
     
