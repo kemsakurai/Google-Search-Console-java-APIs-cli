@@ -9,6 +9,7 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+import xyz.monotalk.google.webmaster.cli.CmdLineIOException;
 import xyz.monotalk.google.webmaster.cli.WebmastersFactory;
 
 import java.io.IOException;
@@ -61,7 +62,7 @@ public class ListCommandTest {
         verify(request).execute();
     }
 
-    @Test(expected = RuntimeException.class)
+    @Test(expected = CmdLineIOException.class)
     public void testExecute_APIError() throws IOException {
         // Given
         when(request.execute()).thenThrow(new IOException("API Error"));
@@ -69,7 +70,7 @@ public class ListCommandTest {
         // When
         command.execute();
 
-        // Then - should throw RuntimeException
+        // Then - should throw CmdLineIOException
     }
 
     @Test

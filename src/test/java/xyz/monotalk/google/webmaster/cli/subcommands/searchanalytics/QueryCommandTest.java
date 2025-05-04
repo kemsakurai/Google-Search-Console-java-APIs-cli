@@ -10,7 +10,9 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.mockito.MockitoAnnotations;
 import org.mockito.junit.MockitoJUnitRunner;
+import xyz.monotalk.google.webmaster.cli.ResponseWriter;
 import xyz.monotalk.google.webmaster.cli.WebmastersFactory;
 
 import java.io.ByteArrayOutputStream;
@@ -41,15 +43,20 @@ public class QueryCommandTest {
     @Mock
     private Webmasters.Searchanalytics.Query query;
 
+    @Mock
+    private ResponseWriter responseWriter;
+
     private final ByteArrayOutputStream outContent = new ByteArrayOutputStream();
     private final PrintStream originalOut = System.out;
 
     @Before
     public void setUp() throws IOException {
+        MockitoAnnotations.openMocks(this);
         System.setOut(new PrintStream(outContent));
         when(factory.create()).thenReturn(webmasters);
         when(webmasters.searchanalytics()).thenReturn(searchanalytics);
         when(searchanalytics.query(eq("https://www.monotalk.xyz"), any(SearchAnalyticsQueryRequest.class))).thenReturn(query);
+        command.responseWriter = responseWriter; // モックを注入
     }
 
     @Test
@@ -107,7 +114,7 @@ public class QueryCommandTest {
 
         // Then
         String output = outContent.toString();
-        assertTrue(output.contains("検索結果はnull"));
+        assertTrue("出力にAPI Errorが含まれていること", output.contains("API Error"));
     }
 
     @Test

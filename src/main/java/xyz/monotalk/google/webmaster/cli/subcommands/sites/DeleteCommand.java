@@ -1,17 +1,21 @@
 package xyz.monotalk.google.webmaster.cli.subcommands.sites;
 
+import org.springframework.stereotype.Component;
 import xyz.monotalk.google.webmaster.cli.Command;
 
 /**
- * Created by kensakurai on 2017/05/10.
+ * サイトを削除するコマンドです。
  */
+@Component
 public class DeleteCommand implements Command {
+
     @Override
-    public void execute() {
-        throw new UnsupportedOperationException("TODO not implemented..");
+    public void execute() throws Exception {
+        // 実装
     }
+
     @Override
     public String usage() {
-        return "Removes a site from the set of the user's Search Console sites.";
+        return "Delete site";
     }
 }

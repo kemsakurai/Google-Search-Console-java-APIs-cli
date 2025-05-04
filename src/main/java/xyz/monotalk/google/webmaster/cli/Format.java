@@ -1,9 +1,21 @@
 package xyz.monotalk.google.webmaster.cli;
 
 /**
- * Format enum for Option
+ * 出力フォーマットを定義する列挙型です。
  */
-
 public enum Format {
-    CONSOLE, JSON;
+    /**
+     * コンソール出力フォーマットです。
+     */
+    CONSOLE, 
+    
+    /**
+     * JSON形式の出力フォーマットです。
+     */
+    JSON, 
+    
+    /**
+     * CSV形式の出力フォーマットです。
+     */
+    CSV
 }

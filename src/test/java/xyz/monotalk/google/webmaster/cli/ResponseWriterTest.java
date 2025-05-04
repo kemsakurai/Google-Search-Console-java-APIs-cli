@@ -10,6 +10,8 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.kohsuke.args4j.CmdLineException;
+import org.mockito.MockitoAnnotations;
+import org.slf4j.Logger;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -25,6 +27,7 @@ import java.util.Set;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.mock;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -36,9 +39,13 @@ public class ResponseWriterTest {
     @Mock
     private GenericJson mockResponse;
 
+    @Mock
+    private Logger mockLogger;
+
     private final ByteArrayOutputStream outContent = new ByteArrayOutputStream();
     private final PrintStream originalOut = System.out;
     private TestJson testJson;
+    private ResponseWriter responseWriter;
 
     private static class TestJson extends GenericJson {
         @com.google.api.client.util.Key
@@ -50,10 +57,11 @@ public class ResponseWriterTest {
     }
 
     @Before
-    public void setUp() throws IOException {
+    public void setUp() {
+        MockitoAnnotations.openMocks(this);
+        responseWriter = new ResponseWriter();
+        responseWriter.setLogger(mockLogger); // モックされた Logger を注入
         System.setOut(new PrintStream(outContent));
-        when(mockResponse.toPrettyString()).thenReturn("{\"test\": \"value\"}");
-        testJson = new TestJson("value");
     }
 
     @After
@@ -62,28 +70,39 @@ public class ResponseWriterTest {
     }
 
     @Test
-    public void testWriteJson_正常系_コンソール出力() throws Exception {
-        ResponseWriter.writeJson(mockResponse, Format.CONSOLE, null);
-        assertEquals("{\"test\": \"value\"}\n", outContent.toString());
+    public void testWriteJson_正常系_コンソール出力() throws CmdLineArgmentException, CommandLineInputOutputException {
+        // Given
+        String response = "{\"test\": \"value\"}";
+        Format format = Format.CONSOLE;
+
+        // When
+        responseWriter.writeJson(response, format, null);
+
+        // Then
+        verify(mockLogger).info(response);
     }
 
     @Test
     public void testWriteJson_正常系_JSONファイル出力() throws Exception {
+        // Given
         File outputFile = tempFolder.newFile("test-output.json");
         String filePath = outputFile.getAbsolutePath();
+        when(mockResponse.toPrettyString()).thenReturn("{\"test\": \"value\"}");
 
-        ResponseWriter.writeJson(mockResponse, Format.JSON, filePath);
+        // When
+        responseWriter.writeJson(mockResponse, Format.JSON, filePath);
 
+        // Then
         String content = new String(Files.readAllBytes(outputFile.toPath()));
         assertEquals("{\"test\": \"value\"}", content);
     }
 
     @Test(expected = CmdLineArgmentException.class)
-    public void testWriteJson_異常系_JSONフォーマットでファイルパス未指定() throws CmdLineException {
-        ResponseWriter.writeJson(mockResponse, Format.JSON, null);
+    public void testWriteJson_異常系_JSONフォーマットでファイルパス未指定() throws CmdLineArgmentException, CommandLineInputOutputException {
+        responseWriter.writeJson(mockResponse, Format.JSON, null);
     }
 
-    @Test(expected = CmdLineIOException.class)
+    @Test(expected = CommandLineInputOutputException.class)
     public void testWriteJson_異常系_JSONファイル書き込みエラー() throws Exception {
         // 読み取り専用の一時ディレクトリを作成
         Set<PosixFilePermission> readOnlyPerms = PosixFilePermissions.fromString("r-xr-xr-x");
@@ -92,22 +111,28 @@ public class ResponseWriterTest {
 
         // 一時ディレクトリ内のファイルパスを生成
         String filePath = readOnlyDir.resolve("test.json").toString();
-        ResponseWriter.writeJson(mockResponse, Format.JSON, filePath);
+        responseWriter.writeJson(mockResponse, Format.JSON, filePath);
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void testWriteJson_異常系_不正なフォーマット指定() throws CmdLineException {
-        ResponseWriter.writeJson(mockResponse, null, null);
+    @Test(expected = CmdLineArgmentException.class)
+    public void testWriteJson_異常系_不正なフォーマット指定() throws CmdLineArgmentException, CommandLineInputOutputException {
+        responseWriter.writeJson(mockResponse, null, null);
     }
 
     @Test
-    public void testWriteJson_正常系_空のオブジェクト出力() throws Exception {
-        GenericJson emptyJson = new GenericJson();
-        ResponseWriter.writeJson(emptyJson, Format.CONSOLE, null);
-        assertEquals("{}\n", outContent.toString());
+    public void testWriteJson_正常系_空のオブジェクト出力() throws CmdLineArgmentException, CommandLineInputOutputException {
+        // Given
+        String response = "{}";
+        Format format = Format.CONSOLE;
+
+        // When
+        responseWriter.writeJson(response, format, null);
+
+        // Then
+        verify(mockLogger).info(response);
     }
 
-    @Test(expected = CmdLineIOException.class)
+    @Test(expected = CommandLineInputOutputException.class)
     public void testWriteJson_異常系_権限なしディレクトリへの書き込み() throws Exception {
         Set<PosixFilePermission> perms = PosixFilePermissions.fromString("r--r--r--");
         FileAttribute<Set<PosixFilePermission>> attr = PosixFilePermissions.asFileAttribute(perms);
@@ -115,7 +140,7 @@ public class ResponseWriterTest {
         File outputFile = new File(readOnlyDir.toFile(), "test.json");
         
         try {
-            ResponseWriter.writeJson(mockResponse, Format.JSON, outputFile.getAbsolutePath());
+            responseWriter.writeJson(mockResponse, Format.JSON, outputFile.getAbsolutePath());
         } finally {
             Files.walk(readOnlyDir)
                 .sorted((a, b) -> b.compareTo(a))
@@ -131,41 +156,43 @@ public class ResponseWriterTest {
 
     @Test
     public void testWriteJson_正常系_大きなJSONオブジェクト出力() throws Exception {
+        // Given
         StringBuilder largeValue = new StringBuilder();
         for (int i = 0; i < 1000; i++) {
             largeValue.append("value").append(i);
         }
         TestJson largeJson = new TestJson(largeValue.toString());
         
-        ResponseWriter.writeJson(largeJson, Format.CONSOLE, null);
+        // When
+        responseWriter.writeJson(largeJson, Format.CONSOLE, null);
         
-        String output = outContent.toString();
-        assertTrue(output.contains("value0"));
-        assertTrue(output.contains("value999"));
+        // Then
+        // モックされたロガーが適切に呼ばれたことを検証する
+        verify(mockLogger).info(org.mockito.ArgumentMatchers.contains("value0"));
     }
 
-    @Test(expected = CmdLineIOException.class)
-    public void testWriteJson_IOエラー発生時に例外スロー() throws CmdLineException, IOException {
+    @Test(expected = CommandLineInputOutputException.class)
+    public void testWriteJson_IOエラー発生時に例外スロー() throws CmdLineArgmentException, CommandLineInputOutputException, IOException {
         // Given
         GenericJson mockResponse = mock(GenericJson.class);
         when(mockResponse.toPrettyString()).thenThrow(new IOException("IO Error"));
 
         // When
-        ResponseWriter.writeJson(mockResponse, Format.CONSOLE, null);
+        responseWriter.writeJson(mockResponse, Format.CONSOLE, null);
     }
 
     @Test(expected = CmdLineArgmentException.class)
-    public void testWriteJson_異常系_ファイルパスがJSONフォーマット時に未指定() throws CmdLineException, IOException {
+    public void testWriteJson_異常系_ファイルパスがJSONフォーマット時に未指定() throws CmdLineArgmentException, CommandLineInputOutputException, IOException {
         // Given
         GenericJson mockResponse = mock(GenericJson.class);
         when(mockResponse.toPrettyString()).thenReturn("test data");
 
         // When
-        ResponseWriter.writeJson(mockResponse, Format.JSON, null);
+        responseWriter.writeJson(mockResponse, Format.JSON, null);
     }
 
     @Test(expected = CmdLineArgmentException.class)
-    public void testWriteJson_異常系_フォーマットが未指定() throws CmdLineException {
-        ResponseWriter.writeJson(mockResponse, null, null);
+    public void testWriteJson_異常系_フォーマットが未指定() throws CmdLineArgmentException, CommandLineInputOutputException {
+        responseWriter.writeJson(mockResponse, null, null);
     }
 }

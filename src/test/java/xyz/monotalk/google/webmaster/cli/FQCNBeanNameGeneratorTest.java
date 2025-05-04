@@ -2,22 +2,32 @@ package xyz.monotalk.google.webmaster.cli;
 
 import org.junit.Test;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
+import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.beans.factory.support.GenericBeanDefinition;
-import static org.junit.Assert.assertEquals;
 
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.mock;
+
+/**
+ * FullyQualifiedClassNameBeanNameGeneratorのテストクラス。
+ */
 public class FQCNBeanNameGeneratorTest {
 
+    /**
+     * 完全修飾クラス名がbean名として正しく生成されることをテスト。
+     */
     @Test
-    public void testBuildDefaultBeanName_正常系_完全修飾クラス名が返却される() {
+    public void testGenerateBeanName_shouldReturnFullyQualifiedClassName() {
         // Given
-        FQCNBeanNameGenerator generator = new FQCNBeanNameGenerator();
+        FullyQualifiedClassNameBeanNameGenerator generator = new FullyQualifiedClassNameBeanNameGenerator();
         String className = "xyz.monotalk.google.webmaster.cli.TestClass";
         GenericBeanDefinition definition = (GenericBeanDefinition) BeanDefinitionBuilder
                 .genericBeanDefinition(className)
                 .getBeanDefinition();
+        BeanDefinitionRegistry registry = mock(BeanDefinitionRegistry.class);
 
         // When
-        String beanName = generator.buildDefaultBeanName(definition);
+        String beanName = generator.generateBeanName(definition, registry);
 
         // Then
         assertEquals(className, beanName);

@@ -11,6 +11,9 @@ import org.springframework.test.context.junit4.SpringRunner;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
+/**
+ * CliApplicationのテストクラス
+ */
 @RunWith(SpringRunner.class)
 @SpringBootTest
 @ActiveProfiles("test")
@@ -19,19 +22,28 @@ public class CliApplicationTest {
     @Autowired
     private ApplicationContext context;
 
+    /**
+     * アプリケーションコンテキストが正しく起動することをテスト
+     */
     @Test
-    public void testContext_正常系_アプリケーションコンテキストが正しく起動する() {
+    public void testContext_shouldLoadApplicationContextSuccessfully() {
         assertNotNull(context);
     }
 
+    /**
+     * 必要なBeanが登録されていることをテスト
+     */
     @Test
-    public void testBeanConfiguration_正常系_必要なBeanが登録されている() {
+    public void testBeanConfiguration_shouldRegisterRequiredBeans() {
         assertNotNull(context.getBean(WebmastersFactory.class));
         assertNotNull(context.getBean(WebmastersCommandRunner.class));
     }
 
+    /**
+     * アプリケーションが正常に起動できることをテスト
+     */
     @Test
-    public void testMain_正常系_アプリケーションが起動できる() {
+    public void testMain_shouldStartApplicationWithoutException() {
         CliApplication.main(new String[]{});
         assertTrue(true); // アプリケーションが例外なく起動できることを確認
     }

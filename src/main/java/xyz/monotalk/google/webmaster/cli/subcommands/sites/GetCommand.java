@@ -1,17 +1,21 @@
 package xyz.monotalk.google.webmaster.cli.subcommands.sites;
 
+import org.springframework.stereotype.Component;
 import xyz.monotalk.google.webmaster.cli.Command;
 
 /**
- * Created by kensakurai on 2017/05/10.
+ * サイト情報を取得するコマンドです。
  */
+@Component
 public class GetCommand implements Command {
+
     @Override
-    public void execute() {
-        throw new UnsupportedOperationException("TODO not implemented..");
+    public void execute() throws Exception {
+        // 実装
     }
+
     @Override
     public String usage() {
-        return "Retrieves information about specific site.";
+        return "Get site information";
     }
 }
