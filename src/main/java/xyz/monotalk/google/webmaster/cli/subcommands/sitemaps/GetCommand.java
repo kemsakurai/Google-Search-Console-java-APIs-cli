@@ -19,6 +19,9 @@ import java.net.URL;
 public class GetCommand implements Command {
 
     @Autowired
+    private ResponseWriter responseWriter;
+
+    @Autowired
     protected WebmastersFactory factory;
 
     @Option(name = "-siteUrl", usage = "Site URL", metaVar = "<siteUrl>", required = true,
@@ -51,7 +54,7 @@ public class GetCommand implements Command {
             
             Webmasters.Sitemaps.Get request = webmasters.sitemaps().get(siteUrl.toString(), feedpath);
             WmxSitemap response = request.execute();
-            ResponseWriter.writeJson(response, format, filePath);
+            responseWriter.writeJson(response, format, filePath);
         } catch (IOException e) {
             throw new CmdLineIOException(e);
         }

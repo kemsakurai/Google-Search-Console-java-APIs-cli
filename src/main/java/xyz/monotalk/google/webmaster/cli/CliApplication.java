@@ -5,11 +5,30 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.ComponentScan;
 
+/**
+ * Google Search Console CLI アプリケーションのエントリーポイントクラス。
+ * このクラスはSpring Bootアプリケーションを起動し、コマンドライン引数を処理します。
+ */
 @SpringBootApplication
 @ComponentScan(nameGenerator = FQCNBeanNameGenerator.class)
-public class CliApplication {
-    public static void main(String[] args) {
-        SpringApplication springApplication = new SpringApplication(CliApplication.class);
+public final class CliApplication {
+    
+    /**
+     * インスタンス化を防ぐためのプライベートコンストラクタ。
+     * このクラスはユーティリティクラスとして機能し、静的メソッドのみを提供します。
+     */
+    private CliApplication() {
+        // インスタンス化防止のためのコンストラクタ
+    }
+    
+    /**
+     * アプリケーションのエントリーポイント。
+     * Spring Bootアプリケーションを初期化し、起動します。
+     *
+     * @param args コマンドライン引数
+     */
+    public static void main(final String[] args) {
+        final SpringApplication springApplication = new SpringApplication(CliApplication.class);
         springApplication.setBannerMode(Banner.Mode.OFF);
         springApplication.run(args);
     }

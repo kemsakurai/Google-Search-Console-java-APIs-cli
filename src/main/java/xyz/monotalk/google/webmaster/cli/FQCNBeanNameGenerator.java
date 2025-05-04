@@ -1,15 +1,32 @@
 package xyz.monotalk.google.webmaster.cli;
 
 import org.springframework.beans.factory.config.BeanDefinition;
-import org.springframework.context.annotation.AnnotationBeanNameGenerator;
+import org.springframework.beans.factory.support.BeanNameGenerator;
+import org.springframework.stereotype.Component;
 
 /**
- * FQCNBeanNameGenerator
+ * 完全修飾クラス名をBean名として生成するジェネレーターです。
+ * これにより、SpringコンテキストでBean名の衝突を避けることができます。
  */
-public class FQCNBeanNameGenerator extends AnnotationBeanNameGenerator {
+@Component
+public class FQCNBeanNameGenerator implements BeanNameGenerator {
 
+    /**
+     * デフォルトコンストラクタ。
+     */
+    public FQCNBeanNameGenerator() {
+        // デフォルトの初期化処理
+    }
+
+    /**
+     * 指定されたBeanDefinitionから完全修飾クラス名をBean名として返します。
+     *
+     * @param definition Bean定義
+     * @param registry Beanレジストリ
+     * @return 完全修飾クラス名
+     */
     @Override
-    protected String buildDefaultBeanName(BeanDefinition definition) {
+    public String generateBeanName(BeanDefinition definition, org.springframework.beans.factory.support.BeanDefinitionRegistry registry) {
         return definition.getBeanClassName();
     }
 }

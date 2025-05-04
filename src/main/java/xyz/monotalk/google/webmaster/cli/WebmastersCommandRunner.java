@@ -1,7 +1,6 @@
 package xyz.monotalk.google.webmaster.cli;
 
 import org.apache.commons.lang3.tuple.Pair;
-import org.apache.commons.text.StrBuilder;
 import org.kohsuke.args4j.Argument;
 import org.kohsuke.args4j.CmdLineException;
 import org.kohsuke.args4j.CmdLineParser;
@@ -14,22 +13,30 @@ import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.StringJoiner;
 
-import static java.lang.System.err;
-
 /**
- * WebmastersCommandRunner
+ * WebmastersCommandRunnerは、コマンドライン引数を処理し、対応するコマンドを実行します。
  */
 @Component
 public class WebmastersCommandRunner implements CommandLineRunner {
 
-    @Autowired private ApplicationContext context;
+    /** ロガーインスタンス */
+    private static final Logger LOGGER = LoggerFactory.getLogger(WebmastersCommandRunner.class);
+
+    /**
+     * Springコンテキストの注入
+     */
+    @Autowired
+    private ApplicationContext context;
 
     /**
      * 引数によって実行するオブジェクトを切り替える
@@ -67,45 +74,48 @@ public class WebmastersCommandRunner implements CommandLineRunner {
     @Option(name = "-?", aliases = "--help", usage = "show this help message and exit") private boolean usageFlag;
 
     @Override
-    public void run(String... args) throws Exception {
+    public void run(final String... args) throws Exception {
+        if (LOGGER.isInfoEnabled()) {
+            LOGGER.info("Starting command execution");
+        }
         // ------------------------------------------------
         // "--application" を含むコマンドライン引数を除外
         // ----------------
-        List<String> cmdArgs = new ArrayList<>();
-        for (String arg : args) {
+        final List<String> cmdArgs = new ArrayList<>();
+        for (final String arg : args) {
             if (!arg.contains("--application")) {
                 cmdArgs.add(arg);
             }
         }
         if (cmdArgs.isEmpty()) {
-            CmdLineParser parser = new CmdLineParser(this);
+            final CmdLineParser parser = new CmdLineParser(this);
             parser.parseArgument(cmdArgs);
-            err.println("--------------------------------------------------------------------------");
-            err.println(usage());
-            parser.printUsage(err);
-            err.println("------------");
+            LOGGER.error("--------------------------------------------------------------------------");
+            LOGGER.error(usage());
+            parser.printUsage(System.err);
+            LOGGER.error("------------");
             return;
         }
-        CmdLineParser parser = new CmdLineParser(this);
+        final CmdLineParser parser = new CmdLineParser(this);
         try {
             parser.parseArgument(cmdArgs);
             // Output help
             if (usageFlag) {
-                err.println("--------------------------------------------------------------------------");
-                err.println(usage());
-                parser.printUsage(err);
-                err.println("---------------------------");
+                LOGGER.error("--------------------------------------------------------------------------");
+                LOGGER.error(usage());
+                parser.printUsage(System.err);
+                LOGGER.error("---------------------------");
                 return;
             }
-            AutowireCapableBeanFactory autowireCapableBeanFactory = context.getAutowireCapableBeanFactory();
+            final AutowireCapableBeanFactory autowireCapableBeanFactory = context.getAutowireCapableBeanFactory();
             autowireCapableBeanFactory.autowireBean(this.command);
             this.command.execute();
         } catch (CmdLineArgmentException | CmdLineException e) {
-            err.println("error occurred: " + e.getMessage());
-            err.println("--------------------------------------------------------------------------");
-            err.println(usage());
-            parser.printUsage(err);
-            err.println("------------");
+            LOGGER.error("error occurred: " + e.getMessage());
+            LOGGER.error("--------------------------------------------------------------------------");
+            LOGGER.error(usage());
+            parser.printUsage(System.err);
+            LOGGER.error("------------");
             return;
         }
     }
@@ -114,36 +124,30 @@ public class WebmastersCommandRunner implements CommandLineRunner {
      * usage
      */
     private String usage() {
-        StrBuilder sb = new StrBuilder();
-        sb.appendln("usage: xyz.monotalk.google.webmaster.cli.CliApplication");
-        sb.appendNewLine();
-        Field field;
+        final StringBuilder sb = new StringBuilder();
+        sb.append("usage: xyz.monotalk.google.webmaster.cli.CliApplication\n\n");
+        final Field field;
         try {
             field = this.getClass().getDeclaredField("command");
         } catch (NoSuchFieldException e) {
             throw new IllegalStateException(e);
         }
-        SubCommands subCommands = field.getAnnotation(SubCommands.class);
-        StringJoiner joiner = new StringJoiner(",", "{", "}");
+        final SubCommands subCommands = field.getAnnotation(SubCommands.class);
+        final StringJoiner joiner = new StringJoiner(",", "{", "}");
         Arrays.stream(subCommands.value()).forEach(e -> joiner.add(e.name()));
-        sb.appendln("  " + joiner.toString());
-        sb.appendln("  " + "...");
-        sb.appendNewLine();
-        sb.appendln("positional arguments:");
-        sb.appendNewLine();
-        sb.appendln("  " + joiner.toString());
+        sb.append("  ").append(joiner.toString()).append("\n  ...\n\n");
+        sb.append("positional arguments:\n\n");
+        sb.append("  ").append(joiner.toString()).append("\n");
         Arrays.stream(subCommands.value()).map(e -> {
             try {
-                return Pair.of(e.name(), (Command) e.impl().newInstance());
-            } catch (InstantiationException | IllegalAccessException ex) {
+                return Pair.of(e.name(), (Command) e.impl().getDeclaredConstructor().newInstance());
+            } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException ex) {
                 throw new IllegalStateException(ex);
             }
         }).forEach(e -> {
-            sb.appendln("    " + e.getLeft() + "  |  " + e.getRight().usage());
+            sb.append("    ").append(e.getLeft()).append("  |  ").append(e.getRight().usage()).append("\n");
         });
-        sb.appendNewLine();
-        sb.append("optional arguments:");
-        sb.appendNewLine();
+        sb.append("\noptional arguments:\n\n");
         return sb.toString();
     }
 }

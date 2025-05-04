@@ -4,55 +4,66 @@ import com.google.api.services.webmasters.Webmasters;
 import com.google.api.services.webmasters.model.SitemapsListResponse;
 import org.kohsuke.args4j.CmdLineException;
 import org.kohsuke.args4j.Option;
-import org.kohsuke.args4j.spi.URLOptionHandler;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import xyz.monotalk.google.webmaster.cli.*;
 
 import java.io.IOException;
-import java.net.URL;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * ListCommand
  */
+@Component
 public class ListCommand implements Command {
 
-    @Autowired protected WebmastersFactory factory;
+    @Autowired
+    private WebmastersFactory factory;
 
-    @Option(name = "-siteUrl", usage = "Site URL", metaVar = "<siteUrl>", required = true,
-            handler = URLOptionHandler.class)
-    protected URL siteUrl = null;
+    @Autowired
+    private ResponseWriter responseWriter;
 
-    @Option(name = "-format", usage = "Output format", metaVar = "[console or json]")
+    @Option(name = "-siteUrl", usage = "Site URL", required = true)
+    protected String siteUrl;
+
+    @Option(name = "-format", usage = "Output format", required = false)
     protected Format format = Format.CONSOLE;
 
-    @Option(name = "-filePath", usage = "JSON file path", metaVar = "<filename>", depends = {"-format"})
-    protected String filePath = null;
+    @Option(name = "-filePath", usage = "Output file path", required = false)
+    protected String filePath;
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(ListCommand.class);
+
+    /**
+     * サイトマップ一覧を取得し、指定された形式で出力します。
+     *
+     * @throws CommandLineInputOutputException 入出力エラーが発生した場合
+     * @throws CmdLineArgmentException 引数の検証エラーが発生した場合
+     * @throws CmdLineIOException API実行エラーが発生した場合
+     */
     @Override
-    public void execute() throws CmdLineException {
-        if (Format.JSON.equals(format) && filePath == null) {
-            throw new CmdLineException(null, "For JSON format, filepath is mandatory.");
-        }
-
-        Webmasters.Sitemaps.List request;
+    public void execute() throws CmdLineArgmentException, CmdLineIOException {
+        LOGGER.info("Starting site {} sitemap list command.", siteUrl);
         try {
-            request = factory.create().sitemaps().list(siteUrl.toString());
+            Webmasters webmasters = factory.create();
+            Webmasters.Sitemaps.List list = webmasters.sitemaps().list(siteUrl);
+            SitemapsListResponse response = list.execute();
+            responseWriter.writeJson(response, format, filePath);
+            LOGGER.info("Command completed successfully.");
         } catch (IOException e) {
-            throw new CmdLineIOException(e);
+            LOGGER.error("API execution failed", e);
+            throw new CmdLineIOException("API execution failed: " + e.getMessage(), e);
         }
-
-        SitemapsListResponse response;
-        try {
-            response = request.execute();
-        } catch (IOException e) {
-            throw new CmdLineIOException(e);
-        }
-
-        ResponseWriter.writeJson(response, format, filePath);
     }
 
+    /**
+     * コマンドの使用方法を返します。
+     *
+     * @return 使用方法の説明
+     */
     @Override
     public String usage() {
-        return "Lists the sitemaps-entries submitted for this site, or included in the sitemap index file (if sitemapIndex is specified in the request).";
+        return "Lists the sitemaps for a given site URL.";
     }
 }

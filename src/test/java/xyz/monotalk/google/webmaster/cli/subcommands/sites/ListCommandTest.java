@@ -9,18 +9,29 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import xyz.monotalk.google.webmaster.cli.CmdLineIOException;
+import xyz.monotalk.google.webmaster.cli.Format;
+import xyz.monotalk.google.webmaster.cli.ResponseWriter;
 import xyz.monotalk.google.webmaster.cli.WebmastersFactory;
 
 import java.io.IOException;
 
 import static org.junit.Assert.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
+/**
+ * サイト一覧取得コマンドのテストクラス
+ */
 @RunWith(MockitoJUnitRunner.class)
 public class ListCommandTest {
 
     @Mock
     private WebmastersFactory factory;
+
+    @Mock
+    private ResponseWriter responseWriter;
 
     @Mock
     private Webmasters webmasters;
@@ -31,6 +42,9 @@ public class ListCommandTest {
     @Mock
     private Webmasters.Sites.List request;
 
+    @Mock
+    private SitesListResponse response;
+
     @InjectMocks
     private ListCommand command;
 
@@ -39,14 +53,18 @@ public class ListCommandTest {
         when(factory.create()).thenReturn(webmasters);
         when(webmasters.sites()).thenReturn(sites);
         when(sites.list()).thenReturn(request);
+        when(request.execute()).thenReturn(response);
+        
+        // ResponseWriterのモックセットアップ
+        doNothing().when(responseWriter).writeJson(any(), any(Format.class), anyString());
     }
 
+    /**
+     * 正常系のテスト
+     * サイト一覧が正常に取得されることを検証
+     */
     @Test
-    public void testExecute_正常系() throws IOException {
-        // テストデータの準備
-        SitesListResponse response = new SitesListResponse();
-        when(request.execute()).thenReturn(response);
-
+    public void testExecute_WithValidParameters_ShouldReturnSitesList() throws IOException {
         // 実行
         command.execute();
 
@@ -55,17 +73,32 @@ public class ListCommandTest {
         verify(webmasters).sites();
         verify(sites).list();
         verify(request).execute();
+        verify(responseWriter).writeJson(eq(response), any(Format.class), anyString());
     }
 
+    /**
+     * API呼び出しでエラーが発生した場合のテスト
+     * IOExceptionがCmdLineIOExceptionとしてスローされることを確認
+     */
     @Test(expected = CmdLineIOException.class)
-    public void testExecute_APIエラー発生時にスタックトレースが出力されること() throws IOException {
+    public void testExecute_WhenApiCallFails_ShouldThrowCmdLineIOException() throws IOException {
+        // 準備
         when(request.execute()).thenThrow(new IOException("API Error"));
+        
+        // 実行
         command.execute();
     }
 
+    /**
+     * usage()メソッドのテスト
+     * 説明文が正しく返されることを検証
+     */
     @Test
-    public void testUsage_使用方法の説明が取得できること() {
+    public void testUsage_ShouldReturnCorrectDescription() {
+        // 実行
         String usage = command.usage();
+        
+        // 検証
         assertEquals("Lists the user's Search Console sites.", usage);
     }
 }

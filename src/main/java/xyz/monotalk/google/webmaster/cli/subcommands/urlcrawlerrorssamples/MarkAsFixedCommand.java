@@ -12,24 +12,40 @@ import xyz.monotalk.google.webmaster.cli.WebmastersFactory;
 import java.io.IOException;
 
 /**
- * MarkAsFixedCommand
+ * URLクロールエラーサンプルを修正済みとしてマークするコマンド
  */
 @Component
 public class MarkAsFixedCommand implements Command {
 
+    /** Webmasters APIクライアント生成ファクトリ */
     @Autowired
     private WebmastersFactory factory;
 
+    /** 修正済みとしてマークするURL */
     @Option(name = "-url", usage = "URL to mark as fixed", required = true)
     private String url;
 
+    /** プラットフォーム (web, mobile, smartphoneOnly) */
     @Option(name = "-platform", usage = "Platform (web, mobile, smartphoneOnly)", required = true)
-    private String platform = "web";
+    private static final String PLATFORM = "web";
 
+    /** エラーカテゴリ */
     @Option(name = "-category", usage = "Error category", required = true)
-    private String category = "notFound";
+    private static final String CATEGORY = "notFound";
 
-    public void setUrl(String url) {
+    /**
+     * デフォルトコンストラクタ
+     */
+    public MarkAsFixedCommand() {
+        // デフォルトコンストラクタ
+    }
+
+    /**
+     * URLを設定します
+     * 
+     * @param url 設定するURL
+     */
+    public void setUrl(final String url) {
         this.url = url;
     }
 
@@ -40,10 +56,10 @@ public class MarkAsFixedCommand implements Command {
         }
 
         try {
-            Webmasters.Urlcrawlerrorssamples.MarkAsFixed request = factory.create()
-                .urlcrawlerrorssamples()
-                .markAsFixed("https://www.monotalk.xyz", url, category, platform);
-            request.execute();
+            final Webmasters.Urlcrawlerrorssamples errorSamples = factory.create()
+                .urlcrawlerrorssamples();
+            errorSamples.markAsFixed("https://www.monotalk.xyz", url, CATEGORY, PLATFORM)
+                .execute();
         } catch (IOException e) {
             throw new CmdLineIOException(e);
         }

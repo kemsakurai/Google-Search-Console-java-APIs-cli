@@ -17,33 +17,43 @@ import java.io.IOException;
 @Component
 public class AddCommand implements Command {
 
-    @Autowired 
+    @Autowired
     private WebmastersFactory factory;
 
-    @Option(name = "-siteUrl", usage = "Site URL to add", required = true)
+    @Option(name = "-siteUrl", usage = "Site URL", required = true)
     private String siteUrl;
 
     @Option(name = "-format", usage = "Output format [console or json]")
     private Format format = Format.CONSOLE;
 
+    /**
+     * サイトをGoogle Search Consoleに追加します。
+     *
+     * @throws CmdLineIOException API実行エラーが発生した場合
+     */
     @Override
-    public void execute() {
+    public void execute() throws CmdLineIOException {
         try {
             Webmasters webmasters = factory.create();
-            Webmasters.Sites.Add request = webmasters.sites().add(siteUrl);
-            request.execute();
+            Webmasters.Sites.Add add = webmasters.sites().add(siteUrl);
+            add.execute();
             
             if (format == Format.CONSOLE) {
                 System.out.println("Successfully added site: " + siteUrl);
             }
         } catch (IOException e) {
-            throw new CmdLineIOException(e);
+            throw new CmdLineIOException("Failed to add site: " + siteUrl, e);
         }
     }
 
+    /**
+     * コマンドの使用方法を返します。
+     *
+     * @return 使用方法の説明
+     */
     @Override
     public String usage() {
-        return "Adds a site to the set of the user's sites in Search Console.";
+        return "Adds a site to Google Search Console.";
     }
 
     // For testing

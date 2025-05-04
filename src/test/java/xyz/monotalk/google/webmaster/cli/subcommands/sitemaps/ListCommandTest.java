@@ -11,7 +11,11 @@ import org.kohsuke.args4j.CmdLineException;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+import xyz.monotalk.google.webmaster.cli.CmdLineArgmentException;
+import xyz.monotalk.google.webmaster.cli.CmdLineIOException;
+import xyz.monotalk.google.webmaster.cli.CommandLineInputOutputException;
 import xyz.monotalk.google.webmaster.cli.Format;
+import xyz.monotalk.google.webmaster.cli.ResponseWriter;
 import xyz.monotalk.google.webmaster.cli.WebmastersFactory;
 
 import java.io.File;
@@ -19,10 +23,16 @@ import java.io.IOException;
 import java.net.URL;
 
 import static org.junit.Assert.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+/**
+ * サイトマップ一覧取得コマンドのテストクラス
+ */
 @RunWith(MockitoJUnitRunner.class)
 public class ListCommandTest {
 
@@ -31,6 +41,9 @@ public class ListCommandTest {
 
     @Mock
     private WebmastersFactory factory;
+
+    @Mock
+    private ResponseWriter responseWriter;
 
     @Mock
     private Webmasters webmasters;
@@ -48,15 +61,22 @@ public class ListCommandTest {
     private ListCommand command;
 
     @Before
-    public void setup() throws IOException {
+    public void setup() throws IOException, CommandLineInputOutputException, CmdLineIOException, CmdLineArgmentException {
         when(factory.create()).thenReturn(webmasters);
         when(webmasters.sitemaps()).thenReturn(sitemaps);
         when(sitemaps.list(anyString())).thenReturn(list);
         when(list.execute()).thenReturn(response);
+        
+        // ResponseWriterのモックセットアップ
+        doNothing().when(responseWriter).writeJson(any(), any(Format.class), anyString());
     }
 
+    /**
+     * コンソール出力モードでの正常系テスト
+     * サイトマップ一覧が正常に取得されコンソールに出力されることを検証
+     */
     @Test
-    public void testExecute_正常系_コンソール出力() throws Exception {
+    public void testExecute_WithConsoleFormat_ShouldSucceed() throws Exception {
         // Given
         command.siteUrl = new URL("https://example.com");
         command.format = Format.CONSOLE;
@@ -69,10 +89,15 @@ public class ListCommandTest {
         verify(webmasters).sitemaps();
         verify(sitemaps).list("https://example.com");
         verify(list).execute();
+        verify(responseWriter).writeJson(eq(response), eq(Format.CONSOLE), anyString());
     }
 
+    /**
+     * JSONファイル出力モードでの正常系テスト
+     * サイトマップ一覧が正常に取得されJSONファイルに出力されることを検証
+     */
     @Test
-    public void testExecute_正常系_JSONファイル出力() throws Exception {
+    public void testExecute_WithJsonFormat_ShouldOutputToFile() throws Exception {
         // Given
         File tempFile = temporaryFolder.newFile("output.json");
         command.siteUrl = new URL("https://example.com");
@@ -87,22 +112,31 @@ public class ListCommandTest {
         verify(webmasters).sitemaps();
         verify(sitemaps).list("https://example.com");
         verify(list).execute();
+        verify(responseWriter).writeJson(eq(response), eq(Format.JSON), eq(tempFile.getAbsolutePath()));
     }
 
-    @Test(expected = IllegalStateException.class)
-    public void testExecute_異常系_API呼び出しで例外が発生() throws Exception {
+    /**
+     * API呼び出しで例外が発生した場合のテスト
+     * IOExceptionがCmdLineIOExceptionに変換されることを検証
+     */
+    @Test(expected = CmdLineIOException.class)
+    public void testExecute_WhenApiCallFails_ShouldThrowCmdLineIOException() throws Exception {
         // Given
-        command.siteUrl = new URL("https://example.com");
+        command.siteUrl = new URL("https://example.com").toString();
         when(list.execute()).thenThrow(new IOException("API Error"));
 
         // When
         command.execute();
     }
 
+    /**
+     * JSONフォーマット指定時にファイルパスが未指定の場合のテスト
+     * CmdLineExceptionが発生することを検証
+     */
     @Test(expected = CmdLineException.class)
-    public void testExecute_異常系_ファイルパスがJSONフォーマット時に未指定() throws Exception {
+    public void testExecute_WithJsonFormatWithoutFilePath_ShouldThrowException() throws Exception {
         // Given
-        command.siteUrl = new URL("https://example.com");
+        command.siteUrl = new URL("https://example.com").toString();
         command.format = Format.JSON;
         command.filePath = null;
 
@@ -110,8 +144,12 @@ public class ListCommandTest {
         command.execute();
     }
 
+    /**
+     * usageメソッドのテスト
+     * 適切な説明文字列が返されることを検証
+     */
     @Test
-    public void testUsage_正常系_説明文字列が返却される() {
+    public void testUsage_ShouldReturnCorrectDescription() {
         // When
         String usage = command.usage();
 

@@ -22,7 +22,8 @@ import java.util.Collections;
 @Component
 public class WebmastersFactory {
 
-    @Value("${application.keyFileLocation}") private String keyFileLocation;
+    @Value("${application.keyFileLocation}")
+    private String keyFileLocation; // アプリケーションのキー ファイルの場所
 
     /**
      * Create Webmasters instance.
@@ -30,15 +31,15 @@ public class WebmastersFactory {
      * @return Webmastersインスタンス
      */
     public Webmasters create() {
-        HttpTransport httpTransport;
+        final HttpTransport httpTransport;
         try {
             httpTransport = createHttpTransport();
         } catch (GeneralSecurityException | IOException e) {
             throw new IllegalStateException(e);
         }
 
-        JsonFactory jsonFactory = getJsonFactory();
-        GoogleCredential credential;
+        final JsonFactory jsonFactory = getJsonFactory();
+        final GoogleCredential credential;
         try {
             credential = createCredential();
         } catch (IOException e) {
@@ -69,8 +70,8 @@ public class WebmastersFactory {
      * 認証情報を作成します
      */
     protected GoogleCredential createCredential() throws IOException {
-        return GoogleCredential
-                .fromStream(new FileInputStream(keyFileLocation))
-                .createScoped(Collections.singleton(WebmastersScopes.WEBMASTERS));
+        try (FileInputStream fis = new FileInputStream(keyFileLocation)) {
+            return GoogleCredential.fromStream(fis).createScoped(Collections.singleton(WebmastersScopes.WEBMASTERS));
+        }
     }
 }

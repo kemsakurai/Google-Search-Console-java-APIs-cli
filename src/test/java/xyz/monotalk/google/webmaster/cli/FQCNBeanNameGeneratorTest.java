@@ -4,6 +4,7 @@ import org.junit.Test;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.support.GenericBeanDefinition;
 import static org.junit.Assert.assertEquals;
+import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 
 public class FQCNBeanNameGeneratorTest {
 
@@ -17,7 +18,9 @@ public class FQCNBeanNameGeneratorTest {
                 .getBeanDefinition();
 
         // When
-        String beanName = generator.buildDefaultBeanName(definition);
+        // レジストリ（BeanFactory）の生成
+        DefaultListableBeanFactory registry = new DefaultListableBeanFactory();
+        String beanName = generator.generateBeanName(definition, registry);
 
         // Then
         assertEquals(className, beanName);

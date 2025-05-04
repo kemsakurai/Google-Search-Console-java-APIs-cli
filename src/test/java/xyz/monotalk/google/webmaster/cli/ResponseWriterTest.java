@@ -38,7 +38,6 @@ public class ResponseWriterTest {
 
     private final ByteArrayOutputStream outContent = new ByteArrayOutputStream();
     private final PrintStream originalOut = System.out;
-    private TestJson testJson;
 
     private static class TestJson extends GenericJson {
         @com.google.api.client.util.Key
@@ -53,7 +52,6 @@ public class ResponseWriterTest {
     public void setUp() throws IOException {
         System.setOut(new PrintStream(outContent));
         when(mockResponse.toPrettyString()).thenReturn("{\"test\": \"value\"}");
-        testJson = new TestJson("value");
     }
 
     @After

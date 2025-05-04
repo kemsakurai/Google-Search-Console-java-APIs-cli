@@ -2,48 +2,55 @@ package xyz.monotalk.google.webmaster.cli.subcommands.urlcrawlerrorscounts;
 
 import com.google.api.services.webmasters.Webmasters;
 import com.google.api.services.webmasters.model.UrlCrawlErrorsCountsQueryResponse;
-import org.kohsuke.args4j.CmdLineException;
 import org.kohsuke.args4j.Option;
-import org.kohsuke.args4j.spi.URLOptionHandler;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import xyz.monotalk.google.webmaster.cli.*;
 
 import java.io.IOException;
-import java.net.URL;
 
 /**
  * QueryCommand
  */
+@Component
 public class QueryCommand implements Command {
 
-    @Autowired private WebmastersFactory factory;
+    @Autowired
+    private WebmastersFactory factory;
 
-    @Option(name = "-siteUrl", usage = "Url of site", metaVar = "<siteUrl>", required = true,
-            handler = URLOptionHandler.class) private URL siteUrl = null;
+    @Autowired
+    private ResponseWriter responseWriter;
 
-    @Option(name = "-format", usage = "Format of output ",
-            metaVar = "[console or json]") private Format format = Format.CONSOLE;
+    @Option(name = "-siteUrl", usage = "Site URL", required = true)
+    private String siteUrl;
 
-    @Option(name = "-filePath", usage = "File name of json ", metaVar = "<filename>",
-            depends = {"-format"}) private String filePath = null;
+    @Option(name = "-format", usage = "Output format", required = false)
+    private Format format = Format.CONSOLE;
 
+    @Option(name = "-filePath", usage = "Output file path", required = false)
+    private String filePath;
+
+    /**
+     * URLクロールエラー数を取得し、指定された形式で出力します。
+     *
+     * @throws CmdLineIOException API実行エラーが発生した場合
+     */
     @Override
-    public void execute() throws CmdLineException {
-        Webmasters.Urlcrawlerrorscounts.Query request;
+    public void execute() throws CmdLineIOException {
         try {
-            request = factory.create().urlcrawlerrorscounts().query(siteUrl.toString());
+            Webmasters.Urlcrawlerrorscounts.Query request = factory.create().urlcrawlerrorscounts().query(siteUrl);
+            UrlCrawlErrorsCountsQueryResponse response = request.execute();
+            responseWriter.writeJson(response, format, filePath);
         } catch (IOException e) {
-            throw new CmdLineIOException(e);
+            throw new CmdLineIOException("Failed to query URL crawl errors counts", e);
         }
-        UrlCrawlErrorsCountsQueryResponse response;
-        try {
-            response = request.execute();
-        } catch (IOException e) {
-            throw new CmdLineIOException(e);
-        }
-        ResponseWriter.writeJson(response, format, filePath);
     }
 
+    /**
+     * コマンドの使用方法を返します。
+     *
+     * @return 使用方法の説明
+     */
     @Override
     public String usage() {
         return "Retrieves a time series of the number of URL crawl errors per error category and platform.";

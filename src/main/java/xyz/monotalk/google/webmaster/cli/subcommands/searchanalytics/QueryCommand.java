@@ -23,13 +23,13 @@ public class QueryCommand implements Command {
 
     @Override
     public void execute() {
-        SearchAnalyticsQueryRequest query = new SearchAnalyticsQueryRequest();
+        final SearchAnalyticsQueryRequest query = new SearchAnalyticsQueryRequest();
         query.setStartDate("2016-07-02");
         query.setEndDate("2017-05-02");
         query.setRowLimit(5000);
         query.setStartRow(0);
         query.setSearchType("web");
-        List<String> dimentions = new ArrayList<String>();
+        final List<String> dimentions = new ArrayList<String>();
         dimentions.add("page");
         dimentions.add("query");
         dimentions.add("date");
@@ -43,7 +43,7 @@ public class QueryCommand implements Command {
         // query.setAggregationType("byPage");
         // query.setAggregationType("byProperty");
 
-        List<ApiDimensionFilterGroup> apiDimensionFilterGroups = getApiDimensionFilterGroups();
+        final List<ApiDimensionFilterGroup> apiDimensionFilterGroups = getApiDimensionFilterGroups();
         query.setDimensionFilterGroups(apiDimensionFilterGroups);
 
         SearchAnalyticsQueryResponse searchAnalyticsQueryResponse = null;
@@ -60,8 +60,7 @@ public class QueryCommand implements Command {
                 out.println("検索結果はnullです");
             }
         } catch (IOException e) {
-            out.println("Pretty print error: " + e.getMessage());
-            e.printStackTrace();
+            logger.error("Pretty print error: " + e.getMessage(), e);
         }
         out.println("<<<END");
 
@@ -70,8 +69,7 @@ public class QueryCommand implements Command {
                 try {
                     out.println(row.toPrettyString());
                 } catch (IOException e) {
-                    out.println("Row pretty print error: " + e.getMessage());
-                    e.printStackTrace();
+                    logger.error("Row pretty print error: " + e.getMessage(), e);
                 }
             }
         }
@@ -83,25 +81,25 @@ public class QueryCommand implements Command {
     }
 
     private static List<ApiDimensionFilterGroup> getApiDimensionFilterGroups() {
-        ApiDimensionFilter javaFilter = new ApiDimensionFilter();
+        final ApiDimensionFilter javaFilter = new ApiDimensionFilter();
         javaFilter.setDimension("page");
         javaFilter.setExpression("java");
         javaFilter.setOperator("contains");
-        ArrayList<ApiDimensionFilter> javaFilters = new ArrayList<>();
+        final ArrayList<ApiDimensionFilter> javaFilters = new ArrayList<>();
         javaFilters.add(javaFilter);
-        ApiDimensionFilterGroup apiDimensionJavaFilterGroup = new ApiDimensionFilterGroup();
+        final ApiDimensionFilterGroup apiDimensionJavaFilterGroup = new ApiDimensionFilterGroup();
         apiDimensionJavaFilterGroup.setFilters(javaFilters);
         apiDimensionJavaFilterGroup.setGroupType("and");
-        ApiDimensionFilter codecFilter = new ApiDimensionFilter();
+        final ApiDimensionFilter codecFilter = new ApiDimensionFilter();
         codecFilter.setDimension("page");
         codecFilter.setExpression("codec");
         codecFilter.setOperator("contains");
-        ArrayList<ApiDimensionFilter> pythonFilters = new ArrayList<>();
+        final ArrayList<ApiDimensionFilter> pythonFilters = new ArrayList<>();
         pythonFilters.add(codecFilter);
-        ApiDimensionFilterGroup apiDimensionPythonFilterGroup = new ApiDimensionFilterGroup();
+        final ApiDimensionFilterGroup apiDimensionPythonFilterGroup = new ApiDimensionFilterGroup();
         apiDimensionPythonFilterGroup.setFilters(pythonFilters);
         apiDimensionPythonFilterGroup.setGroupType("and");
-        List<ApiDimensionFilterGroup> apiDimensionFilterGroups = new ArrayList<>();
+        final List<ApiDimensionFilterGroup> apiDimensionFilterGroups = new ArrayList<>();
         apiDimensionFilterGroups.add(apiDimensionJavaFilterGroup);
         apiDimensionFilterGroups.add(apiDimensionPythonFilterGroup);
         return apiDimensionFilterGroups;
