@@ -18,6 +18,8 @@
     <rule ref="category/java/design.xml" /> 
     <rule ref="category/java/errorprone.xml" />
     <rule ref="category/java/multithreading.xml" />
-    <rule ref="category/java/performance.xml" />
+    <rule ref="category/java/performance.xml" >
+        <exclude name="ConsecutiveLiteralAppends" />
+    </rule>
     <rule ref="category/java/security.xml" />
 </ruleset>

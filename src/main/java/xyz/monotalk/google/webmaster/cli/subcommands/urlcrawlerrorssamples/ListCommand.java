@@ -18,6 +18,9 @@ import java.io.IOException;
  * URLクロールエラーサンプルを一覧表示するコマンド
  */
 @Component
+@SuppressWarnings({
+    "PMD.LooseCoupling" // Google API具象型のため警告抑制
+})
 public class ListCommand implements Command {
 
     /** Webmasters APIクライアント生成ファクトリ */
@@ -55,12 +58,6 @@ public class ListCommand implements Command {
      * Google APIとの互換性に問題が生じる可能性があります。
      */
     @Override
-    @SuppressWarnings({
-        "PMD.AvoidUsingImplementationTypes", // Google API具象型のため警告抑制
-        "PMD.ConsecutiveAppendsShouldReuse", // String連結方法に関する警告抑制
-        "PMD.AvoidConcatenatingNonLiterals",  // 非リテラル値の連結に関する警告抑制
-        "PMD.ForeignMethodInvocation"         // 外部オブジェクトのメソッド呼び出しに関する警告抑制
-    })
     public void execute() {
         try {
             final Webmasters.Urlcrawlerrorssamples.List request = factory.create().urlcrawlerrorssamples().list(siteUrl, category, platform);
@@ -73,7 +70,9 @@ public class ListCommand implements Command {
                       .append("Last Crawled: ").append(sample.getLastCrawled()).append('\n')
                       .append("Response Code: ").append(sample.getResponseCode()).append("\n\n");
             }
-        
+            if (output.length() == 0) {
+                output.append("No crawl error samples found.");
+            }
             responseWriter.writeJson(output.toString(), Format.CONSOLE, null);
         } catch (IOException e) {
             throw new CmdLineIOException("URLクロールエラーサンプルの一覧取得に失敗しました", e);
