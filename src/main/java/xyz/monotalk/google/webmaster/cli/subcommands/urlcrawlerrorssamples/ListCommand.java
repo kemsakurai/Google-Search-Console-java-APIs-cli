@@ -51,7 +51,7 @@ public class ListCommand implements Command {
      * 
      * @param siteUrl 設定するサイトURL
      */
-    public void setSiteUrl(String siteUrl) {
+    public void setSiteUrl(final String siteUrl) {
         this.siteUrl = siteUrl;
     }
     
@@ -60,7 +60,7 @@ public class ListCommand implements Command {
      * 
      * @param category 設定するエラーカテゴリ
      */
-    public void setCategory(String category) {
+    public void setCategory(final String category) {
         this.category = category;
     }
     
@@ -69,7 +69,7 @@ public class ListCommand implements Command {
      * 
      * @param platform 設定するプラットフォーム
      */
-    public void setPlatform(String platform) {
+    public void setPlatform(final String platform) {
         this.platform = platform;
     }
 

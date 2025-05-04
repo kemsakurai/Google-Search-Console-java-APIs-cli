@@ -13,26 +13,48 @@ import java.io.IOException;
 import java.net.URL;
 
 /**
- * GetCommand
+ * GetCommandクラス - 特定のサイトマップ情報を取得するコマンド
  */
 @Component
 public class GetCommand implements Command {
 
+    /**
+     * WebmastersファクトリーインスタンスDI用
+     */
     @Autowired
     protected WebmastersFactory factory;
 
+    /**
+     * サイトURL
+     */
     @Option(name = "-siteUrl", usage = "Site URL", metaVar = "<siteUrl>", required = true,
             handler = URLOptionHandler.class)
-    protected URL siteUrl = null;
+    protected URL siteUrl;
 
+    /**
+     * フィードパス
+     */
     @Option(name = "-feedpath", usage = "Feed path", required = true)
-    protected String feedpath = null;
+    protected String feedpath;
 
+    /**
+     * 出力フォーマット
+     */
     @Option(name = "-format", usage = "Output format", metaVar = "[console or json]")
     protected Format format = Format.CONSOLE;
 
+    /**
+     * JSONファイルパス
+     */
     @Option(name = "-filePath", usage = "JSON file path", metaVar = "<filename>", depends = {"-format"})
-    protected String filePath = null;
+    protected String filePath;
+
+    /**
+     * デフォルトコンストラクタ
+     */
+    public GetCommand() {
+        // デフォルトコンストラクタ
+    }
 
     @Override
     public void execute() throws CmdLineException {
@@ -44,13 +66,13 @@ public class GetCommand implements Command {
         }
 
         try {
-            Webmasters webmasters = factory.create();
+            final Webmasters webmasters = factory.create();
             if (webmasters == null) {
                 throw new CmdLineIOException(new IOException("Failed to create Webmasters client"));
             }
             
-            Webmasters.Sitemaps.Get request = webmasters.sitemaps().get(siteUrl.toString(), feedpath);
-            WmxSitemap response = request.execute();
+            final Webmasters.Sitemaps.Get request = webmasters.sitemaps().get(siteUrl.toString(), feedpath);
+            final WmxSitemap response = request.execute();
             ResponseWriter.writeJson(response, format, filePath);
         } catch (IOException e) {
             throw new CmdLineIOException(e);

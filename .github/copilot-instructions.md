@@ -11,6 +11,8 @@
 - 例外処理は適切にキャッチして処理してください
 - コメントは日本語または英語で記述可能です
 - メソッドには適切なJavadocを追加してください
+- PMD静的解析ツールの警告に注意し、クリーンなコードを維持してください
+- PMD、CheckStyle、SpotBugsのルールファイルの変更は提案のみで、指示しない限り変更は避けてください。
 
 ## プロジェクト構造
 
@@ -22,6 +24,33 @@
   - `Format.java` - 出力フォーマット設定用enum
   - `ResponseWriter.java` - レスポンス出力処理
   - サブコマンドは `xyz.monotalk.google.webmaster.cli.subcommands` パッケージ以下
+
+## コード品質のガイドライン
+
+### クラス構造
+- すべてのクラスには少なくとも1つのコンストラクタを定義する
+- フィールドには適切なJavaDocコメントを付与する
+- クラスのJavaDocは実装内容を簡潔に表現する
+
+### メソッド実装
+- 複雑なメソッドは小さな関数に分割する
+- メソッドは単一の出口ポイントを持つように設計する
+- 早期リターンパターンを使用して複雑なネストを避ける
+- ログ出力は常にログレベルチェックで囲む（例: `if (LOGGER.isInfoEnabled()) { ... }`）
+
+### 変数と命名
+- 変数名は短すぎず、明確な意図を示す必要がある
+- 定数の命名は大文字のスネークケースを使用する（例: `DEFAULT_TIMEOUT`）
+- 過度に長い変数名は避ける
+
+### 文字列と出力処理
+- StringBuilderは予想される最終サイズで初期化する
+- StringBuilderの連続的な呼び出しはメソッドチェーンで連結する
+- 文字を追加する場合は文字列ではなく文字リテラルを使用する（例: `append('\n')` vs `append("\n")`）
+
+### ファイル操作
+- FileInputStreamの直接インスタンス化は避け、Java NIOの`Files`クラスを使用する
+- 可能な場合はtry-with-resourcesステートメントを使用する
 
 ## コマンド実装パターン
 
@@ -52,6 +81,57 @@ public class ExampleCommand implements Command {
     public String usage() {
         return "Example command description";
     }
+}
+```
+
+## メソッドリファクタリングパターン
+
+大きなメソッドをリファクタリングする際は以下のパターンを使用します:
+
+1. 機能的に独立した部分を識別する
+2. 各部分を適切な命名の個別メソッドに抽出する
+3. 各メソッドに明確なJavaDocを追加する
+4. メソッド間の依存関係を明確にする
+5. 条件分岐後の早期リターンを活用して複雑さを減らす
+
+例:
+```java
+/**
+ * メイン処理メソッド
+ */
+public void processData(Data data) {
+    // 前処理
+    Data validatedData = validateInput(data);
+    if (validatedData == null) {
+        return;
+    }
+    
+    // コアロジック
+    Result result = performCoreLogic(validatedData);
+    
+    // 後処理
+    handleResult(result);
+}
+
+/**
+ * 入力データのバリデーション
+ */
+private Data validateInput(Data data) {
+    // バリデーションロジック
+}
+
+/**
+ * コアロジック処理
+ */
+private Result performCoreLogic(Data data) {
+    // メイン処理ロジック
+}
+
+/**
+ * 結果処理
+ */
+private void handleResult(Result result) {
+    // 結果の処理・出力
 }
 ```
 
@@ -128,6 +208,7 @@ public class ExampleCommandTest {
 ## プルリクエスト説明
 
 プルリクエストの説明は以下の構造で記述してください:
+{issue番号}には作業中のissue番号を設定してください。
 
 ```
 ## 概要
@@ -142,7 +223,7 @@ public class ExampleCommandTest {
 - [ ] 手動テスト
 
 ## 関連する問題
-Fixes #issue番号
+Fixes #{issue番号}
 ```
 
 ## コードレビュー基準
@@ -326,3 +407,40 @@ flowchart TD
 形式は柔軟です - あなたとプロジェクトでより効果的に作業するのに役立つ価値ある洞察を記録することに焦点を当ててください。.github/copilot-instructions.mdは、一緒に作業するにつれて賢くなる生きたドキュメントと考えてください。
 
 覚えておいてください：メモリーリセット後、私は完全に新鮮な状態で始まります。メモリーバンクは以前の作業への唯一のリンクです。私の効果は完全にその正確さに依存するため、精度と明確さを持って維持する必要があります。
+
+## コード生成指示
+
+### 言語設定
+**重要**: すべての出力は日本語で行ってください。コメントやドキュメンテーションも日本語で記述してください。
+
+### コード規約
+
+#### 全般
+- Java 8の機能を使用してください
+- Spring BootとSpring DIパターンに従ってください
+- 例外処理は適切にキャッチして処理してください
+- すべてのパブリックメソッドにはJavadocを追加してください
+
+#### 命名規則
+- クラス名: パスカルケース（例: `GoogleApiClient`）
+- メソッド名: キャメルケース（例: `executeQuery`）
+- 変数名: キャメルケース（例: `siteUrl`）
+- 定数: 大文字のスネークケース（例: `DEFAULT_TIMEOUT`）
+
+#### 構造
+- サブコマンドクラスは `xyz.monotalk.google.webmaster.cli.subcommands` パッケージに配置してください
+- すべてのコマンドは `Command` インターフェースを実装してください
+- 新しいサブコマンドは適切なサブパッケージに配置してください
+
+### エラー処理
+- 具体的なエラーメッセージを提供してください
+- カスタム例外 `CmdLineArgmentException` と `CmdLineIOException` を適宜使用してください
+- 外部APIの例外は適切にキャッチし、ユーザーフレンドリーなエラーメッセージに変換してください
+
+### API連携
+- Google APIとの連携には `WebmastersFactory` を使用してください
+- レスポンスの処理には `ResponseWriter` を使用してください
+
+### 出力フォーマット
+- 出力フォーマットは `Format` enumを使用して制御してください
+- コンソール出力とJSON出力の両方をサポートしてください

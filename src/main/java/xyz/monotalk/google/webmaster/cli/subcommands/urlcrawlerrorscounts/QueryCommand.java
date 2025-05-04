@@ -3,6 +3,8 @@ package xyz.monotalk.google.webmaster.cli.subcommands.urlcrawlerrorscounts;
 import com.google.api.services.webmasters.Webmasters;
 import com.google.api.services.webmasters.model.UrlCrawlErrorsCountsQueryResponse;
 import org.kohsuke.args4j.Option;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import xyz.monotalk.google.webmaster.cli.*;
@@ -15,19 +17,32 @@ import java.io.IOException;
 @Component
 public class QueryCommand implements Command {
 
-    /** Webmasters APIクライアント生成ファクトリ */
+    /**
+     * ロガーインスタンス
+     */
+    private static final Logger LOGGER = LoggerFactory.getLogger(QueryCommand.class);
+
+    /**
+     * Webmasters APIクライアント生成ファクトリ
+     */
     @Autowired
     private WebmastersFactory factory;
 
-    /** サイトURL */
+    /**
+     * サイトURL
+     */
     @Option(name = "-siteUrl", usage = "Site URL", required = true)
     private String siteUrl;
 
-    /** 出力フォーマット */
+    /**
+     * 出力フォーマット
+     */
     @Option(name = "-format", usage = "Output format", required = false)
-    private static final Format format = Format.CONSOLE;
+    private Format format = Format.CONSOLE;
 
-    /** 出力ファイルパス */
+    /**
+     * 出力ファイルパス
+     */
     @Option(name = "-filePath", usage = "Output file path", required = false)
     private String filePath;
     
@@ -45,11 +60,22 @@ public class QueryCommand implements Command {
      */
     @Override
     public void execute() {
+        if (LOGGER.isInfoEnabled()) {
+            LOGGER.info("Retrieving URL crawl error counts for site: {}", siteUrl);
+        }
+        
         try {
             final Webmasters.Urlcrawlerrorscounts.Query request = factory.create().urlcrawlerrorscounts().query(siteUrl);
             final UrlCrawlErrorsCountsQueryResponse response = request.execute();
             ResponseWriter.writeJson(response, format, filePath);
+            
+            if (LOGGER.isInfoEnabled()) {
+                LOGGER.info("URL crawl error counts retrieved successfully");
+            }
         } catch (IOException e) {
+            if (LOGGER.isErrorEnabled()) {
+                LOGGER.error("Failed to retrieve URL crawl error counts", e);
+            }
             throw new CmdLineIOException("URLクロールエラー数の取得に失敗しました", e);
         }
     }

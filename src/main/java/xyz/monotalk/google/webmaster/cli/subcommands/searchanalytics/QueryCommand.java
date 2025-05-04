@@ -14,65 +14,40 @@ import java.util.List;
 import static java.lang.System.out;
 
 /**
- * QueryCommand
+ * QueryCommandクラス - Search Analyticsデータのクエリを実行するコマンド
  */
 public class QueryCommand implements Command {
 
+    /**
+     * WebmastersファクトリーインスタンスDI用
+     */
     @Autowired private WebmastersFactory factory;
-    private static final Logger logger = LoggerFactory.getLogger(QueryCommand.class);
+    
+    /**
+     * ロガーインスタンス
+     */
+    private static final Logger LOGGER = LoggerFactory.getLogger(QueryCommand.class);
+
+    /**
+     * デフォルトコンストラクタ
+     */
+    public QueryCommand() {
+        // デフォルトコンストラクタ
+    }
 
     @Override
     public void execute() {
-        final SearchAnalyticsQueryRequest query = new SearchAnalyticsQueryRequest();
-        query.setStartDate("2016-07-02");
-        query.setEndDate("2017-05-02");
-        query.setRowLimit(5000);
-        query.setStartRow(0);
-        query.setSearchType("web");
-        final List<String> dimentions = new ArrayList<String>();
-        dimentions.add("page");
-        dimentions.add("query");
-        dimentions.add("date");
-        dimentions.add("device");
-        dimentions.add("country");
-        query.setDimensions(dimentions);
-        // ----------------------------
-        // AgregationType
-        // -----------------
-        // query.setAggregationType("auto");
-        // query.setAggregationType("byPage");
-        // query.setAggregationType("byProperty");
-
-        final List<ApiDimensionFilterGroup> apiDimensionFilterGroups = getApiDimensionFilterGroups();
-        query.setDimensionFilterGroups(apiDimensionFilterGroups);
-
-        SearchAnalyticsQueryResponse searchAnalyticsQueryResponse = null;
-        try {
-            searchAnalyticsQueryResponse = factory.create().searchanalytics().query("https://www.monotalk.xyz", query).execute();
-        } catch (IOException e) {
-            logger.error("Row pretty print error: {}", e.getMessage(), e);
-        }
-        out.println("searchAnalyticsQueryResponse#.toPrettyString() START>>>");
-        try {
-            if (searchAnalyticsQueryResponse != null) {
-                out.println(searchAnalyticsQueryResponse.toPrettyString());
-            } else {
-                out.println("検索結果はnullです");
-            }
-        } catch (IOException e) {
-            logger.error("Pretty print error: " + e.getMessage(), e);
-        }
-        out.println("<<<END");
-
-        if (searchAnalyticsQueryResponse != null && searchAnalyticsQueryResponse.getRows() != null) {
-            for (ApiDataRow row : searchAnalyticsQueryResponse.getRows()) {
-                try {
-                    out.println(row.toPrettyString());
-                } catch (IOException e) {
-                    logger.error("Row pretty print error: " + e.getMessage(), e);
-                }
-            }
-        }
+        // クエリリクエストの作成
+        final SearchAnalyticsQueryRequest query = createSearchAnalyticsQueryRequest();
+        
+        // APIリクエストの実行
+        final SearchAnalyticsQueryResponse response = executeApiRequest(query);
+        
+        // レスポンス全体の出力
+        printFullResponse(response);
+        
+        // 個別行データの出力
+        printRowsData(response);
     }
 
     @Override
@@ -80,28 +55,128 @@ public class QueryCommand implements Command {
         return "Query your data with filters and parameters that you define. Returns zero or more rows grouped by the row keys that you define. You must define a date range of one or more days. When date is one of the group by values, any days without data are omitted from the result list. If you need to know which days have data, issue a broad date range query grouped by date for any metric, and see which day rows are returned.";
     }
 
+    /**
+     * 検索分析クエリリクエストを作成します
+     *
+     * @return 設定済みの検索分析クエリリクエスト
+     */
+    private SearchAnalyticsQueryRequest createSearchAnalyticsQueryRequest() {
+        final SearchAnalyticsQueryRequest query = new SearchAnalyticsQueryRequest();
+        
+        // 基本パラメータの設定
+        query.setStartDate("2016-07-02");
+        query.setEndDate("2017-05-02");
+        query.setRowLimit(5000);
+        query.setStartRow(0);
+        query.setSearchType("web");
+        
+        // ディメンションの設定
+        final List<String> dimensions = new ArrayList<>();
+        dimensions.add("page");
+        dimensions.add("query");
+        dimensions.add("date");
+        dimensions.add("device");
+        dimensions.add("country");
+        query.setDimensions(dimensions);
+        
+        // フィルターグループの設定
+        final List<ApiDimensionFilterGroup> filterGroups = getApiDimensionFilterGroups();
+        query.setDimensionFilterGroups(filterGroups);
+        
+        // 集計タイプの設定（コメントアウト状態）
+        // query.setAggregationType("auto");
+        // query.setAggregationType("byPage");
+        // query.setAggregationType("byProperty");
+        
+        return query;
+    }
+
+    /**
+     * 検索分析APIリクエストを実行します
+     *
+     * @param query 検索分析クエリリクエスト
+     * @return 検索分析クエリレスポンス（エラー時はnull）
+     */
+    private SearchAnalyticsQueryResponse executeApiRequest(final SearchAnalyticsQueryRequest query) {
+        try {
+            return factory.create().searchanalytics().query("https://www.monotalk.xyz", query).execute();
+        } catch (IOException e) {
+            if (LOGGER.isErrorEnabled()) {
+                LOGGER.error("API実行エラー: {}", e.getMessage(), e);
+            }
+            return new SearchAnalyticsQueryResponse();
+        }   
+    }
+
+    /**
+     * レスポンス全体を出力します
+     *
+     * @param response 検索分析クエリレスポンス
+     */
+    private void printFullResponse(final SearchAnalyticsQueryResponse response) {
+        out.println("searchAnalyticsQueryResponse#.toPrettyString() START>>>");
+        try {
+            if (response != null) {
+                out.println(response.toPrettyString());
+            } else {
+                out.println("検索結果はnullです");
+            }
+        } catch (IOException e) {
+            if (LOGGER.isErrorEnabled()) {
+                LOGGER.error("レスポンス出力エラー: {}", e.getMessage(), e);
+            }
+        }
+        out.println("<<<END");
+    }
+
+    /**
+     * レスポンスの各行データを出力します
+     *
+     * @param response 検索分析クエリレスポンス
+     */
+    private void printRowsData(final SearchAnalyticsQueryResponse response) {
+        if (response == null || response.getRows() == null) {
+            return;
+        }
+        
+        for (final ApiDataRow row : response.getRows()) {
+            try {
+                out.println(row.toPrettyString());
+            } catch (IOException e) {
+                if (LOGGER.isErrorEnabled()) {
+                    LOGGER.error("行データ出力エラー: {}", e.getMessage(), e);
+                }
+            }
+        }
+    }
+
+    /**
+     * API次元フィルターグループのリストを取得
+     *
+     * @return API次元フィルターグループのリスト
+     */
     private static List<ApiDimensionFilterGroup> getApiDimensionFilterGroups() {
         final ApiDimensionFilter javaFilter = new ApiDimensionFilter();
         javaFilter.setDimension("page");
         javaFilter.setExpression("java");
         javaFilter.setOperator("contains");
-        final ArrayList<ApiDimensionFilter> javaFilters = new ArrayList<>();
+        final List<ApiDimensionFilter> javaFilters = new ArrayList<>();
         javaFilters.add(javaFilter);
-        final ApiDimensionFilterGroup apiDimensionJavaFilterGroup = new ApiDimensionFilterGroup();
-        apiDimensionJavaFilterGroup.setFilters(javaFilters);
-        apiDimensionJavaFilterGroup.setGroupType("and");
+        final ApiDimensionFilterGroup javaFilterGroup = new ApiDimensionFilterGroup();
+        javaFilterGroup.setFilters(javaFilters);
+        javaFilterGroup.setGroupType("and");
         final ApiDimensionFilter codecFilter = new ApiDimensionFilter();
         codecFilter.setDimension("page");
         codecFilter.setExpression("codec");
         codecFilter.setOperator("contains");
-        final ArrayList<ApiDimensionFilter> pythonFilters = new ArrayList<>();
+        final List<ApiDimensionFilter> pythonFilters = new ArrayList<>();
         pythonFilters.add(codecFilter);
-        final ApiDimensionFilterGroup apiDimensionPythonFilterGroup = new ApiDimensionFilterGroup();
-        apiDimensionPythonFilterGroup.setFilters(pythonFilters);
-        apiDimensionPythonFilterGroup.setGroupType("and");
-        final List<ApiDimensionFilterGroup> apiDimensionFilterGroups = new ArrayList<>();
-        apiDimensionFilterGroups.add(apiDimensionJavaFilterGroup);
-        apiDimensionFilterGroups.add(apiDimensionPythonFilterGroup);
-        return apiDimensionFilterGroups;
+        final ApiDimensionFilterGroup pythonFilterGroup = new ApiDimensionFilterGroup();
+        pythonFilterGroup.setFilters(pythonFilters);
+        pythonFilterGroup.setGroupType("and");
+        final List<ApiDimensionFilterGroup> filterGroups = new ArrayList<>();
+        filterGroups.add(javaFilterGroup);
+        filterGroups.add(pythonFilterGroup);
+        return filterGroups;
     }
 }

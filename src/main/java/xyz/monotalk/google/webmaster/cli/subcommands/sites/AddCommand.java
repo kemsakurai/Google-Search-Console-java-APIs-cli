@@ -2,6 +2,8 @@ package xyz.monotalk.google.webmaster.cli.subcommands.sites;
 
 import com.google.api.services.webmasters.Webmasters;
 import org.kohsuke.args4j.Option;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import xyz.monotalk.google.webmaster.cli.CmdLineIOException;
@@ -17,14 +19,35 @@ import java.io.IOException;
 @Component
 public class AddCommand implements Command {
 
+    /**
+     * ロガーインスタンス
+     */
+    private static final Logger LOGGER = LoggerFactory.getLogger(AddCommand.class);
+
+    /**
+     * WebmastersファクトリーインスタンスDI用
+     */
     @Autowired
     private WebmastersFactory factory;
 
+    /**
+     * サイトURL
+     */
     @Option(name = "-siteUrl", usage = "Site URL", required = true)
     private String siteUrl;
 
+    /**
+     * 出力フォーマット
+     */
     @Option(name = "-format", usage = "Output format [console or json]")
     private Format format = Format.CONSOLE;
+
+    /**
+     * デフォルトコンストラクタ
+     */
+    public AddCommand() {
+        // デフォルトコンストラクタ
+    }
 
     /**
      * サイトをGoogle Search Consoleに追加します。
@@ -32,16 +55,19 @@ public class AddCommand implements Command {
      * @throws CmdLineIOException API実行エラーが発生した場合
      */
     @Override
-    public void execute() throws CmdLineIOException {
+    public void execute() {
         try {
-            Webmasters webmasters = factory.create();
-            Webmasters.Sites.Add add = webmasters.sites().add(siteUrl);
+            final Webmasters webmasters = factory.create();
+            final Webmasters.Sites.Add add = webmasters.sites().add(siteUrl);
             add.execute();
             
-            if (format == Format.CONSOLE) {
-                System.out.println("Successfully added site: " + siteUrl);
+            if (format == Format.CONSOLE && LOGGER.isInfoEnabled()) {
+                LOGGER.info("Successfully added site: {}", siteUrl);
             }
         } catch (IOException e) {
+            if (LOGGER.isErrorEnabled()) {
+                LOGGER.error("Failed to add site: {}", siteUrl, e);
+            }
             throw new CmdLineIOException("Failed to add site: " + siteUrl, e);
         }
     }
@@ -56,12 +82,21 @@ public class AddCommand implements Command {
         return "Adds a site to Google Search Console.";
     }
 
-    // For testing
-    void setSiteUrl(String siteUrl) {
+    /**
+     * サイトURLを設定します
+     *
+     * @param siteUrl 設定するサイトURL
+     */
+    public void setSiteUrl(final String siteUrl) {
         this.siteUrl = siteUrl;
     }
 
-    void setFormat(Format format) {
+    /**
+     * 出力フォーマットを設定します
+     *
+     * @param format 設定する出力フォーマット
+     */
+    public void setFormat(final Format format) {
         this.format = format;
     }
 }

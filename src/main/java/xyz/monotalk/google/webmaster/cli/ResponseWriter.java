@@ -107,7 +107,7 @@ public final class ResponseWriter {
      * @throws CmdLineIOException ファイル操作中にエラーが発生した場合
      */
     @SuppressWarnings("incomplete-switch")
-    private static void routeOutput(String jsonString, Format format, String path) {
+    private static void routeOutput(final String jsonString, final Format format, final String path) {
         switch (format) {
             case JSON:
                 validateJsonPath(path);

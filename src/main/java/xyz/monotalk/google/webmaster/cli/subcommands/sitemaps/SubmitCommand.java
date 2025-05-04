@@ -4,6 +4,8 @@ import com.google.api.services.webmasters.Webmasters;
 import org.kohsuke.args4j.CmdLineException;
 import org.kohsuke.args4j.Option;
 import org.kohsuke.args4j.spi.URLOptionHandler;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import xyz.monotalk.google.webmaster.cli.*;
@@ -12,41 +14,133 @@ import java.io.IOException;
 import java.net.URL;
 
 /**
- * SubmitCommand
+ * SubmitCommandクラス - サイトマップ送信コマンド
  */
 @Component
 public class SubmitCommand implements Command {
 
+    /**
+     * ロガーインスタンス
+     */
+    private static final Logger LOGGER = LoggerFactory.getLogger(SubmitCommand.class);
+
+    /**
+     * WebmastersファクトリーインスタンスDI用
+     */
     @Autowired
     protected WebmastersFactory factory;
 
+    /**
+     * サイトURL
+     */
     @Option(name = "-siteUrl", usage = "Site URL", metaVar = "<siteUrl>", required = true,
             handler = URLOptionHandler.class)
-    protected URL siteUrl = null;
+    protected URL siteUrl;
 
+    /**
+     * フィードパス
+     */
     @Option(name = "-feedpath", usage = "Feed path", required = true)
-    protected String feedpath = null;
+    protected String feedpath;
+
+    /**
+     * デフォルトコンストラクタ
+     */
+    public SubmitCommand() {
+        // デフォルトコンストラクタ
+    }
 
     @Override
     public void execute() throws CmdLineException {
+        // パラメータのバリデーション
+        validateParameters();
+        
+        // 処理開始ログ出力
+        logSubmissionStart();
+        
+        try {
+            // Webmastersクライアントの作成
+            final Webmasters webmasters = createWebmastersClient();
+            
+            // サイトマップの送信リクエスト実行
+            submitSitemap(webmasters);
+            
+            // 成功ログ出力
+            logSubmissionSuccess();
+        } catch (IOException e) {
+            // エラーログ出力と例外スロー
+            handleException(e);
+        }
+    }
+
+    /**
+     * パラメータの妥当性を検証します
+     * 
+     * @throws CmdLineArgmentException パラメータが無効な場合
+     */
+    private void validateParameters() {
         if (siteUrl == null) {
             throw new CmdLineArgmentException("Site URL is required");
         }
         if (feedpath == null) {
             throw new CmdLineArgmentException("Feed path is required");
         }
+    }
 
-        try {
-            Webmasters webmasters = factory.create();
-            if (webmasters == null) {
-                throw new CmdLineIOException(new IOException("Failed to create Webmasters client"));
-            }
-
-            Webmasters.Sitemaps.Submit request = webmasters.sitemaps().submit(siteUrl.toString(), feedpath);
-            request.execute();
-        } catch (IOException e) {
-            throw new CmdLineIOException(e);
+    /**
+     * サイトマップ送信開始のログを出力します
+     */
+    private void logSubmissionStart() {
+        if (LOGGER.isInfoEnabled()) {
+            LOGGER.info("Submitting sitemap {} for site {}", feedpath, siteUrl);
         }
+    }
+
+    /**
+     * Webmastersクライアントを作成します
+     * 
+     * @return 作成されたWebmastersクライアント
+     * @throws CmdLineIOException クライアント作成に失敗した場合
+     */
+    private Webmasters createWebmastersClient() {
+        final Webmasters webmasters = factory.create();
+        if (webmasters == null) {
+            throw new CmdLineIOException(new IOException("Failed to create Webmasters client"));
+        }
+        return webmasters;
+    }
+
+    /**
+     * サイトマップを送信します
+     * 
+     * @param webmasters Webmastersクライアント
+     * @throws IOException API実行エラーが発生した場合
+     */
+    private void submitSitemap(final Webmasters webmasters) throws IOException {
+        final Webmasters.Sitemaps.Submit request = webmasters.sitemaps().submit(siteUrl.toString(), feedpath);
+        request.execute();
+    }
+
+    /**
+     * サイトマップ送信成功のログを出力します
+     */
+    private void logSubmissionSuccess() {
+        if (LOGGER.isInfoEnabled()) {
+            LOGGER.info("Sitemap submitted successfully");
+        }
+    }
+
+    /**
+     * 例外を処理します
+     * 
+     * @param e 発生した例外
+     * @throws CmdLineIOException ラップされた例外
+     */
+    private void handleException(final IOException exception) {
+        if (LOGGER.isErrorEnabled()) {
+            LOGGER.error("Failed to submit sitemap", exception);
+        }
+        throw new CmdLineIOException(exception);
     }
 
     @Override

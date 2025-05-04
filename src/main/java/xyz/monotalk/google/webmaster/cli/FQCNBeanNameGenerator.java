@@ -26,7 +26,7 @@ public class FQCNBeanNameGenerator implements BeanNameGenerator {
      * @return 完全修飾クラス名
      */
     @Override
-    public String generateBeanName(BeanDefinition definition, org.springframework.beans.factory.support.BeanDefinitionRegistry registry) {
+    public String generateBeanName(final BeanDefinition definition, final org.springframework.beans.factory.support.BeanDefinitionRegistry registry) {
         return definition.getBeanClassName();
     }
 }

@@ -3,9 +3,17 @@ package xyz.monotalk.google.webmaster.cli.subcommands.sites;
 import xyz.monotalk.google.webmaster.cli.Command;
 
 /**
- * Created by kensakurai on 2017/05/10.
+ * GetCommandクラス - 特定のサイト情報を取得するコマンド
  */
 public class GetCommand implements Command {
+    
+    /**
+     * デフォルトコンストラクタ
+     */
+    public GetCommand() {
+        // デフォルトコンストラクタ
+    }
+    
     @Override
     public void execute() {
         throw new UnsupportedOperationException("TODO not implemented..");

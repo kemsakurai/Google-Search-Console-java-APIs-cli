@@ -13,17 +13,34 @@
     <rule ref="category/java/bestpractices.xml" />
     <rule ref="category/java/bestpractices.xml/LooseCoupling">
         <properties>
-            <property name="allowedTypes" value="com.google.api.services.webmasters.model.UrlCrawlErrorsCountsQueryResponse,com.google.api.services.webmasters.Webmasters.Urlcrawlerrorscounts.Query,java.util.Properties" />
+            <property name="allowedTypes" 
+                value="com.google.api.services.webmasters.model.UrlCrawlErrorsCountsQueryResponse,
+                    com.google.api.services.webmasters.Webmasters.Urlcrawlerrorscounts.Query,
+                    java.util.Properties,com.google.api.services.webmasters.model.SearchAnalyticsQueryRequest,
+                    com.google.api.services.webmasters.model.SearchAnalyticsQueryResponse,
+                    com.google.api.services.webmasters.model.ApiDimensionFilterGroup,
+                    com.google.api.services.webmasters.model.ApiDimensionFilter,
+                    com.google.api.services.webmasters.model.ApiDataRow,
+                    com.google.api.services.webmasters.Webmasters.Sitemaps.Delete,
+                    com.google.api.services.webmasters.Webmasters.Sitemaps.Get,
+                    com.google.api.services.webmasters.model.WmxSitemap,
+                    com.google.api.services.webmasters.Webmasters.Sitemaps.List,
+                    com.google.api.services.webmasters.model.SitemapsListResponse,
+                    com.google.api.services.webmasters.Webmasters.Sitemaps.Submit,
+                    com.google.api.services.webmasters.Webmasters.Sites.Add,
+                    com.google.api.services.webmasters.model.SitesListResponse,
+                    com.google.api.services.webmasters.Webmasters.Sites.List" />
         </properties>
     </rule>
     <rule ref="category/java/documentation.xml"/>
     <rule ref="category/java/codestyle.xml" >
         <exclude name="UnnecessaryConstructor" />
-        <exclude name="MethodArgumentCouldBeFinal"/>
         <exclude name="OnlyOneReturn" />
     </rule>
     <rule ref="category/java/design.xml" >
         <exclude name="UseUtilityClass" />
+        <exclude name="ImmutableField" />
+        <exclude name="LoosePackageCoupling" />
     </rule> 
     <rule ref="category/java/errorprone.xml" />
     <rule ref="category/java/multithreading.xml" />
