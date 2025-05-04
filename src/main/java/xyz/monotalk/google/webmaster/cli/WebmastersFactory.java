@@ -4,29 +4,39 @@ import com.google.api.client.googleapis.auth.oauth2.GoogleCredential;
 import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
 import com.google.api.client.http.HttpTransport;
 import com.google.api.client.http.javanet.NetHttpTransport;
-import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.services.webmasters.Webmasters;
 import com.google.api.services.webmasters.WebmastersScopes;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import java.io.FileInputStream;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.security.GeneralSecurityException;
 import java.util.Collections;
 
 /**
- * WebmastersFactory
+ * Google Webmasters APIクライアント生成ファクトリ
  */
 @Component
 public class WebmastersFactory {
 
+    /** 
+     * アプリケーションのキーファイルの場所
+     */
     @Value("${application.keyFileLocation}")
-    private String keyFileLocation; // アプリケーションのキー ファイルの場所
+    private String keyFileLocation;
 
     /**
-     * Create Webmasters instance.
+     * デフォルトコンストラクタ
+     */
+    public WebmastersFactory() {
+        // デフォルトコンストラクタ
+    }
+    
+    /**
+     * Webmastersインスタンスを作成します。
      *
      * @return Webmastersインスタンス
      */
@@ -38,7 +48,6 @@ public class WebmastersFactory {
             throw new IllegalStateException(e);
         }
 
-        final JsonFactory jsonFactory = getJsonFactory();
         final GoogleCredential credential;
         try {
             credential = createCredential();
@@ -47,13 +56,17 @@ public class WebmastersFactory {
         }
 
         // Create a new authorized API client
-        return new Webmasters.Builder(httpTransport, jsonFactory, credential)
+        return new Webmasters.Builder(httpTransport, getJsonFactory(), credential)
                 .setApplicationName("Search Console Cli")
                 .build();
     }
 
     /**
      * HTTPトランスポートを作成します
+     *
+     * @return 作成されたNetHttpTransportインスタンス
+     * @throws GeneralSecurityException セキュリティ例外が発生した場合
+     * @throws IOException 入出力例外が発生した場合
      */
     protected NetHttpTransport createHttpTransport() throws GeneralSecurityException, IOException {
         return GoogleNetHttpTransport.newTrustedTransport();
@@ -61,6 +74,8 @@ public class WebmastersFactory {
 
     /**
      * JSONファクトリを取得します
+     *
+     * @return JacksonFactoryインスタンス
      */
     protected JacksonFactory getJsonFactory() {
         return JacksonFactory.getDefaultInstance();
@@ -68,10 +83,13 @@ public class WebmastersFactory {
 
     /**
      * 認証情報を作成します
+     *
+     * @return GoogleCredentialインスタンス
+     * @throws IOException 入出力例外が発生した場合
      */
     protected GoogleCredential createCredential() throws IOException {
-        try (FileInputStream fis = new FileInputStream(keyFileLocation)) {
-            return GoogleCredential.fromStream(fis).createScoped(Collections.singleton(WebmastersScopes.WEBMASTERS));
-        }
+        return GoogleCredential.fromStream(
+                Files.newInputStream(Paths.get(keyFileLocation))
+            ).createScoped(Collections.singleton(WebmastersScopes.WEBMASTERS));
     }
 }
