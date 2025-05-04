@@ -61,7 +61,7 @@ public class WebmastersCommandRunnerTest {
             if (bean instanceof ListCommand) {
                 ListCommand listCommand = (ListCommand) bean;
                 ReflectionTestUtils.setField(listCommand, "factory", mockWebmastersFactory);
-                ReflectionTestUtils.setField(listCommand, "responseWriter", mockResponseWriter);
+                // ResponseWriterフィールドは存在しないため設定は削除
             }
             return null;
         }).when(autowireCapableBeanFactory).autowireBean(any());

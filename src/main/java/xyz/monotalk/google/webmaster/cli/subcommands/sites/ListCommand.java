@@ -7,10 +7,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import xyz.monotalk.google.webmaster.cli.CmdLineArgmentException;
-import xyz.monotalk.google.webmaster.cli.CmdLineIOException;
-import xyz.monotalk.google.webmaster.cli.Command;
 import xyz.monotalk.google.webmaster.cli.CommandLineInputOutputException;
+import xyz.monotalk.google.webmaster.cli.Command;
 import xyz.monotalk.google.webmaster.cli.Format;
 import xyz.monotalk.google.webmaster.cli.ResponseWriter;
 import xyz.monotalk.google.webmaster.cli.WebmastersFactory;
@@ -42,8 +40,6 @@ public class ListCommand implements Command {
 
     /**
      * サイト一覧を取得し、指定された形式で出力します。
-     *
-     * @throws CmdLineIOException API実行エラーが発生した場合
      */
     @Override
     public void execute() {
@@ -64,7 +60,7 @@ public class ListCommand implements Command {
             if (LOGGER.isErrorEnabled()) {
                 LOGGER.error("Failed to list sites", e);
             }
-            throw new CmdLineIOException("Failed to list sites", e);
+            throw new CommandLineInputOutputException("Failed to list sites", e);
         }
     }
 

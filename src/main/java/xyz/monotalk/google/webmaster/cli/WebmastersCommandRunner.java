@@ -1,5 +1,12 @@
 package xyz.monotalk.google.webmaster.cli;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.StringJoiner;
+
 import org.apache.commons.lang3.tuple.Pair;
 import org.kohsuke.args4j.Argument;
 import org.kohsuke.args4j.CmdLineException;
@@ -8,19 +15,12 @@ import org.kohsuke.args4j.Option;
 import org.kohsuke.args4j.spi.SubCommand;
 import org.kohsuke.args4j.spi.SubCommandHandler;
 import org.kohsuke.args4j.spi.SubCommands;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.StringJoiner;
 
 /**
  * WebmastersCommandRunnerは、コマンドライン引数を処理し、対応するコマンドを実行します。
@@ -28,16 +28,16 @@ import java.util.StringJoiner;
 @Component
 public class WebmastersCommandRunner implements CommandLineRunner {
 
-    /** ロガーインスタンス */
+    /** ロガーインスタンスです。 */
     private static final Logger LOGGER = LoggerFactory.getLogger(WebmastersCommandRunner.class);
 
-    /** Springアプリケーションコンテキスト */
+    /** Springアプリケーションコンテキストです。 */
     @Autowired
     private ApplicationContext context;
 
     /**
-     * サブコマンド実装オブジェクト
-     * 引数によって実行するオブジェクトを切り替える
+     * サブコマンド実装オブジェクトです。
+     * 引数によって実行するオブジェクトを切り替えます。
      */
     @Argument(handler = SubCommandHandler.class, metaVar = "subCommands")
     @SubCommands({
@@ -70,12 +70,12 @@ public class WebmastersCommandRunner implements CommandLineRunner {
     })
     private Command command;
 
-    /** ヘルプ表示フラグ */
+    /** ヘルプ表示フラグです。 */
     @Option(name = "-?", aliases = "--help", usage = "show this help message and exit")
     private boolean usageFlag;
 
     /**
-     * デフォルトコンストラクタ
+     * デフォルトコンストラクタです。
      */
     public WebmastersCommandRunner() {
         // デフォルトコンストラクタ
@@ -137,15 +137,21 @@ public class WebmastersCommandRunner implements CommandLineRunner {
     
     /**
      * コマンドを実行します。
-     * @throws CmdLineException 
+     * 
+     * @throws CmdLineException コマンドライン処理中にエラーが発生した場合
      */
     private void executeCommand() throws CmdLineException {
         context.getAutowireCapableBeanFactory().autowireBean(this.command);
         try {
             this.command.execute();
-        } catch (Exception e) {
+        } catch (CommandLineInputOutputException e) {
             if (LOGGER.isErrorEnabled()) {
-                LOGGER.error("Command execution failed: {}", e.getMessage());
+                LOGGER.error("Command execution failed due to I/O error: {}", e.getMessage());
+            }
+            throw new CmdLineException(e);
+        } catch (CmdLineArgmentException e) {
+            if (LOGGER.isErrorEnabled()) {
+                LOGGER.error("Command execution failed due to invalid argument: {}", e.getMessage());
             }
             throw new CmdLineException(e);
         }
@@ -169,7 +175,7 @@ public class WebmastersCommandRunner implements CommandLineRunner {
      * エラー情報を表示します。
      * 
      * @param parser コマンドラインパーサー
-     * @param e 発生した例外
+     * @param exception 発生した例外
      */
     private void displayError(final CmdLineParser parser, final Exception exception) {
         if (LOGGER.isErrorEnabled()) {
@@ -182,7 +188,7 @@ public class WebmastersCommandRunner implements CommandLineRunner {
     }
 
     /**
-     * 使用方法（usage）情報を生成します
+     * 使用方法（usage）情報を生成します。
      * 
      * @return 使用方法の文字列
      */

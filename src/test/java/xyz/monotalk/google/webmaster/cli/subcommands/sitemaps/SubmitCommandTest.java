@@ -9,7 +9,7 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.test.util.ReflectionTestUtils;
 import xyz.monotalk.google.webmaster.cli.CmdLineArgmentException;
-import xyz.monotalk.google.webmaster.cli.CmdLineIOException;
+import xyz.monotalk.google.webmaster.cli.CommandLineInputOutputException;
 import xyz.monotalk.google.webmaster.cli.WebmastersFactory;
 
 import java.io.IOException;
@@ -67,7 +67,7 @@ public class SubmitCommandTest {
         command.execute();
     }
 
-    @Test(expected = CmdLineIOException.class)
+    @Test(expected = CommandLineInputOutputException.class)
     public void testExecute_異常系_API呼び出しでIOException() throws Exception {
         when(submitRequest.execute()).thenThrow(new IOException("API Error"));
         command.execute();

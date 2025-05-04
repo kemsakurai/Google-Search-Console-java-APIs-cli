@@ -2,18 +2,17 @@ package xyz.monotalk.google.webmaster.cli.subcommands.urlcrawlerrorscounts;
 
 import com.google.api.services.webmasters.Webmasters;
 import com.google.api.services.webmasters.model.UrlCrawlErrorsCountsQueryResponse;
-import xyz.monotalk.google.webmaster.cli.CmdLineIOException;
-import xyz.monotalk.google.webmaster.cli.Command;
-import xyz.monotalk.google.webmaster.cli.Format;
-import xyz.monotalk.google.webmaster.cli.ResponseWriter;
-import xyz.monotalk.google.webmaster.cli.WebmastersFactory;
 import java.io.IOException;
 import org.kohsuke.args4j.Option;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
+import xyz.monotalk.google.webmaster.cli.CommandLineInputOutputException;
+import xyz.monotalk.google.webmaster.cli.Command;
+import xyz.monotalk.google.webmaster.cli.Format;
+import xyz.monotalk.google.webmaster.cli.ResponseWriter;
+import xyz.monotalk.google.webmaster.cli.WebmastersFactory;
 
 /**
  * URLクロールエラー数を取得するコマンド
@@ -33,25 +32,25 @@ public class QueryCommand implements Command {
     private WebmastersFactory factory;
 
     /**
-     * サイトURL
+     * サイトURL。
      */
     @Option(name = "-siteUrl", usage = "Site URL", required = true)
     private String siteUrl;
 
     /**
-     * 出力フォーマット
+     * 出力フォーマット。
      */
     @Option(name = "-format", usage = "Output format", required = false)
     private Format format = Format.CONSOLE;
 
     /**
-     * 出力ファイルパス
+     * 出力ファイルパス。
      */
     @Option(name = "-filePath", usage = "Output file path", required = false)
     private String filePath;
     
     /**
-     * デフォルトコンストラクタ
+     * デフォルトコンストラクタ。
      */
     public QueryCommand() {
         // デフォルトコンストラクタ
@@ -59,8 +58,9 @@ public class QueryCommand implements Command {
 
     /**
      * URLクロールエラー数を取得し、指定された形式で出力します。
-     * 
      * Google APIは具象型を使用しているため、一部の警告は抑制します。
+     * 
+     * @throws CmdLineIOException if an error occurs while retrieving the URL crawl error counts
      */
     @Override
     public void execute() {
@@ -81,14 +81,14 @@ public class QueryCommand implements Command {
             if (LOGGER.isErrorEnabled()) {
                 LOGGER.error("Failed to retrieve URL crawl error counts", e);
             }
-            throw new CmdLineIOException("URLクロールエラー数の取得に失敗しました", e);
+            throw new CommandLineInputOutputException("URLクロールエラー数の取得に失敗しました", e);
         }
     }
 
     /**
      * コマンドの使用方法を返します。
      *
-     * @return 使用方法の説明
+     * @return 使用方法の説明。
      */
     @Override
     public String usage() {

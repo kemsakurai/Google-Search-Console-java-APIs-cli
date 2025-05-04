@@ -6,7 +6,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.ComponentScan;
 
 /**
- * Google Search Console CLI アプリケーションのエントリーポイントクラス。
+ * Google Search Console CLI アプリケーションのエントリーポイントクラスです。
  * このクラスはSpring Bootアプリケーションを起動し、コマンドライン引数を処理します。
  */
 @SpringBootApplication
@@ -14,7 +14,7 @@ import org.springframework.context.annotation.ComponentScan;
 public class CliApplication {
     
     /**
-     * インスタンス化を防ぐためのプライベートコンストラクタ。
+     * インスタンス化を防ぐためのプライベートコンストラクタです。
      * このクラスはユーティリティクラスとして機能し、静的メソッドのみを提供します。
      */
     public CliApplication() {
@@ -22,7 +22,7 @@ public class CliApplication {
     }
     
     /**
-     * アプリケーションのエントリーポイント。
+     * アプリケーションのエントリーポイントです。
      * Spring Bootアプリケーションを初期化し、起動します。
      *
      * @param args コマンドライン引数

@@ -7,31 +7,30 @@ import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.services.webmasters.Webmasters;
 import com.google.api.services.webmasters.WebmastersScopes;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.security.GeneralSecurityException;
 import java.util.Collections;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 /**
- * Google Webmasters APIクライアント生成ファクトリ
+ * Google Webmasters APIクライアント生成ファクトリです。
  */
 @Component
 public class WebmastersFactory {
 
     /** 
-     * アプリケーションのキーファイルの場所
+     * アプリケーションのキーファイルの場所です。
      */
     @Value("${application.keyFileLocation}")
     private String keyFileLocation;
 
     /**
-     * デフォルトコンストラクタ
+     * デフォルトコンストラクタです。
      */
     public WebmastersFactory() {
         // デフォルトコンストラクタ
@@ -40,8 +39,8 @@ public class WebmastersFactory {
     /**
      * Webmastersインスタンスを作成します。
      *
-     * @return Webmastersクライアントのインスタンス。
-     * @throws CommandLineInputOutputException クライアント生成中にエラーが発生した場合。
+     * @return Webmastersクライアントのインスタンス
+     * @throws CommandLineInputOutputException クライアント生成中にエラーが発生した場合
      */
     public Webmasters create() {
         final HttpTransport httpTransport;
@@ -67,7 +66,7 @@ public class WebmastersFactory {
     }
 
     /**
-     * HTTPトランスポートを作成します
+     * HTTPトランスポートを作成します。
      *
      * @return 作成されたNetHttpTransportインスタンス
      * @throws GeneralSecurityException セキュリティ例外が発生した場合
@@ -78,7 +77,7 @@ public class WebmastersFactory {
     }
 
     /**
-     * JSONファクトリを取得します
+     * JSONファクトリを取得します。
      *
      * @return JacksonFactoryインスタンス
      */
@@ -87,7 +86,7 @@ public class WebmastersFactory {
     }
 
     /**
-     * 認証情報を作成します
+     * 認証情報を作成します。
      *
      * @return GoogleCredentialインスタンス
      * @throws IOException 入出力例外が発生した場合

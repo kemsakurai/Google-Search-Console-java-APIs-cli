@@ -1,22 +1,23 @@
 package xyz.monotalk.google.webmaster.cli;
 
 import com.google.api.client.json.GenericJson;
-import org.apache.commons.io.FileUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.apache.commons.lang3.StringUtils;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
- * レスポンス出力処理を提供するユーティリティクラス
+ * レスポンス出力処理を提供するユーティリティクラスです。
  */
 public final class ResponseWriter {
 
     /**
-     * ロギング用のロガー
+     * ロギング用のロガーです。
      */
     private static final Logger LOGGER = LoggerFactory.getLogger(ResponseWriter.class);
 
@@ -27,10 +28,11 @@ public final class ResponseWriter {
     /**
      * レスポンスを出力します。
      * フォーマットに応じて適切な出力先に書き込みを行います。
+     * 
      * @param response 出力するレスポンスオブジェクト
      * @param format 出力フォーマット
      * @param path 出力先のファイルパス
-     * @throws CmdLineIOException 入出力エラーが発生した場合
+     * @throws CommandLineInputOutputException 入出力エラーが発生した場合
      */
     public static void writeJson(final Object response, final Format format, final String path) {
         validateFormat(format);
@@ -106,18 +108,21 @@ public final class ResponseWriter {
      * @param jsonString 出力するJSON文字列
      * @param format 出力フォーマット
      * @param path JSONフォーマットの場合の出力先ファイルパス
-     * @throws CmdLineIOException ファイル操作中にエラーが発生した場合
+     * @throws CommandLineInputOutputException ファイル操作中にエラーが発生した場合
      */
-    @SuppressWarnings("incomplete-switch")
     private static void routeOutput(final String jsonString, final Format format, final String path) {
-        switch (format) {
-            case JSON:
-                validateJsonPath(path);
-                writeToFile(path, jsonString);
-                break;
-            case CONSOLE:
-                LOGGER.info(jsonString);
-                break;
+        if (Format.JSON.equals(format)) {
+            validateJsonPath(path);
+            writeToFile(path, jsonString);
+        } else if (Format.CONSOLE.equals(format)) {
+            LOGGER.info(jsonString);
+        } else if (Format.CSV.equals(format)) {
+            // CSVフォーマットの処理
+            // 現在は未実装
+            LOGGER.warn("CSV format is not yet implemented");
+        } else {
+            // 将来追加される可能性のあるフォーマットのデフォルト処理
+            LOGGER.warn("Unsupported format: {}", format);
         }
     }
 

@@ -14,7 +14,7 @@ import org.kohsuke.args4j.Option;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import xyz.monotalk.google.webmaster.cli.CmdLineArgmentException;
-import xyz.monotalk.google.webmaster.cli.CmdLineIOException;
+import xyz.monotalk.google.webmaster.cli.CommandLineInputOutputException;
 import xyz.monotalk.google.webmaster.cli.Command;
 import xyz.monotalk.google.webmaster.cli.WebmastersFactory;
 
@@ -58,7 +58,7 @@ public class MarkAsFixedCommand implements Command {
     }
 
     @Override
-    public void execute() throws CmdLineIOException, CmdLineArgmentException {
+    public void execute() {
         if (url == null) {
             throw new CmdLineArgmentException("URL must be specified");
         }
@@ -69,7 +69,7 @@ public class MarkAsFixedCommand implements Command {
             errorSamples.markAsFixed("https://www.monotalk.xyz", url, CATEGORY, PLATFORM)
                 .execute();
         } catch (IOException e) {
-            throw new CmdLineIOException(e.getMessage(), e);
+            throw new CommandLineInputOutputException(e.getMessage(), e);
         }
     }
 

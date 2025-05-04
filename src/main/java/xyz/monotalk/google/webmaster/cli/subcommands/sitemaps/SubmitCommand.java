@@ -2,7 +2,6 @@ package xyz.monotalk.google.webmaster.cli.subcommands.sitemaps;
 
 import java.io.IOException;
 import java.net.URL;
-import org.kohsuke.args4j.CmdLineException;
 import org.kohsuke.args4j.Option;
 import org.kohsuke.args4j.spi.URLOptionHandler;
 import org.slf4j.Logger;
@@ -11,7 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import com.google.api.services.webmasters.Webmasters;
 import xyz.monotalk.google.webmaster.cli.CmdLineArgmentException;
-import xyz.monotalk.google.webmaster.cli.CmdLineIOException;
+import xyz.monotalk.google.webmaster.cli.CommandLineInputOutputException;
 import xyz.monotalk.google.webmaster.cli.Command;
 import xyz.monotalk.google.webmaster.cli.WebmastersFactory;
 
@@ -53,7 +52,7 @@ public class SubmitCommand implements Command {
     }
 
     @Override
-    public void execute() throws CmdLineException {
+    public void execute() {
         // パラメータのバリデーション
         validateParameters();
         
@@ -102,12 +101,12 @@ public class SubmitCommand implements Command {
      * Webmastersクライアントを作成します
      * 
      * @return 作成されたWebmastersクライアント
-     * @throws CmdLineIOException クライアント作成に失敗した場合
+     * @throws CommandLineInputOutputException クライアント作成に失敗した場合
      */
     private Webmasters createWebmastersClient() {
         final Webmasters webmasters = factory.create();
         if (webmasters == null) {
-            throw new CmdLineIOException(new IOException("Failed to create Webmasters client"));
+            throw new CommandLineInputOutputException(new IOException("Failed to create Webmasters client"));
         }
         return webmasters;
     }
@@ -135,18 +134,18 @@ public class SubmitCommand implements Command {
     /**
      * 例外を処理します
      * 
-     * @param e 発生した例外
-     * @throws CmdLineIOException ラップされた例外
+     * @param exception 発生した例外
+     * @throws CommandLineInputOutputException ラップされた例外
      */
     private void handleException(final IOException exception) {
         if (LOGGER.isErrorEnabled()) {
             LOGGER.error("Failed to submit sitemap", exception);
         }
-        throw new CmdLineIOException(exception);
+        throw new CommandLineInputOutputException(exception.getMessage(), exception);
     }
 
     @Override
     public String usage() {
-        return "Submits a sitemap for a site";
+        return "Submits a sitemap for this site.";
     }
 }

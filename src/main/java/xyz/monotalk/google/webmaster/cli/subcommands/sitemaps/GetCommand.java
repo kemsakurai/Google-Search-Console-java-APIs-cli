@@ -2,7 +2,6 @@ package xyz.monotalk.google.webmaster.cli.subcommands.sitemaps;
 
 import java.io.IOException;
 import java.net.URL;
-import org.kohsuke.args4j.CmdLineException;
 import org.kohsuke.args4j.Option;
 import org.kohsuke.args4j.spi.URLOptionHandler;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,7 +9,7 @@ import org.springframework.stereotype.Component;
 import com.google.api.services.webmasters.Webmasters;
 import com.google.api.services.webmasters.model.WmxSitemap;
 import xyz.monotalk.google.webmaster.cli.CmdLineArgmentException;
-import xyz.monotalk.google.webmaster.cli.CmdLineIOException;
+import xyz.monotalk.google.webmaster.cli.CommandLineInputOutputException;
 import xyz.monotalk.google.webmaster.cli.Command;
 import xyz.monotalk.google.webmaster.cli.Format;
 import xyz.monotalk.google.webmaster.cli.ResponseWriter;
@@ -42,37 +41,45 @@ public class GetCommand implements Command {
     protected String feedpath;
 
     /**
-     * 出力フォーマット
+     * 出力フォーマット。
      */
     @Option(name = "-format", usage = "Output format", metaVar = "[console or json]")
     protected Format format = Format.CONSOLE;
 
     /**
-     * JSONファイルパス
+     * JSONファイルパス。
      */
     @Option(name = "-filePath", usage = "JSON file path", metaVar = "<filename>", depends = {"-format"})
     protected String filePath;
 
     /**
-     * デフォルトコンストラクタ
+     * デフォルトコンストラクタ。
      */
     public GetCommand() {
         // デフォルトコンストラクタ
     }
 
     @Override
-    public void execute() throws Exception {
+    public void execute() {
+        // パラメータのバリデーション
+        if (siteUrl == null) {
+            throw new CmdLineArgmentException("Site URL must be specified");
+        }
+        if (feedpath == null) {
+            throw new CmdLineArgmentException("Feed path must be specified");
+        }
+        
         try {
             final Webmasters webmasters = factory.create();
             if (webmasters == null) {
-                throw new CmdLineIOException(new IOException("Failed to create Webmasters client"));
+                throw new CommandLineInputOutputException(new IOException("Failed to create Webmasters client"));
             }
             
             final Webmasters.Sitemaps.Get request = webmasters.sitemaps().get(siteUrl.toString(), feedpath);
             final WmxSitemap response = request.execute();
             ResponseWriter.writeJson(response, format, filePath);
         } catch (IOException e) {
-            throw new CmdLineIOException("API Error", e);
+            throw new CommandLineInputOutputException("API Error", e);
         }
     }
 

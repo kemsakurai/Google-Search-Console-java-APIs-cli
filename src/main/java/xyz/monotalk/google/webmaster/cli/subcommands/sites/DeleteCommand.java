@@ -17,7 +17,7 @@ public class DeleteCommand implements Command {
     }
     
     @Override
-    public void execute() throws Exception {
+    public void execute() {
         // 実装
     }
 

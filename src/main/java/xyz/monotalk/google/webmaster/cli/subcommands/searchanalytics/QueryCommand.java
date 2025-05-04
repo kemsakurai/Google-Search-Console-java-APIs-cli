@@ -1,6 +1,12 @@
 package xyz.monotalk.google.webmaster.cli.subcommands.searchanalytics;
 
 import static java.lang.System.out;
+
+import com.google.api.services.webmasters.model.ApiDataRow;
+import com.google.api.services.webmasters.model.ApiDimensionFilter;
+import com.google.api.services.webmasters.model.ApiDimensionFilterGroup;
+import com.google.api.services.webmasters.model.SearchAnalyticsQueryRequest;
+import com.google.api.services.webmasters.model.SearchAnalyticsQueryResponse;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -8,27 +14,22 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import com.google.api.services.webmasters.model.ApiDataRow;
-import com.google.api.services.webmasters.model.ApiDimensionFilter;
-import com.google.api.services.webmasters.model.ApiDimensionFilterGroup;
-import com.google.api.services.webmasters.model.SearchAnalyticsQueryRequest;
-import com.google.api.services.webmasters.model.SearchAnalyticsQueryResponse;
 import xyz.monotalk.google.webmaster.cli.Command;
 import xyz.monotalk.google.webmaster.cli.WebmastersFactory;
 
 /**
- * QueryCommandクラス - Search Analyticsデータのクエリを実行するコマンド
+ * QueryCommandクラス - Search Analyticsデータのクエリを実行するコマンド。
  */
 @Component
 public class QueryCommand implements Command {
 
     /**
-     * WebmastersファクトリーインスタンスDI用
+     * WebmastersファクトリーインスタンスDI用。
      */
     @Autowired private WebmastersFactory factory;
     
     /**
-     * ロガーインスタンス
+     * ロガーインスタンス。
      */
     private static final Logger LOGGER = LoggerFactory.getLogger(QueryCommand.class);
 
@@ -165,7 +166,7 @@ public class QueryCommand implements Command {
     }
 
     /**
-     * API次元フィルターグループのリストを取得
+     * API次元フィルターグループのリストを取得。
      *
      * @return API次元フィルターグループのリスト
      */

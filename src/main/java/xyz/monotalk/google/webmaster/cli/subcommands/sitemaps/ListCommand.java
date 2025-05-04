@@ -8,58 +8,58 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import com.google.api.services.webmasters.Webmasters;
 import com.google.api.services.webmasters.model.SitemapsListResponse;
-import xyz.monotalk.google.webmaster.cli.CmdLineIOException;
 import xyz.monotalk.google.webmaster.cli.Command;
+import xyz.monotalk.google.webmaster.cli.CommandLineInputOutputException;
 import xyz.monotalk.google.webmaster.cli.Format;
 import xyz.monotalk.google.webmaster.cli.ResponseWriter;
 import xyz.monotalk.google.webmaster.cli.WebmastersFactory;
 
 /**
- * ListCommandクラス - サイトマップ一覧を取得するコマンド
+ * ListCommandクラス - サイトマップ一覧を取得するコマンド.
  */
 @Component
 public class ListCommand implements Command {
 
     /**
-     * ロガーインスタンス
+     * ロガーインスタンス.
      */
     private static final Logger LOGGER = LoggerFactory.getLogger(ListCommand.class);
 
     /**
-     * WebmastersファクトリーインスタンスDI用
+     * WebmastersファクトリーインスタンスDI用.
      */
     @Autowired
     private WebmastersFactory factory;
 
     /**
-     * サイトURL
+     * サイトURL.
      */
     @Option(name = "-siteUrl", usage = "Site URL", required = true)
     protected String siteUrl;
 
     /**
-     * 出力フォーマット
+     * 出力フォーマット.
      */
     @Option(name = "-format", usage = "Output format", required = false)
     protected Format format = Format.CONSOLE;
 
     /**
-     * 出力ファイルパス
+     * 出力ファイルパス.
      */
     @Option(name = "-filePath", usage = "Output file path", required = false)
     protected String filePath;
 
     /**
-     * デフォルトコンストラクタ
+     * デフォルトコンストラクタ.
      */
     public ListCommand() {
         // デフォルトコンストラクタ
     }
 
     /**
-     * サイトマップ一覧を取得し、指定された形式で出力します。
+     * サイトマップ一覧を取得し、指定された形式で出力します.
      *
-     * @throws CmdLineIOException API実行エラーが発生した場合
+     * @throws CommandLineInputOutputException API実行エラーが発生した場合
      */
     @Override
     public void execute() {
@@ -84,12 +84,12 @@ public class ListCommand implements Command {
             if (LOGGER.isErrorEnabled()) {
                 LOGGER.error("API execution failed", e);
             }
-            throw new CmdLineIOException("API execution failed: " + e.getMessage(), e);
+            throw new CommandLineInputOutputException("API execution failed: " + e.getMessage(), e);
         }
     }
 
     /**
-     * コマンドの使用方法を返します。
+     * コマンドの使用方法を返します.
      *
      * @return 使用方法の説明
      */

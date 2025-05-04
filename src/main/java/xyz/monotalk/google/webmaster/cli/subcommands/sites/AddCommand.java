@@ -7,7 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import xyz.monotalk.google.webmaster.cli.CmdLineIOException;
+import xyz.monotalk.google.webmaster.cli.CommandLineInputOutputException;
 import xyz.monotalk.google.webmaster.cli.Command;
 import xyz.monotalk.google.webmaster.cli.Format;
 import xyz.monotalk.google.webmaster.cli.WebmastersFactory;
@@ -52,11 +52,9 @@ public class AddCommand implements Command {
 
     /**
      * サイトをGoogle Search Consoleに追加します。
-     *
-     * @throws CmdLineIOException API実行エラーが発生した場合
      */
     @Override
-    public void execute() throws CmdLineIOException {
+    public void execute() {
         try {
             final Webmasters webmasters = factory.create();
             final Webmasters.Sites.Add add = webmasters.sites().add(siteUrl);
@@ -69,7 +67,7 @@ public class AddCommand implements Command {
             if (LOGGER.isErrorEnabled()) {
                 LOGGER.error("Failed to add site: {}", siteUrl, e);
             }
-            throw new CmdLineIOException("Failed to add site: " + siteUrl, e);
+            throw new CommandLineInputOutputException("Failed to add site: " + siteUrl, e);
         }
     }
 

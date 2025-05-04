@@ -50,6 +50,9 @@
     <module name="SummaryJavadocCheck">
       <property name="period" value="。" />
     </module>
+    <module name="JavadocStyle">
+        <property name="endOfSentenceFormat" value="([.?!。][ \t\n\r\f&lt;])|([.?!。]$)" />
+    </module>
     <module name="OuterTypeFilename"/>
     <module name="IllegalTokenText">
       <property name="tokens" value="STRING_LITERAL, CHAR_LITERAL"/>
