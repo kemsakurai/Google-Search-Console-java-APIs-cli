@@ -3,63 +3,93 @@ package xyz.monotalk.google.webmaster.cli.subcommands.urlcrawlerrorscounts;
 import com.google.api.services.webmasters.Webmasters;
 import com.google.api.services.webmasters.model.UrlCrawlErrorsCountsQueryResponse;
 import java.io.IOException;
-import java.net.URL;
 import org.kohsuke.args4j.Option;
-import org.kohsuke.args4j.spi.URLOptionHandler;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import xyz.monotalk.google.webmaster.cli.Command;
 import xyz.monotalk.google.webmaster.cli.CommandLineInputOutputException;
-import xyz.monotalk.google.webmaster.cli.CmdLineIOException;
+import xyz.monotalk.google.webmaster.cli.Command;
 import xyz.monotalk.google.webmaster.cli.Format;
 import xyz.monotalk.google.webmaster.cli.ResponseWriter;
 import xyz.monotalk.google.webmaster.cli.WebmastersFactory;
-import xyz.monotalk.google.webmaster.cli.CmdLineArgmentException;
 
 /**
- * QueryCommand.
+ * URLクロールエラー数を取得するコマンド
  */
 @Component
 public class QueryCommand implements Command {
 
-    @Autowired private WebmastersFactory factory;
-
-    @Autowired private ResponseWriter responseWriter;
-
-    @Option(name = "-siteUrl", usage = "Url of site", metaVar = "<siteUrl>", required = true,
-            handler = URLOptionHandler.class) private URL siteUrl = null;
-
-    @Option(name = "-format", usage = "Format of output ",
-            metaVar = "[console or json]") private Format format = Format.CONSOLE;
-
-    @Option(name = "-filePath", usage = "File name of json ", metaVar = "<filename>",
-            depends = {"-format"}) private String filePath = null;
+    /**
+     * ロガーインスタンス
+     */
+    private static final Logger LOGGER = LoggerFactory.getLogger(QueryCommand.class);
 
     /**
-     * コマンドを実行します。
-     * エラーカウント情報を取得し、指定された形式で出力します。
-     * 
-     * @throws CmdLineIOException 入出力操作中にエラーが発生した場合。
-     * @throws CommandLineInputOutputException レスポンス出力処理中にエラーが発生した場合。
-     * @throws CmdLineArgmentException 引数のバリデーションでエラーが発生した場合。
+     * Webmasters APIクライアント生成ファクトリ
      */
-    @Override
-    public void execute() throws CmdLineIOException, CommandLineInputOutputException, CmdLineArgmentException {
-        Webmasters.Urlcrawlerrorscounts.Query request;
-        try {
-            request = factory.create().urlcrawlerrorscounts().query(siteUrl.toString());
-        } catch (IOException e) {
-            throw new CmdLineIOException(e.getMessage(), e);
-        }
-        UrlCrawlErrorsCountsQueryResponse response;
-        try {
-            response = request.execute();
-        } catch (IOException e) {
-            throw new CmdLineIOException(e.getMessage(), e);
-        }
-        responseWriter.writeJson(response, format, filePath);
+    @Autowired
+    private WebmastersFactory factory;
+
+    /**
+     * サイトURL。
+     */
+    @Option(name = "-siteUrl", usage = "Site URL", required = true)
+    private String siteUrl;
+
+    /**
+     * 出力フォーマット。
+     */
+    @Option(name = "-format", usage = "Output format", required = false)
+    private Format format = Format.CONSOLE;
+
+    /**
+     * 出力ファイルパス。
+     */
+    @Option(name = "-filePath", usage = "Output file path", required = false)
+    private String filePath;
+    
+    /**
+     * デフォルトコンストラクタ。
+     */
+    public QueryCommand() {
+        // デフォルトコンストラクタ
     }
 
+    /**
+     * URLクロールエラー数を取得し、指定された形式で出力します。
+     * Google APIは具象型を使用しているため、一部の警告は抑制します。
+     * 
+     * @throws CmdLineIOException if an error occurs while retrieving the URL crawl error counts
+     */
+    @Override
+    public void execute() {
+        if (LOGGER.isInfoEnabled()) {
+            LOGGER.info("Retrieving URL crawl error counts for site: {}", siteUrl);
+        }
+        
+        try {
+            final Webmasters.Urlcrawlerrorscounts.Query request = 
+                factory.create().urlcrawlerrorscounts().query(siteUrl);
+            final UrlCrawlErrorsCountsQueryResponse response = request.execute();
+            ResponseWriter.writeJson(response, format, filePath);
+            
+            if (LOGGER.isInfoEnabled()) {
+                LOGGER.info("URL crawl error counts retrieved successfully");
+            }
+        } catch (IOException e) {
+            if (LOGGER.isErrorEnabled()) {
+                LOGGER.error("Failed to retrieve URL crawl error counts", e);
+            }
+            throw new CommandLineInputOutputException("URLクロールエラー数の取得に失敗しました", e);
+        }
+    }
+
+    /**
+     * コマンドの使用方法を返します。
+     *
+     * @return 使用方法の説明。
+     */
     @Override
     public String usage() {
         return "Retrieves a time series of the number of URL crawl errors per error category and platform.";

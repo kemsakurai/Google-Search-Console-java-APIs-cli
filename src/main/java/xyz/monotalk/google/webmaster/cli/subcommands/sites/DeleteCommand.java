@@ -4,13 +4,20 @@ import org.springframework.stereotype.Component;
 import xyz.monotalk.google.webmaster.cli.Command;
 
 /**
- * サイトを削除するコマンドです。
+ * DeleteCommandクラス - サイトをGoogle Search Consoleから削除するコマンド
  */
 @Component
 public class DeleteCommand implements Command {
-
+    
+    /**
+     * デフォルトコンストラクタ
+     */
+    public DeleteCommand() {
+        // デフォルトコンストラクタ
+    }
+    
     @Override
-    public void execute() throws Exception {
+    public void execute() {
         // 実装
     }
 

@@ -7,18 +7,24 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.MockedStatic;
+import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
-import xyz.monotalk.google.webmaster.cli.CmdLineIOException;
-import xyz.monotalk.google.webmaster.cli.WebmastersFactory;
+import xyz.monotalk.google.webmaster.cli.CommandLineInputOutputException;
+import xyz.monotalk.google.webmaster.cli.Format;
 import xyz.monotalk.google.webmaster.cli.ResponseWriter;
-import org.springframework.test.util.ReflectionTestUtils;
+import xyz.monotalk.google.webmaster.cli.WebmastersFactory;
+
 
 import java.io.IOException;
 
 import static org.junit.Assert.assertEquals;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
+/**
+ * サイト一覧取得コマンドのテストクラス
+ */
 @RunWith(MockitoJUnitRunner.class)
 public class ListCommandTest {
 
@@ -35,7 +41,7 @@ public class ListCommandTest {
     private Webmasters.Sites.List request;
 
     @Mock
-    private ResponseWriter responseWriter;
+    private SitesListResponse response;
 
     @InjectMocks
     private ListCommand command;
@@ -45,36 +51,53 @@ public class ListCommandTest {
         when(factory.create()).thenReturn(webmasters);
         when(webmasters.sites()).thenReturn(sites);
         when(sites.list()).thenReturn(request);
-        command.responseWriter = responseWriter; // モックを明示的に注入
-        // ReflectionTestUtilsを使用してResponseWriterを注入
-        ReflectionTestUtils.setField(command, "responseWriter", responseWriter);
+        when(request.execute()).thenReturn(response);
     }
 
+    /**
+     * 正常系のテスト
+     * サイト一覧が正常に取得されることを検証
+     */
     @Test
-    public void testExecute_正常系() throws IOException {
-        // テストデータの準備
-        SitesListResponse response = new SitesListResponse();
-        when(request.execute()).thenReturn(response);
+    public void testExecute_WithValidParameters_ShouldReturnSitesList() throws IOException, CommandLineInputOutputException {
+        // ResponseWriterの静的メソッドをモック化
+        try (MockedStatic<ResponseWriter> mockedStatic = Mockito.mockStatic(ResponseWriter.class)) {
+            // 実行
+            command.execute();
 
+            // 検証
+            verify(factory).create();
+            verify(webmasters).sites();
+            verify(sites).list();
+            verify(request).execute();
+            
+            // 静的メソッドの呼び出しを検証
+            mockedStatic.verify(() -> ResponseWriter.writeJson(eq(response), eq(Format.CONSOLE), eq(null)));
+        }
+    }
+
+    /**
+     * API呼び出しでエラーが発生した場合のテスト
+     * IOExceptionがCommandLineInputOutputExceptionとしてスローされることを確認
+     */
+    @Test(expected = CommandLineInputOutputException.class)
+    public void testExecute_WhenApiCallFails_ShouldThrowCmdLineIOException() throws IOException, CommandLineInputOutputException {
+        // 準備
+        when(request.execute()).thenThrow(new IOException("API Error"));
+        
         // 実行
         command.execute();
-
-        // 検証
-        verify(factory).create();
-        verify(webmasters).sites();
-        verify(sites).list();
-        verify(request).execute();
     }
 
-    @Test(expected = CmdLineIOException.class)
-    public void testExecute_APIエラー発生時にスタックトレースが出力されること() throws IOException {
-        when(request.execute()).thenThrow(new IOException("API Error"));
-        command.execute();
-    }
-
+    /**
+     * usage()メソッドのテスト
+     * 説明文が正しく返されることを検証
+     */
     @Test
-    public void testUsage_使用方法の説明が取得できること() {
+    public void testUsage_ShouldReturnCorrectDescription() {
+        // 実行
         String usage = command.usage();
+        // 検証
         assertEquals("Lists the user's Search Console sites.", usage);
     }
 }

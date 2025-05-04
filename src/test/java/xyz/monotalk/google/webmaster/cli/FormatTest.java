@@ -20,7 +20,7 @@ public class FormatTest {
         // Then
         assertEquals(3, formats.length);
         assertEquals(Format.JSON, formats[0]);
-        assertEquals(Format.PLAIN_TEXT, formats[1]);
+        assertEquals(Format.CSV, formats[1]);
         assertEquals(Format.CONSOLE, formats[2]);
     }
 
@@ -31,7 +31,6 @@ public class FormatTest {
     public void testFormatEnum_shouldResolveValueByName() {
         // When & Then
         assertEquals(Format.JSON, Format.valueOf("JSON"));
-        assertEquals(Format.PLAIN_TEXT, Format.valueOf("PLAIN_TEXT"));
         assertEquals(Format.CONSOLE, Format.valueOf("CONSOLE"));
     }
 
@@ -51,10 +50,8 @@ public class FormatTest {
     public void testFormatEnum_shouldHaveCorrectNamesAndOrdinals() {
         // Then
         assertEquals("JSON", Format.JSON.name());
-        assertEquals("PLAIN_TEXT", Format.PLAIN_TEXT.name());
         assertEquals("CONSOLE", Format.CONSOLE.name());
         assertEquals(0, Format.JSON.ordinal());
-        assertEquals(1, Format.PLAIN_TEXT.ordinal());
         assertEquals(2, Format.CONSOLE.ordinal());
     }
 }

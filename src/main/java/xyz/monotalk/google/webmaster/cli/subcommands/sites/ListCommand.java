@@ -3,47 +3,72 @@ package xyz.monotalk.google.webmaster.cli.subcommands.sites;
 import com.google.api.services.webmasters.Webmasters;
 import com.google.api.services.webmasters.model.SitesListResponse;
 import java.io.IOException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import xyz.monotalk.google.webmaster.cli.CmdLineArgmentException;
-import xyz.monotalk.google.webmaster.cli.CmdLineIOException;
-import xyz.monotalk.google.webmaster.cli.Command;
 import xyz.monotalk.google.webmaster.cli.CommandLineInputOutputException;
+import xyz.monotalk.google.webmaster.cli.Command;
 import xyz.monotalk.google.webmaster.cli.Format;
 import xyz.monotalk.google.webmaster.cli.ResponseWriter;
 import xyz.monotalk.google.webmaster.cli.WebmastersFactory;
 
 /**
- * サイトの一覧を取得するコマンドです。
+ * サイト一覧を取得するコマンドクラス
  */
 
 @Component
 public class ListCommand implements Command {
 
+    /**
+     * ロガーインスタンス
+     */
+    private static final Logger LOGGER = LoggerFactory.getLogger(ListCommand.class);
+
+    /**
+     * WebmastersファクトリーインスタンスDI用
+     */
     @Autowired
     private WebmastersFactory factory;
 
-    @Autowired
-    protected ResponseWriter responseWriter;
+    /**
+     * デフォルトコンストラクタ
+     */
+    public ListCommand() {
+        // デフォルトコンストラクタ
+    }
 
     /**
-     * Search Console APIからサイト一覧を取得します。
-     * 
-     * @throws CommandLineInputOutputException 入出力操作中にエラーが発生した場合。
-     * @throws CmdLineArgmentException 引数の検証中にエラーが発生した場合。
-     * @throws CmdLineIOException API要求の実行中にエラーが発生した場合。
+     * サイト一覧を取得し、指定された形式で出力します。
      */
     @Override
-    public void execute() throws CommandLineInputOutputException, CmdLineArgmentException, CmdLineIOException {
-        Webmasters webmasters = factory.create();
+    public void execute() {
+        if (LOGGER.isInfoEnabled()) {
+            LOGGER.info("Retrieving site list");
+        }
+        
         try {
-            SitesListResponse response = webmasters.sites().list().execute();
-            responseWriter.writeJson(response, Format.CONSOLE, null);
+            final Webmasters webmasters = factory.create();
+            final Webmasters.Sites.List list = webmasters.sites().list();
+            final SitesListResponse response = list.execute();
+            ResponseWriter.writeJson(response, Format.CONSOLE, null);
+            
+            if (LOGGER.isInfoEnabled()) {
+                LOGGER.info("Site list retrieved successfully");
+            }
         } catch (IOException e) {
-            throw new CmdLineIOException("Failed to execute API request: " + e.getMessage(), e);
+            if (LOGGER.isErrorEnabled()) {
+                LOGGER.error("Failed to list sites", e);
+            }
+            throw new CommandLineInputOutputException("Failed to list sites", e);
         }
     }
 
+    /**
+     * コマンドの使用方法を返します。
+     *
+     * @return 使用方法の説明
+     */
     @Override
     public String usage() {
         return "Lists the user's Search Console sites.";

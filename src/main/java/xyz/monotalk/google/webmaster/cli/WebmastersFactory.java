@@ -4,34 +4,46 @@ import com.google.api.client.googleapis.auth.oauth2.GoogleCredential;
 import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
 import com.google.api.client.http.HttpTransport;
 import com.google.api.client.http.javanet.NetHttpTransport;
-import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.services.webmasters.Webmasters;
 import com.google.api.services.webmasters.WebmastersScopes;
-import java.io.FileInputStream;
+
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.security.GeneralSecurityException;
 import java.util.Collections;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 /**
- * Google Webmasters APIクライアントを生成するファクトリクラスです。
+ * Google Webmasters APIクライアント生成ファクトリです。
  */
 @Component
 public class WebmastersFactory {
 
+    /** 
+     * アプリケーションのキーファイルの場所です。
+     */
     @Value("${application.keyFileLocation}")
     private String keyFileLocation;
 
     /**
-     * Webmastersクライアントを生成します。
-     *
-     * @return Webmastersクライアントのインスタンス。
-     * @throws CommandLineInputOutputException クライアント生成中にエラーが発生した場合。
+     * デフォルトコンストラクタです。
      */
-    public Webmasters create() throws CommandLineInputOutputException {
-        HttpTransport httpTransport;
+    public WebmastersFactory() {
+        // デフォルトコンストラクタ
+    }
+    
+    /**
+     * Webmastersインスタンスを作成します。
+     *
+     * @return Webmastersクライアントのインスタンス
+     * @throws CommandLineInputOutputException クライアント生成中にエラーが発生した場合
+     */
+    public Webmasters create() {
+        final HttpTransport httpTransport;
         try {
             httpTransport = createHttpTransport();
         } catch (GeneralSecurityException | IOException e) {
@@ -39,8 +51,7 @@ public class WebmastersFactory {
                     e);
         }
 
-        JsonFactory jsonFactory = getJsonFactory();
-        GoogleCredential credential;
+        final GoogleCredential credential;
         try {
             credential = createCredential();
         } catch (IOException e) {
@@ -49,38 +60,40 @@ public class WebmastersFactory {
         }
 
         // Create a new authorized API client
-        return new Webmasters.Builder(httpTransport, jsonFactory, credential)
-                .setApplicationName("Search Console Cli").build();
+        return new Webmasters.Builder(httpTransport, getJsonFactory(), credential)
+                .setApplicationName("Search Console Cli")
+                .build();
     }
 
     /**
-     * Google APIと通信するためのHTTPトランスポートを作成します。
+     * HTTPトランスポートを作成します。
      *
-     * @return 信頼されたNetHttpTransportインスタンス。
-     * @throws GeneralSecurityException セキュリティエラーが発生した場合。
-     * @throws IOException I/Oエラーが発生した場合。
+     * @return 作成されたNetHttpTransportインスタンス
+     * @throws GeneralSecurityException セキュリティ例外が発生した場合
+     * @throws IOException 入出力例外が発生した場合
      */
     protected NetHttpTransport createHttpTransport() throws GeneralSecurityException, IOException {
         return GoogleNetHttpTransport.newTrustedTransport();
     }
 
     /**
-     * JSONの解析と生成のためのデフォルトJSONファクトリを取得します。
+     * JSONファクトリを取得します。
      *
-     * @return JacksonFactoryインスタンス。
+     * @return JacksonFactoryインスタンス
      */
     protected JacksonFactory getJsonFactory() {
         return JacksonFactory.getDefaultInstance();
     }
 
     /**
-     * API要求を認証するためのGoogle認証情報を作成します。
+     * 認証情報を作成します。
      *
-     * @return 必要なスコープを持つGoogleCredentialインスタンス。
-     * @throws IOException キーファイルの読み込み中にエラーが発生した場合。
+     * @return GoogleCredentialインスタンス
+     * @throws IOException 入出力例外が発生した場合
      */
     protected GoogleCredential createCredential() throws IOException {
-        return GoogleCredential.fromStream(new FileInputStream(keyFileLocation))
-                .createScoped(Collections.singleton(WebmastersScopes.WEBMASTERS));
+        return GoogleCredential.fromStream(
+                Files.newInputStream(Paths.get(keyFileLocation))
+            ).createScoped(Collections.singleton(WebmastersScopes.WEBMASTERS));
     }
 }

@@ -7,52 +7,66 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import xyz.monotalk.google.webmaster.cli.CmdLineIOException;
-import xyz.monotalk.google.webmaster.cli.Command;
 import xyz.monotalk.google.webmaster.cli.CommandLineInputOutputException;
+import xyz.monotalk.google.webmaster.cli.Command;
 import xyz.monotalk.google.webmaster.cli.WebmastersFactory;
 
 /**
- * DeleteCommand. サイトマップを削除するコマンドです。
+ * DeleteCommandクラス - サイトマップ削除コマンド
  */
 @Component
 public class DeleteCommand implements Command {
 
+    /**
+     * ロガーインスタンス
+     */
     private static final Logger LOGGER = LoggerFactory.getLogger(DeleteCommand.class);
-
+    
+    /**
+     * WebmastersファクトリインスタンスへのAutowired参照
+     */
     @Autowired
-    private final WebmastersFactory factory;
+    private WebmastersFactory factory;
 
+    /**
+     * サイトのURL
+     */
     @Option(name = "-siteUrl", usage = "Url of site", required = true)
     private String siteUrl;
 
+    /**
+     * サイトマップのフィードパス
+     */
     @Option(name = "-feedPath", usage = "Url of feedPath", required = true)
     private String feedPath;
-
+        
     /**
-     * コンストラクタ.
+     * デフォルトコンストラクタ
      */
     public DeleteCommand() {
-        this.factory = null; // Spring DIのために必要なnull初期化
+        // デフォルトコンストラクタ
     }
 
     /**
      * サイトマップを削除します。
      * 
      * @throws CommandLineInputOutputException 入出力操作中にエラーが発生した場合。
-     * @throws CmdLineIOException API要求の実行中にエラーが発生した場合。
      */
     @Override
-    public void execute() throws CommandLineInputOutputException, CmdLineIOException {
-        LOGGER.info("START Delete.");
-        Webmasters webmasters = factory.create();
+    public void execute() {
+        if (LOGGER.isInfoEnabled()) {
+            LOGGER.info("START Delete.");
+        }
+        final Webmasters webmasters = factory.create();
         try {
-            Webmasters.Sitemaps.Delete delete = webmasters.sitemaps().delete(siteUrl, feedPath);
+            final Webmasters.Sitemaps.Delete delete = webmasters.sitemaps().delete(siteUrl, feedPath);
             delete.execute();
         } catch (IOException e) {
-            throw new CmdLineIOException(e.getMessage(), e);
+            throw new CommandLineInputOutputException(e.getMessage(), e);
         }
-        LOGGER.info("Done.");
+        if (LOGGER.isInfoEnabled()) {
+            LOGGER.info("Done.");
+        }
     }
 
     @Override
@@ -66,7 +80,7 @@ public class DeleteCommand implements Command {
      * @param siteUrl
      *            サイトのURL。
      */
-    public void setSiteUrl(String siteUrl) {
+    public void setSiteUrl(final String siteUrl) {
         this.siteUrl = siteUrl;
     }
 
@@ -76,7 +90,7 @@ public class DeleteCommand implements Command {
      * @param feedPath
      *            サイトマップのフィードパス。
      */
-    public void setFeedPath(String feedPath) {
+    public void setFeedPath(final String feedPath) {
         this.feedPath = feedPath;
     }
 }

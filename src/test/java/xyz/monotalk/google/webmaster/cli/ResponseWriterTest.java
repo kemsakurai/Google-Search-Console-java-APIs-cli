@@ -44,8 +44,17 @@ public class ResponseWriterTest {
 
     private final ByteArrayOutputStream outContent = new ByteArrayOutputStream();
     private final PrintStream originalOut = System.out;
-    private TestJson testJson;
-    private ResponseWriter responseWriter;
+
+    @Before
+    public void setUpStreams() throws IOException {
+        System.setOut(new PrintStream(outContent));
+        when(mockResponse.toPrettyString()).thenReturn("{\"test\": \"value\"}");
+    }
+
+    @After
+    public void restoreStreams() {
+        System.setOut(originalOut);
+    }
 
     private static class TestJson extends GenericJson {
         @com.google.api.client.util.Key
@@ -56,30 +65,11 @@ public class ResponseWriterTest {
         }
     }
 
-    @Before
-    public void setUp() {
-        MockitoAnnotations.openMocks(this);
-        responseWriter = new ResponseWriter();
-        responseWriter.setLogger(mockLogger); // モックされた Logger を注入
-        System.setOut(new PrintStream(outContent));
-    }
-
-    @After
-    public void tearDown() {
-        System.setOut(originalOut);
-    }
-
     @Test
-    public void testWriteJson_正常系_コンソール出力() throws CmdLineArgmentException, CommandLineInputOutputException {
-        // Given
-        String response = "{\"test\": \"value\"}";
-        Format format = Format.CONSOLE;
-
-        // When
-        responseWriter.writeJson(response, format, null);
-
-        // Then
-        verify(mockLogger).info(response);
+    public void testWriteJson_正常系_コンソール出力() throws Exception {
+        ResponseWriter.writeJson(mockResponse, Format.CONSOLE, null);
+        String output = outContent.toString();
+        assertTrue(output.contains("{\"test\": \"value\"}"));
     }
 
     @Test
@@ -90,7 +80,7 @@ public class ResponseWriterTest {
         when(mockResponse.toPrettyString()).thenReturn("{\"test\": \"value\"}");
 
         // When
-        responseWriter.writeJson(mockResponse, Format.JSON, filePath);
+        ResponseWriter.writeJson(mockResponse, Format.JSON, filePath);
 
         // Then
         String content = new String(Files.readAllBytes(outputFile.toPath()));
@@ -99,7 +89,7 @@ public class ResponseWriterTest {
 
     @Test(expected = CmdLineArgmentException.class)
     public void testWriteJson_異常系_JSONフォーマットでファイルパス未指定() throws CmdLineArgmentException, CommandLineInputOutputException {
-        responseWriter.writeJson(mockResponse, Format.JSON, null);
+        ResponseWriter.writeJson(mockResponse, Format.JSON, null);
     }
 
     @Test(expected = CommandLineInputOutputException.class)
@@ -111,25 +101,20 @@ public class ResponseWriterTest {
 
         // 一時ディレクトリ内のファイルパスを生成
         String filePath = readOnlyDir.resolve("test.json").toString();
-        responseWriter.writeJson(mockResponse, Format.JSON, filePath);
+        ResponseWriter.writeJson(mockResponse, Format.JSON, filePath);
     }
 
     @Test(expected = CmdLineArgmentException.class)
     public void testWriteJson_異常系_不正なフォーマット指定() throws CmdLineArgmentException, CommandLineInputOutputException {
-        responseWriter.writeJson(mockResponse, null, null);
+        ResponseWriter.writeJson(mockResponse, null, null);
     }
 
     @Test
-    public void testWriteJson_正常系_空のオブジェクト出力() throws CmdLineArgmentException, CommandLineInputOutputException {
-        // Given
-        String response = "{}";
-        Format format = Format.CONSOLE;
-
-        // When
-        responseWriter.writeJson(response, format, null);
-
-        // Then
-        verify(mockLogger).info(response);
+    public void testWriteJson_正常系_空のオブジェクト出力() throws Exception {
+        GenericJson emptyJson = new GenericJson();
+        ResponseWriter.writeJson(emptyJson, Format.CONSOLE, null);
+        String output = outContent.toString();
+        assertTrue(output.contains("{}"));
     }
 
     @Test(expected = CommandLineInputOutputException.class)
@@ -140,7 +125,7 @@ public class ResponseWriterTest {
         File outputFile = new File(readOnlyDir.toFile(), "test.json");
         
         try {
-            responseWriter.writeJson(mockResponse, Format.JSON, outputFile.getAbsolutePath());
+            ResponseWriter.writeJson(mockResponse, Format.JSON, outputFile.getAbsolutePath());
         } finally {
             Files.walk(readOnlyDir)
                 .sorted((a, b) -> b.compareTo(a))
@@ -163,12 +148,10 @@ public class ResponseWriterTest {
         }
         TestJson largeJson = new TestJson(largeValue.toString());
         
-        // When
-        responseWriter.writeJson(largeJson, Format.CONSOLE, null);
-        
-        // Then
-        // モックされたロガーが適切に呼ばれたことを検証する
-        verify(mockLogger).info(org.mockito.ArgumentMatchers.contains("value0"));
+        ResponseWriter.writeJson(largeJson, Format.CONSOLE, null);
+        String output = outContent.toString();
+        assertTrue(output.contains("value0"));
+        assertTrue(output.contains("value999"));
     }
 
     @Test(expected = CommandLineInputOutputException.class)
@@ -178,7 +161,7 @@ public class ResponseWriterTest {
         when(mockResponse.toPrettyString()).thenThrow(new IOException("IO Error"));
 
         // When
-        responseWriter.writeJson(mockResponse, Format.CONSOLE, null);
+        ResponseWriter.writeJson(mockResponse, Format.CONSOLE, null);
     }
 
     @Test(expected = CmdLineArgmentException.class)
@@ -188,11 +171,11 @@ public class ResponseWriterTest {
         when(mockResponse.toPrettyString()).thenReturn("test data");
 
         // When
-        responseWriter.writeJson(mockResponse, Format.JSON, null);
+        ResponseWriter.writeJson(mockResponse, Format.JSON, null);
     }
 
     @Test(expected = CmdLineArgmentException.class)
     public void testWriteJson_異常系_フォーマットが未指定() throws CmdLineArgmentException, CommandLineInputOutputException {
-        responseWriter.writeJson(mockResponse, null, null);
+        ResponseWriter.writeJson(mockResponse, null, null);
     }
 }

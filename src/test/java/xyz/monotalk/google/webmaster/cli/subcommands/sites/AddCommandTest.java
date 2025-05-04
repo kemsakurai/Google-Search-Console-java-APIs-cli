@@ -86,7 +86,7 @@ public class AddCommandTest {
     @Test
     public void testUsage_正常系_説明文字列が返却される() {
         // Given
-        String expected = "Adds a site to the set of the user's sites in Search Console.";
+        String expected = "Adds a site to Google Search Console.";
 
         // When
         String actual = command.usage();

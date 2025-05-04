@@ -1,54 +1,85 @@
 package xyz.monotalk.google.webmaster.cli.subcommands.sitemaps;
 
-import com.google.api.services.webmasters.Webmasters;
-import com.google.api.services.webmasters.model.WmxSitemap;
 import java.io.IOException;
 import java.net.URL;
 import org.kohsuke.args4j.Option;
 import org.kohsuke.args4j.spi.URLOptionHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import xyz.monotalk.google.webmaster.cli.CmdLineIOException;
+import com.google.api.services.webmasters.Webmasters;
+import com.google.api.services.webmasters.model.WmxSitemap;
+import xyz.monotalk.google.webmaster.cli.CmdLineArgmentException;
+import xyz.monotalk.google.webmaster.cli.CommandLineInputOutputException;
 import xyz.monotalk.google.webmaster.cli.Command;
 import xyz.monotalk.google.webmaster.cli.Format;
 import xyz.monotalk.google.webmaster.cli.ResponseWriter;
 import xyz.monotalk.google.webmaster.cli.WebmastersFactory;
 
 /**
- * サイトマップ情報を取得するコマンドです。
+ * GetCommandクラス - 特定のサイトマップ情報を取得するコマンド
  */
 @Component
 public class GetCommand implements Command {
 
+    /**
+     * WebmastersファクトリーインスタンスDI用
+     */
     @Autowired
-    private WebmastersFactory factory;
+    protected WebmastersFactory factory;
 
-    @Autowired
-    private ResponseWriter responseWriter;
-
-    @Option(name = "-siteUrl", usage = "Site URL", required = true,
+    /**
+     * サイトURL
+     */
+    @Option(name = "-siteUrl", usage = "Site URL", metaVar = "<siteUrl>", required = true,
             handler = URLOptionHandler.class)
-    private URL siteUrl = null;
+    protected URL siteUrl;
 
+    /**
+     * フィードパス
+     */
     @Option(name = "-feedpath", usage = "Feed path", required = true)
-    private String feedpath = null;
+    protected String feedpath;
 
-    @Option(name = "-format", usage = "Output format [console or json]")
-    private Format format = Format.CONSOLE;
+    /**
+     * 出力フォーマット。
+     */
+    @Option(name = "-format", usage = "Output format", metaVar = "[console or json]")
+    protected Format format = Format.CONSOLE;
 
-    @Option(name = "-filePath", usage = "Output file path", depends = {"-format"})
-    private String filePath = null;
+    /**
+     * JSONファイルパス。
+     */
+    @Option(name = "-filePath", usage = "JSON file path", metaVar = "<filename>", depends = {"-format"})
+    protected String filePath;
+
+    /**
+     * デフォルトコンストラクタ。
+     */
+    public GetCommand() {
+        // デフォルトコンストラクタ
+    }
 
     @Override
-    public void execute() throws Exception {
+    public void execute() {
+        // パラメータのバリデーション
+        if (siteUrl == null) {
+            throw new CmdLineArgmentException("Site URL must be specified");
+        }
+        if (feedpath == null) {
+            throw new CmdLineArgmentException("Feed path must be specified");
+        }
+        
         try {
-            Webmasters webmasters = factory.create();
-            Webmasters.Sitemaps.Get get = webmasters.sitemaps().get(
-                    siteUrl.toString(), feedpath);
-            WmxSitemap response = get.execute();
-            responseWriter.writeJson(response, format, filePath);
+            final Webmasters webmasters = factory.create();
+            if (webmasters == null) {
+                throw new CommandLineInputOutputException(new IOException("Failed to create Webmasters client"));
+            }
+            
+            final Webmasters.Sitemaps.Get request = webmasters.sitemaps().get(siteUrl.toString(), feedpath);
+            final WmxSitemap response = request.execute();
+            ResponseWriter.writeJson(response, format, filePath);
         } catch (IOException e) {
-            throw new CmdLineIOException("API Error", e);
+            throw new CommandLineInputOutputException("API Error", e);
         }
     }
 

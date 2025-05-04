@@ -4,13 +4,20 @@ import org.springframework.stereotype.Component;
 import xyz.monotalk.google.webmaster.cli.Command;
 
 /**
- * サイト情報を取得するコマンドです。
+ * GetCommandクラス - 特定のサイト情報を取得するコマンド
  */
 @Component
 public class GetCommand implements Command {
-
+    
+    /**
+     * デフォルトコンストラクタ
+     */
+    public GetCommand() {
+        // デフォルトコンストラクタ
+    }
+    
     @Override
-    public void execute() throws Exception {
+    public void execute() {
         // 実装
     }
 
