@@ -1,20 +1,21 @@
 package xyz.monotalk.google.webmaster.cli;
 
-import org.kohsuke.args4j.CmdLineException;
-
 /**
- * Command interface
+ * CLIコマンドインターフェースです。
  */
 public interface Command {
-    /**
-     * Main Method
-     */
-    void execute() throws CmdLineException;
 
     /**
-     * Usage
-     * @return
+     * コマンドを実行します。
+     *
+     * @throws Exception コマンド実行中にエラーが発生した場合。
+     */
+    void execute() throws Exception;
+
+    /**
+     * コマンドの使用方法を返します。
+     *
+     * @return コマンドの使用方法の説明。
      */
     String usage();
-
 }

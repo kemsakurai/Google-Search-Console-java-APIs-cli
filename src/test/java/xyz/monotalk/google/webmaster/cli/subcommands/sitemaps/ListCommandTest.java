@@ -42,6 +42,9 @@ public class ListCommandTest {
     private WebmastersFactory factory;
 
     @Mock
+    private ResponseWriter responseWriter;
+
+    @Mock
     private Webmasters webmasters;
 
     @Mock
@@ -56,6 +59,9 @@ public class ListCommandTest {
     @InjectMocks
     private ListCommand command;
 
+    /**
+     * テスト前の準備
+     */
     @Before
     public void setup() throws IOException, CommandLineInputOutputException, CmdLineIOException, CmdLineArgmentException {
         when(factory.create()).thenReturn(webmasters);

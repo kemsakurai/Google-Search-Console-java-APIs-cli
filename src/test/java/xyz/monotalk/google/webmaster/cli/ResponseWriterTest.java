@@ -10,6 +10,8 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.kohsuke.args4j.CmdLineException;
+import org.mockito.MockitoAnnotations;
+import org.slf4j.Logger;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -25,6 +27,7 @@ import java.util.Set;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.mock;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -35,6 +38,9 @@ public class ResponseWriterTest {
 
     @Mock
     private GenericJson mockResponse;
+
+    @Mock
+    private Logger mockLogger;
 
     private final ByteArrayOutputStream outContent = new ByteArrayOutputStream();
     private final PrintStream originalOut = System.out;
@@ -48,17 +54,6 @@ public class ResponseWriterTest {
         }
     }
 
-    @Before
-    public void setUp() throws IOException {
-        System.setOut(new PrintStream(outContent));
-        when(mockResponse.toPrettyString()).thenReturn("{\"test\": \"value\"}");
-    }
-
-    @After
-    public void tearDown() {
-        System.setOut(originalOut);
-    }
-
     @Test
     public void testWriteJson_正常系_コンソール出力() throws Exception {
         ResponseWriter.writeJson(mockResponse, Format.CONSOLE, null);
@@ -68,21 +63,25 @@ public class ResponseWriterTest {
 
     @Test
     public void testWriteJson_正常系_JSONファイル出力() throws Exception {
+        // Given
         File outputFile = tempFolder.newFile("test-output.json");
         String filePath = outputFile.getAbsolutePath();
+        when(mockResponse.toPrettyString()).thenReturn("{\"test\": \"value\"}");
 
+        // When
         ResponseWriter.writeJson(mockResponse, Format.JSON, filePath);
 
+        // Then
         String content = new String(Files.readAllBytes(outputFile.toPath()));
         assertEquals("{\"test\": \"value\"}", content);
     }
 
     @Test(expected = CmdLineArgmentException.class)
-    public void testWriteJson_異常系_JSONフォーマットでファイルパス未指定() throws CmdLineException {
+    public void testWriteJson_異常系_JSONフォーマットでファイルパス未指定() throws CmdLineArgmentException, CommandLineInputOutputException {
         ResponseWriter.writeJson(mockResponse, Format.JSON, null);
     }
 
-    @Test(expected = CmdLineIOException.class)
+    @Test(expected = CommandLineInputOutputException.class)
     public void testWriteJson_異常系_JSONファイル書き込みエラー() throws Exception {
         // 読み取り専用の一時ディレクトリを作成
         Set<PosixFilePermission> readOnlyPerms = PosixFilePermissions.fromString("r-xr-xr-x");
@@ -94,8 +93,8 @@ public class ResponseWriterTest {
         ResponseWriter.writeJson(mockResponse, Format.JSON, filePath);
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void testWriteJson_異常系_不正なフォーマット指定() throws CmdLineException {
+    @Test(expected = CmdLineArgmentException.class)
+    public void testWriteJson_異常系_不正なフォーマット指定() throws CmdLineArgmentException, CommandLineInputOutputException {
         ResponseWriter.writeJson(mockResponse, null, null);
     }
 
@@ -107,7 +106,7 @@ public class ResponseWriterTest {
         assertTrue(output.contains("{}"));
     }
 
-    @Test(expected = CmdLineIOException.class)
+    @Test(expected = CommandLineInputOutputException.class)
     public void testWriteJson_異常系_権限なしディレクトリへの書き込み() throws Exception {
         Set<PosixFilePermission> perms = PosixFilePermissions.fromString("r--r--r--");
         FileAttribute<Set<PosixFilePermission>> attr = PosixFilePermissions.asFileAttribute(perms);
@@ -131,6 +130,7 @@ public class ResponseWriterTest {
 
     @Test
     public void testWriteJson_正常系_大きなJSONオブジェクト出力() throws Exception {
+        // Given
         StringBuilder largeValue = new StringBuilder();
         for (int i = 0; i < 1000; i++) {
             largeValue.append("value").append(i);
@@ -143,8 +143,8 @@ public class ResponseWriterTest {
         assertTrue(output.contains("value999"));
     }
 
-    @Test(expected = CmdLineIOException.class)
-    public void testWriteJson_IOエラー発生時に例外スロー() throws CmdLineException, IOException {
+    @Test(expected = CommandLineInputOutputException.class)
+    public void testWriteJson_IOエラー発生時に例外スロー() throws CmdLineArgmentException, CommandLineInputOutputException, IOException {
         // Given
         GenericJson mockResponse = mock(GenericJson.class);
         when(mockResponse.toPrettyString()).thenThrow(new IOException("IO Error"));
@@ -154,7 +154,7 @@ public class ResponseWriterTest {
     }
 
     @Test(expected = CmdLineArgmentException.class)
-    public void testWriteJson_異常系_ファイルパスがJSONフォーマット時に未指定() throws CmdLineException, IOException {
+    public void testWriteJson_異常系_ファイルパスがJSONフォーマット時に未指定() throws CmdLineArgmentException, CommandLineInputOutputException, IOException {
         // Given
         GenericJson mockResponse = mock(GenericJson.class);
         when(mockResponse.toPrettyString()).thenReturn("test data");
@@ -164,7 +164,7 @@ public class ResponseWriterTest {
     }
 
     @Test(expected = CmdLineArgmentException.class)
-    public void testWriteJson_異常系_フォーマットが未指定() throws CmdLineException {
+    public void testWriteJson_異常系_フォーマットが未指定() throws CmdLineArgmentException, CommandLineInputOutputException {
         ResponseWriter.writeJson(mockResponse, null, null);
     }
 }

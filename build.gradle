@@ -118,7 +118,7 @@ jar {
 
 // Checkstyleの設定
 checkstyle {
-    toolVersion = '8.45.1'
+    toolVersion = '9.3'
     configFile = file("${rootDir}/config/checkstyle/checkstyle.xml")
     ignoreFailures = false
     maxWarnings = 0

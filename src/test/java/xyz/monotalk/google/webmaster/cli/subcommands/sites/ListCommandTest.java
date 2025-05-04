@@ -15,6 +15,7 @@ import xyz.monotalk.google.webmaster.cli.Format;
 import xyz.monotalk.google.webmaster.cli.ResponseWriter;
 import xyz.monotalk.google.webmaster.cli.WebmastersFactory;
 
+
 import java.io.IOException;
 
 import static org.junit.Assert.assertEquals;
@@ -96,7 +97,6 @@ public class ListCommandTest {
     public void testUsage_ShouldReturnCorrectDescription() {
         // 実行
         String usage = command.usage();
-        
         // 検証
         assertEquals("Lists the user's Search Console sites.", usage);
     }

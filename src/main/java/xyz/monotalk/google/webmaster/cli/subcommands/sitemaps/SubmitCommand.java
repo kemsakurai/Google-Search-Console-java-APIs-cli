@@ -30,7 +30,7 @@ public class SubmitCommand implements Command {
      * WebmastersファクトリーインスタンスDI用
      */
     @Autowired
-    protected WebmastersFactory factory;
+    private WebmastersFactory factory;
 
     /**
      * サイトURL
@@ -147,6 +147,6 @@ public class SubmitCommand implements Command {
 
     @Override
     public String usage() {
-        return "Submits a sitemap for this site.";
+        return "Submits a sitemap for a site";
     }
 }

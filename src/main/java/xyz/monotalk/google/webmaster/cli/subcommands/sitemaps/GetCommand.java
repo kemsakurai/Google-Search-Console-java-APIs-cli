@@ -61,14 +61,7 @@ public class GetCommand implements Command {
     }
 
     @Override
-    public void execute() throws CmdLineException {
-        if (siteUrl == null) {
-            throw new CmdLineArgmentException("Site URL is required");
-        }
-        if (feedpath == null) {
-            throw new CmdLineArgmentException("Feed path is required");
-        }
-
+    public void execute() throws Exception {
         try {
             final Webmasters webmasters = factory.create();
             if (webmasters == null) {
@@ -79,12 +72,12 @@ public class GetCommand implements Command {
             final WmxSitemap response = request.execute();
             ResponseWriter.writeJson(response, format, filePath);
         } catch (IOException e) {
-            throw new CmdLineIOException(e);
+            throw new CmdLineIOException("API Error", e);
         }
     }
 
     @Override
     public String usage() {
-        return "Gets information about a specific sitemap.";
+        return "Gets information about a specific sitemap";
     }
 }

@@ -4,7 +4,7 @@ package xyz.monotalk.google.webmaster.cli;
  * コマンドライン処理中の入出力に関連する例外をハンドリングするための例外クラスです。
  * ファイル操作やネットワーク通信など、入出力処理中のエラーに使用されます。
  */
-public class CommandLineInputOutputException extends Exception {
+public class CommandLineInputOutputException extends RuntimeException {
     
     private static final long serialVersionUID = 1L;
 

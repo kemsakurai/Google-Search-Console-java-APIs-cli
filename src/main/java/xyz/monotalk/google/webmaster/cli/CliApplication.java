@@ -10,7 +10,7 @@ import org.springframework.context.annotation.ComponentScan;
  * このクラスはSpring Bootアプリケーションを起動し、コマンドライン引数を処理します。
  */
 @SpringBootApplication
-@ComponentScan(nameGenerator = FQCNBeanNameGenerator.class)
+@ComponentScan(nameGenerator = FullyQualifiedClassNameBeanNameGenerator.class)
 public class CliApplication {
     
     /**
@@ -30,6 +30,6 @@ public class CliApplication {
     public static void main(final String[] args) {
         final SpringApplication springApplication = new SpringApplication(CliApplication.class);
         springApplication.setBannerMode(Banner.Mode.OFF);
-        springApplication.run(args);
+        SpringApplication.run(CliApplication.class, args);
     }
 }

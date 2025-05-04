@@ -15,6 +15,8 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.security.GeneralSecurityException;
 import java.util.Collections;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 
 /**
  * Google Webmasters APIクライアント生成ファクトリ
@@ -38,21 +40,24 @@ public class WebmastersFactory {
     /**
      * Webmastersインスタンスを作成します。
      *
-     * @return Webmastersインスタンス
+     * @return Webmastersクライアントのインスタンス。
+     * @throws CommandLineInputOutputException クライアント生成中にエラーが発生した場合。
      */
     public Webmasters create() {
         final HttpTransport httpTransport;
         try {
             httpTransport = createHttpTransport();
         } catch (GeneralSecurityException | IOException e) {
-            throw new IllegalStateException(e);
+            throw new IllegalStateException("Failed to create HTTP transport: " + e.getMessage(),
+                    e);
         }
 
         final GoogleCredential credential;
         try {
             credential = createCredential();
         } catch (IOException e) {
-            throw new IllegalStateException(e);
+            throw new IllegalStateException(
+                    "Failed to create Google credentials: " + e.getMessage(), e);
         }
 
         // Create a new authorized API client

@@ -16,11 +16,18 @@ import java.io.IOException;
 import java.security.GeneralSecurityException;
 
 import static org.junit.Assert.assertNotNull;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
+/**
+ * WebmastersFactoryのテストクラス
+ */
 @RunWith(MockitoJUnitRunner.class)
 public class WebmastersFactoryTest {
 
+    /**
+     * テスト用のWebmastersFactoryサブクラス
+     */
     private static class TestWebmastersFactory extends WebmastersFactory {
         private final TransportFactory transportFactory;
         private final JsonFactoryProvider jsonFactoryProvider;
@@ -51,14 +58,23 @@ public class WebmastersFactoryTest {
         }
     }
 
+    /**
+     * HttpTransportを生成するファクトリインターフェース
+     */
     interface TransportFactory {
         HttpTransport createTransport() throws GeneralSecurityException, IOException;
     }
 
+    /**
+     * JacksonFactoryを提供するインターフェース
+     */
     interface JsonFactoryProvider {
         JacksonFactory getJsonFactory();
     }
 
+    /**
+     * GoogleCredentialを生成するファクトリインターフェース
+     */
     interface CredentialFactory {
         GoogleCredential createCredential() throws IOException;
     }
@@ -83,6 +99,9 @@ public class WebmastersFactoryTest {
 
     private WebmastersFactory factory;
 
+    /**
+     * テストの前準備
+     */
     @Before
     public void setUp() throws Exception {
         when(mockTransportFactory.createTransport()).thenReturn(mockHttpTransport);
@@ -93,8 +112,11 @@ public class WebmastersFactoryTest {
         ReflectionTestUtils.setField(factory, "keyFileLocation", "test-key.json");
     }
 
+    /**
+     * Webmastersインスタンスが正常に生成されることをテスト
+     */
     @Test
-    public void testCreate_正常系_Webmastersインスタンスが生成される() throws Exception {
+    public void testCreate_shouldCreateWebmastersInstance() throws Exception {
         // When
         Webmasters result = factory.create();
 
@@ -105,8 +127,11 @@ public class WebmastersFactoryTest {
         verify(mockCredentialFactory).createCredential();
     }
 
+    /**
+     * HttpTransport生成時に例外が発生した場合のテスト
+     */
     @Test(expected = IllegalStateException.class)
-    public void testCreate_異常系_HTTPTransport生成時の例外() throws Exception {
+    public void testCreate_shouldThrowExceptionWhenTransportFails() throws Exception {
         // Given
         when(mockTransportFactory.createTransport()).thenThrow(new IOException("Transport error"));
 
@@ -114,8 +139,11 @@ public class WebmastersFactoryTest {
         factory.create();
     }
 
+    /**
+     * 認証情報読み込み時に例外が発生した場合のテスト
+     */
     @Test(expected = IllegalStateException.class)
-    public void testCreate_異常系_認証情報読み込み時の例外() throws Exception {
+    public void testCreate_shouldThrowExceptionWhenCredentialFails() throws Exception {
         // Given
         when(mockCredentialFactory.createCredential()).thenThrow(new IOException("Credential error"));
 

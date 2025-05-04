@@ -141,7 +141,14 @@ public class WebmastersCommandRunner implements CommandLineRunner {
      */
     private void executeCommand() throws CmdLineException {
         context.getAutowireCapableBeanFactory().autowireBean(this.command);
-        this.command.execute();
+        try {
+            this.command.execute();
+        } catch (Exception e) {
+            if (LOGGER.isErrorEnabled()) {
+                LOGGER.error("Command execution failed: {}", e.getMessage());
+            }
+            throw new CmdLineException(e);
+        }
     }
     
     /**

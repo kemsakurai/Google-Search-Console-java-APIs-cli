@@ -39,7 +39,8 @@ public final class ResponseWriter {
         try {
             jsonString = convertToJsonString(response);
         } catch (IOException e) {
-            throw new CmdLineIOException("Failed to convert response to JSON", e);
+            throw new CommandLineInputOutputException(
+                    "Failed to convert to JSON: " + e.getMessage(), e);
         }
         routeOutput(jsonString, format, path);
     }
@@ -82,7 +83,7 @@ public final class ResponseWriter {
      * 
      * @param path 書き込み先のファイルパス
      * @param content 書き込むコンテンツ
-     * @throws CmdLineIOException ファイル操作中にエラーが発生した場合
+     * @throws CommandLineInputOutputException ファイル操作中にエラーが発生した場合
      */
     private static void writeToFile(final String path, final String content) {
         final File file = new File(path);
@@ -94,7 +95,8 @@ public final class ResponseWriter {
             }
             FileUtils.write(file, content, StandardCharsets.UTF_8);
         } catch (IOException e) {
-            throw new CmdLineIOException(e);
+            throw new CommandLineInputOutputException("Failed to write to file: " + e.getMessage(),
+                    e);
         }
     }
 

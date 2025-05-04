@@ -10,7 +10,9 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.mockito.MockitoAnnotations;
 import org.mockito.junit.MockitoJUnitRunner;
+import xyz.monotalk.google.webmaster.cli.ResponseWriter;
 import xyz.monotalk.google.webmaster.cli.WebmastersFactory;
 
 import java.io.ByteArrayOutputStream;
@@ -41,14 +43,19 @@ public class QueryCommandTest {
     @Mock
     private Webmasters.Searchanalytics.Query query;
 
+    @Mock
+    private ResponseWriter responseWriter;
+
     private final ByteArrayOutputStream outContent = new ByteArrayOutputStream();
 
     @Before
     public void setUp() throws IOException {
+        MockitoAnnotations.openMocks(this);
         System.setOut(new PrintStream(outContent));
         when(factory.create()).thenReturn(webmasters);
         when(webmasters.searchanalytics()).thenReturn(searchanalytics);
         when(searchanalytics.query(eq("https://www.monotalk.xyz"), any(SearchAnalyticsQueryRequest.class))).thenReturn(query);
+
     }
 
     @Test

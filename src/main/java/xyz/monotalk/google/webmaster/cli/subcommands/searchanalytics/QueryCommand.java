@@ -7,6 +7,7 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import com.google.api.services.webmasters.model.ApiDataRow;
 import com.google.api.services.webmasters.model.ApiDimensionFilter;
 import com.google.api.services.webmasters.model.ApiDimensionFilterGroup;
@@ -18,6 +19,7 @@ import xyz.monotalk.google.webmaster.cli.WebmastersFactory;
 /**
  * QueryCommandクラス - Search Analyticsデータのクエリを実行するコマンド
  */
+@Component
 public class QueryCommand implements Command {
 
     /**
@@ -37,6 +39,11 @@ public class QueryCommand implements Command {
         // デフォルトコンストラクタ
     }
 
+    /**
+     * Google Search Console APIからデータを取得するクエリコマンドを実行します。
+     * 
+     * @throws CmdLineIOException API呼び出し中にIOエラーが発生した場合。
+     */
     @Override
     public void execute() {
         // クエリリクエストの作成
@@ -126,7 +133,7 @@ public class QueryCommand implements Command {
             if (response != null) {
                 out.println(response.toPrettyString());
             } else {
-                out.println("検索結果はnullです");
+                LOGGER.warn("検索結果はnull");
             }
         } catch (IOException e) {
             if (LOGGER.isErrorEnabled()) {

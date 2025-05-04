@@ -1,6 +1,7 @@
 package xyz.monotalk.google.webmaster.cli.subcommands.sites;
 
 import com.google.api.services.webmasters.Webmasters;
+import java.io.IOException;
 import org.kohsuke.args4j.Option;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,10 +12,10 @@ import xyz.monotalk.google.webmaster.cli.Command;
 import xyz.monotalk.google.webmaster.cli.Format;
 import xyz.monotalk.google.webmaster.cli.WebmastersFactory;
 
-import java.io.IOException;
+
 
 /**
- * Google Search Console APIのサイト追加コマンド
+ * Google Search Console APIのサイト追加コマンドです。
  */
 @Component
 public class AddCommand implements Command {
@@ -55,7 +56,7 @@ public class AddCommand implements Command {
      * @throws CmdLineIOException API実行エラーが発生した場合
      */
     @Override
-    public void execute() {
+    public void execute() throws CmdLineIOException {
         try {
             final Webmasters webmasters = factory.create();
             final Webmasters.Sites.Add add = webmasters.sites().add(siteUrl);

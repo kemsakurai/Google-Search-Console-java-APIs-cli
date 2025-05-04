@@ -1,6 +1,15 @@
+/**
+ * クロールエラーサンプルURLを修正済みとしてマークするためのコマンド実装です。
+ * このコマンドは、Google Search Consoleで特定のURLを修正済みとしてマークし、
+ * クロールエラーサンプルのリストから削除します。
+ * 
+ * @author Ken Sakurai
+ */
+
 package xyz.monotalk.google.webmaster.cli.subcommands.urlcrawlerrorssamples;
 
 import com.google.api.services.webmasters.Webmasters;
+import java.io.IOException;
 import org.kohsuke.args4j.Option;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -9,7 +18,6 @@ import xyz.monotalk.google.webmaster.cli.CmdLineIOException;
 import xyz.monotalk.google.webmaster.cli.Command;
 import xyz.monotalk.google.webmaster.cli.WebmastersFactory;
 
-import java.io.IOException;
 
 /**
  * URLクロールエラーサンプルを修正済みとしてマークするコマンド
@@ -50,7 +58,7 @@ public class MarkAsFixedCommand implements Command {
     }
 
     @Override
-    public void execute() {
+    public void execute() throws CmdLineIOException, CmdLineArgmentException {
         if (url == null) {
             throw new CmdLineArgmentException("URL must be specified");
         }
@@ -61,7 +69,7 @@ public class MarkAsFixedCommand implements Command {
             errorSamples.markAsFixed("https://www.monotalk.xyz", url, CATEGORY, PLATFORM)
                 .execute();
         } catch (IOException e) {
-            throw new CmdLineIOException(e);
+            throw new CmdLineIOException(e.getMessage(), e);
         }
     }
 
