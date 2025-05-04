@@ -7,6 +7,7 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+import xyz.monotalk.google.webmaster.cli.CommandLineInputOutputException;
 import xyz.monotalk.google.webmaster.cli.WebmastersFactory;
 
 import java.io.IOException;
@@ -40,10 +41,10 @@ public class DeleteCommandTest {
     }
 
     @Test
-    public void testExecute_正常系_サイトマップが削除される() throws IOException {
+    public void testExecute_正常系_サイトマップが削除される() throws CommandLineInputOutputException, IOException {
         // Given
-        command.siteUrl = "https://example.com";
-        command.feedPath = "sitemap.xml";
+        command.setSiteUrl("https://example.com");
+        command.setFeedPath("sitemap.xml");
 
         // When
         command.execute();
@@ -55,11 +56,11 @@ public class DeleteCommandTest {
         verify(delete).execute();
     }
 
-    @Test(expected = IllegalStateException.class)
-    public void testExecute_異常系_API呼び出しで例外が発生() throws IOException {
+    @Test(expected = CommandLineInputOutputException.class)
+    public void testExecute_異常系_API呼び出しで例外が発生() throws IOException, CommandLineInputOutputException {
         // Given
-        command.siteUrl = "https://example.com";
-        command.feedPath = "sitemap.xml";
+        command.setSiteUrl("https://example.com");
+        command.setFeedPath("sitemap.xml");
         when(delete.execute()).thenThrow(new IOException("API Error"));
 
         // When

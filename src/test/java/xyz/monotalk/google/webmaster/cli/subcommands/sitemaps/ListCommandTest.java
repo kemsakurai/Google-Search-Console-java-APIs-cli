@@ -11,7 +11,10 @@ import org.kohsuke.args4j.CmdLineException;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+import xyz.monotalk.google.webmaster.cli.CmdLineArgmentException;
+import xyz.monotalk.google.webmaster.cli.CmdLineIOException;
 import xyz.monotalk.google.webmaster.cli.Format;
+import xyz.monotalk.google.webmaster.cli.ResponseWriter;
 import xyz.monotalk.google.webmaster.cli.WebmastersFactory;
 
 import java.io.File;
@@ -23,6 +26,9 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+/**
+ * ListCommandのテストクラス
+ */
 @RunWith(MockitoJUnitRunner.class)
 public class ListCommandTest {
 
@@ -31,6 +37,9 @@ public class ListCommandTest {
 
     @Mock
     private WebmastersFactory factory;
+
+    @Mock
+    private ResponseWriter responseWriter;
 
     @Mock
     private Webmasters webmasters;
@@ -47,6 +56,9 @@ public class ListCommandTest {
     @InjectMocks
     private ListCommand command;
 
+    /**
+     * テスト前の準備
+     */
     @Before
     public void setup() throws IOException {
         when(factory.create()).thenReturn(webmasters);
@@ -55,8 +67,11 @@ public class ListCommandTest {
         when(list.execute()).thenReturn(response);
     }
 
+    /**
+     * コンソール出力モードでの正常な実行をテスト
+     */
     @Test
-    public void testExecute_正常系_コンソール出力() throws Exception {
+    public void testExecute_shouldOutputToConsoleSuccessfully() throws Exception {
         // Given
         command.siteUrl = new URL("https://example.com");
         command.format = Format.CONSOLE;
@@ -71,8 +86,11 @@ public class ListCommandTest {
         verify(list).execute();
     }
 
+    /**
+     * JSONファイル出力モードでの正常な実行をテスト
+     */
     @Test
-    public void testExecute_正常系_JSONファイル出力() throws Exception {
+    public void testExecute_shouldOutputToJsonFileSuccessfully() throws Exception {
         // Given
         File tempFile = temporaryFolder.newFile("output.json");
         command.siteUrl = new URL("https://example.com");
@@ -89,8 +107,11 @@ public class ListCommandTest {
         verify(list).execute();
     }
 
-    @Test(expected = IllegalStateException.class)
-    public void testExecute_異常系_API呼び出しで例外が発生() throws Exception {
+    /**
+     * API呼び出し時の例外処理をテスト
+     */
+    @Test(expected = CmdLineIOException.class)
+    public void testExecute_shouldThrowExceptionWhenApiCallFails() throws Exception {
         // Given
         command.siteUrl = new URL("https://example.com");
         when(list.execute()).thenThrow(new IOException("API Error"));
@@ -99,8 +120,11 @@ public class ListCommandTest {
         command.execute();
     }
 
-    @Test(expected = CmdLineException.class)
-    public void testExecute_異常系_ファイルパスがJSONフォーマット時に未指定() throws Exception {
+    /**
+     * JSONフォーマット指定時にファイルパスが未指定の場合の例外処理をテスト
+     */
+    @Test(expected = CmdLineArgmentException.class)
+    public void testExecute_shouldThrowExceptionWhenFilePathNotSpecified() throws Exception {
         // Given
         command.siteUrl = new URL("https://example.com");
         command.format = Format.JSON;
@@ -110,12 +134,15 @@ public class ListCommandTest {
         command.execute();
     }
 
+    /**
+     * usage()メソッドが適切な説明文を返すかテスト
+     */
     @Test
-    public void testUsage_正常系_説明文字列が返却される() {
+    public void testUsage_shouldReturnCorrectDescription() {
         // When
         String usage = command.usage();
 
         // Then
-        assertEquals("Lists the sitemaps-entries submitted for this site, or included in the sitemap index file (if sitemapIndex is specified in the request).", usage);
+        assertEquals("サイトに登録されているサイトマップのリストを取得します。サイトマップインデックスが指定されている場合は、そのインデックスファイルに含まれるサイトマップも含まれます。", usage);
     }
 }

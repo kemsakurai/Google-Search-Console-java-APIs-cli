@@ -1,17 +1,16 @@
 package xyz.monotalk.google.webmaster.cli;
 
+import java.io.IOException;
+
 /**
  * コマンドライン入出力例外クラスです。
- * 
- * @deprecated {@link CommandLineInputOutputException}に置き換えられました。
  */
-@Deprecated
-public class CmdLineIOException extends Exception {
+public class CommandLineInputOutputException extends IOException {
 
     /**
      * デフォルトコンストラクタです。
      */
-    public CmdLineIOException() {
+    public CommandLineInputOutputException() {
         super();
     }
 
@@ -20,7 +19,7 @@ public class CmdLineIOException extends Exception {
      *
      * @param message 例外メッセージ。
      */
-    public CmdLineIOException(String message) {
+    public CommandLineInputOutputException(String message) {
         super(message);
     }
 
@@ -30,7 +29,7 @@ public class CmdLineIOException extends Exception {
      * @param message 例外メッセージ。
      * @param cause 原因となる例外。
      */
-    public CmdLineIOException(String message, Throwable cause) {
+    public CommandLineInputOutputException(String message, Throwable cause) {
         super(message, cause);
     }
 }

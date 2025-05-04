@@ -1,13 +1,23 @@
 package xyz.monotalk.google.webmaster.cli;
 
 /**
- * CmdLineArgmentException
+ * コマンドライン引数に関する例外クラスです。
  */
-public class CmdLineArgmentException extends IllegalArgumentException {
+public class CmdLineArgmentException extends Exception {
+
     /**
-     * @param msg
+     * デフォルトコンストラクタです。
      */
-    public CmdLineArgmentException(String msg) {
-        super(msg);
+    public CmdLineArgmentException() {
+        super();
+    }
+
+    /**
+     * 例外メッセージを指定するコンストラクタです。
+     *
+     * @param message 例外メッセージ。
+     */
+    public CmdLineArgmentException(String message) {
+        super(message);
     }
 }

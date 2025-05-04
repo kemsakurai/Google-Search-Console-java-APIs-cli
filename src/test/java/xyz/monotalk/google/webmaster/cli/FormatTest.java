@@ -1,40 +1,60 @@
 package xyz.monotalk.google.webmaster.cli;
 
 import org.junit.Test;
-import static org.junit.Assert.*;
 
+import static org.junit.Assert.assertEquals;
+
+/**
+ * Formatクラスのテスト
+ */
 public class FormatTest {
 
+    /**
+     * Format列挙型のvaluesメソッドが正しい値を返すことをテスト
+     */
     @Test
-    public void testFormatEnum_正常系_values取得() {
+    public void testFormatEnum_shouldReturnAllValues() {
         // When
         Format[] formats = Format.values();
 
         // Then
-        assertEquals(2, formats.length);
-        assertEquals(Format.CONSOLE, formats[0]);
-        assertEquals(Format.JSON, formats[1]);
+        assertEquals(3, formats.length);
+        assertEquals(Format.JSON, formats[0]);
+        assertEquals(Format.PLAIN_TEXT, formats[1]);
+        assertEquals(Format.CONSOLE, formats[2]);
     }
 
+    /**
+     * valueOf操作が正しく動作することをテスト
+     */
     @Test
-    public void testFormatEnum_正常系_valueOf実行() {
+    public void testFormatEnum_shouldResolveValueByName() {
         // When & Then
-        assertEquals(Format.CONSOLE, Format.valueOf("CONSOLE"));
         assertEquals(Format.JSON, Format.valueOf("JSON"));
+        assertEquals(Format.PLAIN_TEXT, Format.valueOf("PLAIN_TEXT"));
+        assertEquals(Format.CONSOLE, Format.valueOf("CONSOLE"));
     }
 
+    /**
+     * 不正な値でvalueOf操作を行った場合に例外が発生することをテスト
+     */
     @Test(expected = IllegalArgumentException.class)
-    public void testFormatEnum_異常系_不正な値でvalueOf実行() {
+    public void testFormatEnum_shouldThrowExceptionForInvalidValue() {
         // When
         Format.valueOf("INVALID");
     }
 
+    /**
+     * 列挙型の各値が正しい名前と順序を持つことをテスト
+     */
     @Test
-    public void testFormatEnum_正常系_enumの値が正しい() {
+    public void testFormatEnum_shouldHaveCorrectNamesAndOrdinals() {
         // Then
-        assertEquals("CONSOLE", Format.CONSOLE.name());
         assertEquals("JSON", Format.JSON.name());
-        assertEquals(0, Format.CONSOLE.ordinal());
-        assertEquals(1, Format.JSON.ordinal());
+        assertEquals("PLAIN_TEXT", Format.PLAIN_TEXT.name());
+        assertEquals("CONSOLE", Format.CONSOLE.name());
+        assertEquals(0, Format.JSON.ordinal());
+        assertEquals(1, Format.PLAIN_TEXT.ordinal());
+        assertEquals(2, Format.CONSOLE.ordinal());
     }
 }

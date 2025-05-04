@@ -7,9 +7,12 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 import org.mockito.junit.MockitoJUnitRunner;
 import xyz.monotalk.google.webmaster.cli.CmdLineIOException;
 import xyz.monotalk.google.webmaster.cli.WebmastersFactory;
+import xyz.monotalk.google.webmaster.cli.ResponseWriter;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import java.io.IOException;
 
@@ -31,6 +34,9 @@ public class ListCommandTest {
     @Mock
     private Webmasters.Sites.List request;
 
+    @Mock
+    private ResponseWriter responseWriter;
+
     @InjectMocks
     private ListCommand command;
 
@@ -39,6 +45,9 @@ public class ListCommandTest {
         when(factory.create()).thenReturn(webmasters);
         when(webmasters.sites()).thenReturn(sites);
         when(sites.list()).thenReturn(request);
+        command.responseWriter = responseWriter; // モックを明示的に注入
+        // ReflectionTestUtilsを使用してResponseWriterを注入
+        ReflectionTestUtils.setField(command, "responseWriter", responseWriter);
     }
 
     @Test

@@ -1,6 +1,15 @@
+/**
+ * クロールエラーサンプルURLを修正済みとしてマークするためのコマンド実装です。
+ * このコマンドは、Google Search Consoleで特定のURLを修正済みとしてマークし、
+ * クロールエラーサンプルのリストから削除します。
+ * 
+ * @author Ken Sakurai
+ */
+
 package xyz.monotalk.google.webmaster.cli.subcommands.urlcrawlerrorssamples;
 
 import com.google.api.services.webmasters.Webmasters;
+import java.io.IOException;
 import org.kohsuke.args4j.Option;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -9,10 +18,9 @@ import xyz.monotalk.google.webmaster.cli.CmdLineIOException;
 import xyz.monotalk.google.webmaster.cli.Command;
 import xyz.monotalk.google.webmaster.cli.WebmastersFactory;
 
-import java.io.IOException;
 
 /**
- * MarkAsFixedCommand
+ * URLクロールエラーサンプルを修正済みとしてマークするコマンドです。
  */
 @Component
 public class MarkAsFixedCommand implements Command {
@@ -29,23 +37,28 @@ public class MarkAsFixedCommand implements Command {
     @Option(name = "-category", usage = "Error category", required = true)
     private String category = "notFound";
 
+    /**
+     * URLを設定します。
+     * 
+     * @param url 設定するURL。
+     */
     public void setUrl(String url) {
         this.url = url;
     }
 
     @Override
-    public void execute() {
+    public void execute() throws CmdLineIOException, CmdLineArgmentException {
         if (url == null) {
             throw new CmdLineArgmentException("URL must be specified");
         }
 
         try {
-            Webmasters.Urlcrawlerrorssamples.MarkAsFixed request = factory.create()
-                .urlcrawlerrorssamples()
-                .markAsFixed("https://www.monotalk.xyz", url, category, platform);
+            Webmasters.Urlcrawlerrorssamples.MarkAsFixed request =
+                    factory.create().urlcrawlerrorssamples().markAsFixed("https://www.monotalk.xyz",
+                            url, category, platform);
             request.execute();
         } catch (IOException e) {
-            throw new CmdLineIOException(e);
+            throw new CmdLineIOException(e.getMessage(), e);
         }
     }
 

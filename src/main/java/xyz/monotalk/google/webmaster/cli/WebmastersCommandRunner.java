@@ -1,149 +1,139 @@
 package xyz.monotalk.google.webmaster.cli;
 
-import org.apache.commons.lang3.tuple.Pair;
-import org.apache.commons.text.StrBuilder;
-import org.kohsuke.args4j.Argument;
-import org.kohsuke.args4j.CmdLineException;
-import org.kohsuke.args4j.CmdLineParser;
-import org.kohsuke.args4j.Option;
-import org.kohsuke.args4j.spi.SubCommand;
-import org.kohsuke.args4j.spi.SubCommandHandler;
-import org.kohsuke.args4j.spi.SubCommands;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
-import org.springframework.boot.CommandLineRunner;
-import org.springframework.context.ApplicationContext;
-import org.springframework.stereotype.Component;
-
-import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
-import java.util.StringJoiner;
-
-import static java.lang.System.err;
+import java.util.Map;
+import org.apache.commons.lang3.tuple.Pair;
+import org.kohsuke.args4j.CmdLineException;
+import org.kohsuke.args4j.CmdLineParser;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.boot.CommandLineRunner;
+import org.springframework.context.ApplicationContext;
+import org.springframework.core.env.Environment;
+import org.springframework.stereotype.Component;
 
 /**
- * WebmastersCommandRunner
+ * コマンド実行ハンドラクラスです。
  */
 @Component
 public class WebmastersCommandRunner implements CommandLineRunner {
 
-    @Autowired private ApplicationContext context;
+    private static final Logger logger = LoggerFactory.getLogger(WebmastersCommandRunner.class);
+
+    private final ApplicationContext context;
+    private final Environment environment;
 
     /**
-     * 引数によって実行するオブジェクトを切り替える
+     * WebmastersCommandRunnerを作成します。
+     *
+     * @param context アプリケーションコンテキスト。
+     * @param environment 環境変数。
      */
-    @Argument(handler = SubCommandHandler.class, metaVar = "subCommands")
-    @SubCommands({@SubCommand(name = "webmasters.searchanalytics.query",
-            impl = xyz.monotalk.google.webmaster.cli.subcommands.searchanalytics.QueryCommand.class), @SubCommand(
-            name = "webmasters.sitemaps.list",
-            impl = xyz.monotalk.google.webmaster.cli.subcommands.sitemaps.ListCommand.class), @SubCommand(
-            name = "webmasters.sitemaps.delete",
-            impl = xyz.monotalk.google.webmaster.cli.subcommands.sitemaps.DeleteCommand.class), @SubCommand(
-            name = "webmasters.sitemaps.get",
-            impl = xyz.monotalk.google.webmaster.cli.subcommands.sitemaps.GetCommand.class), @SubCommand(
-            name = "webmasters.sitemaps.submit",
-            impl = xyz.monotalk.google.webmaster.cli.subcommands.sitemaps.SubmitCommand.class), @SubCommand(
-            name = "webmasters.sites.add",
-            impl = xyz.monotalk.google.webmaster.cli.subcommands.sites.AddCommand.class), @SubCommand(
-            name = "webmasters.sites.delete",
-            impl = xyz.monotalk.google.webmaster.cli.subcommands.sites.DeleteCommand.class), @SubCommand(
-            name = "webmasters.sites.get",
-            impl = xyz.monotalk.google.webmaster.cli.subcommands.sites.GetCommand.class), @SubCommand(
-            name = "webmasters.sites.list",
-            impl = xyz.monotalk.google.webmaster.cli.subcommands.sites.ListCommand.class), @SubCommand(
-            name = "webmasters.urlcrawlerrorscounts.query",
-            impl = xyz.monotalk.google.webmaster.cli.subcommands.urlcrawlerrorscounts.QueryCommand.class), @SubCommand(
-            name = "webmasters.urlcrawlerrorssamples.get",
-            impl = xyz.monotalk.google.webmaster.cli.subcommands.urlcrawlerrorssamples.GetCommand.class), @SubCommand(
-            name = "webmasters.urlcrawlerrorssamples.list",
-            impl = xyz.monotalk.google.webmaster.cli.subcommands.urlcrawlerrorssamples.ListCommand.class), @SubCommand(
-            name = "webmasters.urlcrawlerrorssamples.markAsFixed",
-            impl = xyz.monotalk.google.webmaster.cli.subcommands.urlcrawlerrorssamples.MarkAsFixedCommand.class),})
-
-    private Command command;
-
-    @Option(name = "-?", aliases = "--help", usage = "show this help message and exit") private boolean usageFlag;
+    public WebmastersCommandRunner(ApplicationContext context, Environment environment) {
+        this.context = context;
+        this.environment = environment;
+    }
 
     @Override
-    public void run(String... args) throws Exception {
-        // ------------------------------------------------
-        // "--application" を含むコマンドライン引数を除外
-        // ----------------
-        List<String> cmdArgs = new ArrayList<>();
-        for (String arg : args) {
-            if (!arg.contains("--application")) {
-                cmdArgs.add(arg);
-            }
-        }
-        if (cmdArgs.isEmpty()) {
-            CmdLineParser parser = new CmdLineParser(this);
-            parser.parseArgument(cmdArgs);
-            err.println("--------------------------------------------------------------------------");
-            err.println(usage());
-            parser.printUsage(err);
-            err.println("------------");
+    public void run(String... args) {
+        if (args == null || args.length < 1) {
+            printUsage();
             return;
         }
-        CmdLineParser parser = new CmdLineParser(this);
+
+        String command = args[0];
+        Command bean = findCommand(command);
+        if (bean == null) {
+            logger.error("Command not found: {}", command);
+            printUsage();
+            return;
+        }
+
+        String[] commandArgs = Arrays.copyOfRange(args, 1, args.length);
+        parseOption(bean, commandArgs);
         try {
-            parser.parseArgument(cmdArgs);
-            // Output help
-            if (usageFlag) {
-                err.println("--------------------------------------------------------------------------");
-                err.println(usage());
-                parser.printUsage(err);
-                err.println("---------------------------");
-                return;
-            }
-            AutowireCapableBeanFactory autowireCapableBeanFactory = context.getAutowireCapableBeanFactory();
-            autowireCapableBeanFactory.autowireBean(this.command);
-            this.command.execute();
-        } catch (CmdLineArgmentException | CmdLineException e) {
-            err.println("error occurred: " + e.getMessage());
-            err.println("--------------------------------------------------------------------------");
-            err.println(usage());
-            parser.printUsage(err);
-            err.println("------------");
-            return;
+            bean.execute();
+        } catch (Exception e) {
+            logger.error("Command failed: {}", e.getMessage(), e);
         }
     }
 
     /**
-     * usage
+     * コマンドを検索します。
+     *
+     * @param commandName コマンド名。
+     * @return 該当するコマンド。見つからない場合はnull。
      */
-    private String usage() {
-        StrBuilder sb = new StrBuilder();
-        sb.appendln("usage: xyz.monotalk.google.webmaster.cli.CliApplication");
-        sb.appendNewLine();
-        Field field;
-        try {
-            field = this.getClass().getDeclaredField("command");
-        } catch (NoSuchFieldException e) {
-            throw new IllegalStateException(e);
+    protected Command findCommand(String commandName) {
+        Map<String, Command> commands = context.getBeansOfType(Command.class);
+        if (commands.isEmpty()) {
+            logger.warn("No command found.");
+            return null;
         }
-        SubCommands subCommands = field.getAnnotation(SubCommands.class);
-        StringJoiner joiner = new StringJoiner(",", "{", "}");
-        Arrays.stream(subCommands.value()).forEach(e -> joiner.add(e.name()));
-        sb.appendln("  " + joiner.toString());
-        sb.appendln("  " + "...");
-        sb.appendNewLine();
-        sb.appendln("positional arguments:");
-        sb.appendNewLine();
-        sb.appendln("  " + joiner.toString());
-        Arrays.stream(subCommands.value()).map(e -> {
-            try {
-                return Pair.of(e.name(), (Command) e.impl().newInstance());
-            } catch (InstantiationException | IllegalAccessException ex) {
-                throw new IllegalStateException(ex);
+
+        for (Command command : commands.values()) {
+            String className = command.getClass().getSimpleName();
+            String packageName = command.getClass().getPackage().getName();
+            if (packageName.contains(commandName) && className.equals("ListCommand")) {
+                return command;
             }
-        }).forEach(e -> {
-            sb.appendln("    " + e.getLeft() + "  |  " + e.getRight().usage());
-        });
-        sb.appendNewLine();
-        sb.append("optional arguments:");
-        sb.appendNewLine();
-        return sb.toString();
+        }
+
+        for (Command command : commands.values()) {
+            String className = command.getClass().getSimpleName();
+            if (className.equals(commandName + "Command")) {
+                return command;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * コマンドラインオプションをパースします。
+     *
+     * @param bean コマンドインスタンス。
+     * @param args コマンドライン引数。
+     */
+    protected void parseOption(Command bean, String[] args) {
+        try {
+            CmdLineParser parser = new CmdLineParser(bean);
+            parser.parseArgument(args);
+        } catch (CmdLineException e) {
+            logger.error("Failed to parse options: {}", e.getMessage());
+        }
+    }
+
+    /**
+     * 使用方法を表示します。
+     */
+    protected void printUsage() {
+        HashMap<String, List<Pair<String, String>>> commandMap = new HashMap<>();
+
+        for (Map.Entry<String, Command> entry : context.getBeansOfType(Command.class).entrySet()) {
+            String className = entry.getValue().getClass().getSimpleName();
+            if (className.endsWith("Command")) {
+                className = className.substring(0, className.lastIndexOf("Command"));
+            }
+            String packageName = entry.getValue().getClass().getPackage().getName();
+            String commandGroup = packageName.substring(packageName.lastIndexOf(".") + 1);
+
+            if (!commandMap.containsKey(commandGroup)) {
+                commandMap.put(commandGroup, new ArrayList<>());
+            }
+            commandMap.get(commandGroup).add(Pair.of(className, entry.getValue().usage()));
+        }
+
+        System.out.println("Usage: <command> [options...]");
+        System.out.println("Available commands:");
+        for (Map.Entry<String, List<Pair<String, String>>> entry : commandMap.entrySet()) {
+            System.out.println();
+            System.out.println(" " + entry.getKey() + ":");
+            for (Pair<String, String> command : entry.getValue()) {
+                System.out.println("   " + command.getLeft() + ": " + command.getRight());
+            }
+        }
     }
 }

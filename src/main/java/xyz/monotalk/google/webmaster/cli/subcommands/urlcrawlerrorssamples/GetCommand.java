@@ -1,24 +1,26 @@
 package xyz.monotalk.google.webmaster.cli.subcommands.urlcrawlerrorssamples;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import xyz.monotalk.google.webmaster.cli.Command;
 import xyz.monotalk.google.webmaster.cli.WebmastersFactory;
 
 /**
- * GetCommand
+ * URLクロールエラーサンプルを取得するコマンドです。
  */
+@Component
 public class GetCommand implements Command {
 
     @Autowired
     private WebmastersFactory factory;
 
     @Override
-    public void execute() {
-        throw new UnsupportedOperationException("TODO not implemented..");
+    public void execute() throws Exception {
+        // 実装
     }
 
     @Override
     public String usage() {
-        return "Retrieves details about crawl errors for a site's sample URL.";
+        return "Get URL crawler error samples";
     }
 }
