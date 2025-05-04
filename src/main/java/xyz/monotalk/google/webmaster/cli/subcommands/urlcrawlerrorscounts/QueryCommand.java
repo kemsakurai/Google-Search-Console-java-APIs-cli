@@ -2,14 +2,18 @@ package xyz.monotalk.google.webmaster.cli.subcommands.urlcrawlerrorscounts;
 
 import com.google.api.services.webmasters.Webmasters;
 import com.google.api.services.webmasters.model.UrlCrawlErrorsCountsQueryResponse;
+import xyz.monotalk.google.webmaster.cli.CmdLineIOException;
+import xyz.monotalk.google.webmaster.cli.Command;
+import xyz.monotalk.google.webmaster.cli.Format;
+import xyz.monotalk.google.webmaster.cli.ResponseWriter;
+import xyz.monotalk.google.webmaster.cli.WebmastersFactory;
+import java.io.IOException;
 import org.kohsuke.args4j.Option;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import xyz.monotalk.google.webmaster.cli.*;
 
-import java.io.IOException;
 
 /**
  * URLクロールエラー数を取得するコマンド
@@ -65,7 +69,8 @@ public class QueryCommand implements Command {
         }
         
         try {
-            final Webmasters.Urlcrawlerrorscounts.Query request = factory.create().urlcrawlerrorscounts().query(siteUrl);
+            final Webmasters.Urlcrawlerrorscounts.Query request = 
+                factory.create().urlcrawlerrorscounts().query(siteUrl);
             final UrlCrawlErrorsCountsQueryResponse response = request.execute();
             ResponseWriter.writeJson(response, format, filePath);
             

@@ -1,6 +1,7 @@
 package xyz.monotalk.google.webmaster.cli;
 
 import org.springframework.beans.factory.config.BeanDefinition;
+import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.beans.factory.support.BeanNameGenerator;
 import org.springframework.stereotype.Component;
 
@@ -26,7 +27,8 @@ public class FQCNBeanNameGenerator implements BeanNameGenerator {
      * @return 完全修飾クラス名
      */
     @Override
-    public String generateBeanName(final BeanDefinition definition, final org.springframework.beans.factory.support.BeanDefinitionRegistry registry) {
+    public String generateBeanName(final BeanDefinition definition, 
+        final BeanDefinitionRegistry registry) {
         return definition.getBeanClassName();
     }
 }

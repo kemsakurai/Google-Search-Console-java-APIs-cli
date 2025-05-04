@@ -1,17 +1,19 @@
 package xyz.monotalk.google.webmaster.cli.subcommands.searchanalytics;
 
-import com.google.api.services.webmasters.model.*;
-import org.springframework.beans.factory.annotation.Autowired;
-import xyz.monotalk.google.webmaster.cli.Command;
-import xyz.monotalk.google.webmaster.cli.WebmastersFactory;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import static java.lang.System.out;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-
-import static java.lang.System.out;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import com.google.api.services.webmasters.model.ApiDataRow;
+import com.google.api.services.webmasters.model.ApiDimensionFilter;
+import com.google.api.services.webmasters.model.ApiDimensionFilterGroup;
+import com.google.api.services.webmasters.model.SearchAnalyticsQueryRequest;
+import com.google.api.services.webmasters.model.SearchAnalyticsQueryResponse;
+import xyz.monotalk.google.webmaster.cli.Command;
+import xyz.monotalk.google.webmaster.cli.WebmastersFactory;
 
 /**
  * QueryCommandクラス - Search Analyticsデータのクエリを実行するコマンド
@@ -52,7 +54,12 @@ public class QueryCommand implements Command {
 
     @Override
     public String usage() {
-        return "Query your data with filters and parameters that you define. Returns zero or more rows grouped by the row keys that you define. You must define a date range of one or more days. When date is one of the group by values, any days without data are omitted from the result list. If you need to know which days have data, issue a broad date range query grouped by date for any metric, and see which day rows are returned.";
+        return "Query your data with filters and parameters that you define. "
+             + "Returns zero or more rows grouped by the row keys that you define. "
+             + "You must define a date range of one or more days. "
+             + "When date is one of the group by values, any days without data are omitted from the result list. "
+             + "If you need to know which days have data, issue a broad date range query "
+             + "grouped by date for any metric, and see which day rows are returned.";
     }
 
     /**

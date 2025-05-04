@@ -1,6 +1,7 @@
 package xyz.monotalk.google.webmaster.cli.subcommands.sitemaps;
 
-import com.google.api.services.webmasters.Webmasters;
+import java.io.IOException;
+import java.net.URL;
 import org.kohsuke.args4j.CmdLineException;
 import org.kohsuke.args4j.Option;
 import org.kohsuke.args4j.spi.URLOptionHandler;
@@ -8,10 +9,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import xyz.monotalk.google.webmaster.cli.*;
-
-import java.io.IOException;
-import java.net.URL;
+import com.google.api.services.webmasters.Webmasters;
+import xyz.monotalk.google.webmaster.cli.CmdLineArgmentException;
+import xyz.monotalk.google.webmaster.cli.CmdLineIOException;
+import xyz.monotalk.google.webmaster.cli.Command;
+import xyz.monotalk.google.webmaster.cli.WebmastersFactory;
 
 /**
  * SubmitCommandクラス - サイトマップ送信コマンド

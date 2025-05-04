@@ -83,7 +83,8 @@ public class ListCommand implements Command {
     @Override
     public void execute() {
         try {
-            final Webmasters.Urlcrawlerrorssamples.List request = factory.create().urlcrawlerrorssamples().list(siteUrl, category, platform);
+            final Webmasters.Urlcrawlerrorssamples.List request = 
+                factory.create().urlcrawlerrorssamples().list(siteUrl, category, platform);
             final UrlCrawlErrorsSamplesListResponse response = request.execute();
             
             final StringBuilder output = new StringBuilder(256);

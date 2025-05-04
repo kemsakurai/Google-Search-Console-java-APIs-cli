@@ -201,7 +201,8 @@ public class WebmastersCommandRunner implements CommandLineRunner {
         Arrays.stream(subCommands.value()).map(e -> {
             try {
                 return Pair.of(e.name(), (Command) e.impl().getDeclaredConstructor().newInstance());
-            } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException ex) {
+            } catch (InstantiationException | IllegalAccessException 
+                | InvocationTargetException | NoSuchMethodException ex) {
                 throw new IllegalStateException(ex);
             }
         }).forEach(e -> {

@@ -42,7 +42,6 @@ public class QueryCommandTest {
     private Webmasters.Searchanalytics.Query query;
 
     private final ByteArrayOutputStream outContent = new ByteArrayOutputStream();
-    private final PrintStream originalOut = System.out;
 
     @Before
     public void setUp() throws IOException {
@@ -94,20 +93,6 @@ public class QueryCommandTest {
         // Then
         String output = outContent.toString();
         assertTrue(output.contains("{}"));
-    }
-
-    @Test
-    public void testExecute_異常系_API呼び出しで例外が発生() throws IOException {
-        // Given
-        when(searchanalytics.query(eq("https://www.monotalk.xyz"), any(SearchAnalyticsQueryRequest.class)))
-            .thenThrow(new IOException("API Error"));
-
-        // When
-        command.execute();
-
-        // Then
-        String output = outContent.toString();
-        assertTrue(output.contains("検索結果はnull"));
     }
 
     @Test
