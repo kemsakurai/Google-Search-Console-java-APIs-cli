@@ -48,6 +48,9 @@ dependencies {
     implementation 'com.google.http-client:google-http-client-jackson2:1.44.1'
     implementation 'com.google.api-client:google-api-client:1.35.2'
     implementation 'com.google.apis:google-api-services-webmasters:v3-rev20190428-1.32.1'
+    // Google Auth Libraryを追加
+    implementation 'com.google.auth:google-auth-library-oauth2-http:1.23.0'
+    implementation 'com.google.auth:google-auth-library-credentials:1.23.0'
     // Guavaを更新
     implementation 'com.google.guava:guava:33.0.0-jre'
     // Commons IOを更新

@@ -1,10 +1,11 @@
 package xyz.monotalk.google.webmaster.cli;
 
-import com.google.api.client.googleapis.auth.oauth2.GoogleCredential;
 import com.google.api.client.http.HttpTransport;
 import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.services.webmasters.Webmasters;
+import com.google.auth.http.HttpCredentialsAdapter;
+import com.google.auth.oauth2.GoogleCredentials;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
 import org.junit.Before;
@@ -52,7 +53,7 @@ public class WebmastersFactoryTest {
         }
 
         @Override
-        protected GoogleCredential createCredential() throws IOException {
+        protected GoogleCredentials createCredential() throws IOException {
             return credentialFactory.createCredential();
         }
     }
@@ -72,10 +73,10 @@ public class WebmastersFactoryTest {
     }
 
     /**
-     * {@summary GoogleCredentialを生成するファクトリインターフェース。}
+     * {@summary GoogleCredentialsを生成するファクトリインターフェース。}
      */
     interface CredentialFactory {
-        GoogleCredential createCredential() throws IOException;
+        GoogleCredentials createCredential() throws IOException;
     }
 
     @Mock
@@ -91,7 +92,7 @@ public class WebmastersFactoryTest {
     private NetHttpTransport mockHttpTransport;
 
     @Mock
-    private GoogleCredential mockCredential;
+    private GoogleCredentials mockCredential;
 
     @Mock
     private JacksonFactory mockJsonFactory;
