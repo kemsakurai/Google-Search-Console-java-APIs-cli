@@ -77,7 +77,8 @@ public class DeleteCommand implements Command {
     /**
      * サイトURLを設定します。
      * 
-     * @param siteUrl
+     * 
+@param siteUrl
      *            サイトのURL。
      */
     public void setSiteUrl(final String siteUrl) {
@@ -87,7 +88,8 @@ public class DeleteCommand implements Command {
     /**
      * サイトマップのフィードパスを設定します。
      * 
-     * @param feedPath
+     * 
+@param feedPath
      *            サイトマップのフィードパス。
      */
     public void setFeedPath(final String feedPath) {

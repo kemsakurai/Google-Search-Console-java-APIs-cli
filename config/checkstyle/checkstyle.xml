@@ -48,9 +48,9 @@
 
   <module name="TreeWalker">
     <module name="SummaryJavadocCheck">
-      <property name="period" value="。" />
+      <property name="period" value="" />
     </module>
-    <module name="JavadocStyle">
+    <module name="JavadocStyle">      
         <property name="endOfSentenceFormat" value="([.?!。][ \t\n\r\f&lt;])|([.?!。]$)" />
     </module>
     <module name="OuterTypeFilename"/>

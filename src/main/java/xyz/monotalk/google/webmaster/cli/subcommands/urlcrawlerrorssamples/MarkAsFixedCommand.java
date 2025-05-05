@@ -51,7 +51,8 @@ public class MarkAsFixedCommand implements Command {
     /**
      * URLを設定します
      * 
-     * @param url 設定するURL
+     * 
+@param url 設定するURL
      */
     public void setUrl(final String url) {
         this.url = url;

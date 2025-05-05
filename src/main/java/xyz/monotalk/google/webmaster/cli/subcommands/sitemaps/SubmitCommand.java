@@ -1,5 +1,6 @@
 package xyz.monotalk.google.webmaster.cli.subcommands.sitemaps;
 
+import com.google.api.services.webmasters.Webmasters;
 import java.io.IOException;
 import java.net.URL;
 import org.kohsuke.args4j.Option;
@@ -8,10 +9,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import com.google.api.services.webmasters.Webmasters;
 import xyz.monotalk.google.webmaster.cli.CmdLineArgmentException;
-import xyz.monotalk.google.webmaster.cli.CommandLineInputOutputException;
 import xyz.monotalk.google.webmaster.cli.Command;
+import xyz.monotalk.google.webmaster.cli.CommandLineInputOutputException;
 import xyz.monotalk.google.webmaster.cli.WebmastersFactory;
 
 /**
@@ -114,7 +114,8 @@ public class SubmitCommand implements Command {
     /**
      * サイトマップを送信します
      * 
-     * @param webmasters Webmastersクライアント
+     * 
+@param webmasters Webmastersクライアント
      * @throws IOException API実行エラーが発生した場合
      */
     private void submitSitemap(final Webmasters webmasters) throws IOException {
@@ -134,7 +135,8 @@ public class SubmitCommand implements Command {
     /**
      * 例外を処理します
      * 
-     * @param exception 発生した例外
+     * 
+@param exception 発生した例外
      * @throws CommandLineInputOutputException ラップされた例外
      */
     private void handleException(final IOException exception) {

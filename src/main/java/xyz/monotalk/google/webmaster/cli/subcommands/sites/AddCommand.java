@@ -84,7 +84,8 @@ public class AddCommand implements Command {
     /**
      * サイトURLを設定します
      *
-     * @param siteUrl 設定するサイトURL
+     * 
+@param siteUrl 設定するサイトURL
      */
     public void setSiteUrl(final String siteUrl) {
         this.siteUrl = siteUrl;
@@ -93,7 +94,8 @@ public class AddCommand implements Command {
     /**
      * 出力フォーマットを設定します
      *
-     * @param format 設定する出力フォーマット
+     * 
+@param format 設定する出力フォーマット
      */
     public void setFormat(final Format format) {
         this.format = format;

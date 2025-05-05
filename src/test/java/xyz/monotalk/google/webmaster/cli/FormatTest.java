@@ -5,12 +5,12 @@ import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 
 /**
- * Formatクラスのテスト
+ * {@summary Formatクラスのテスト。}
  */
 public class FormatTest {
 
     /**
-     * Format列挙型のvaluesメソッドが正しい値を返すことをテスト
+     * {@summary Format列挙型のvaluesメソッドが正しい値を返すことをテスト。}
      */
     @Test
     public void testFormatEnum_shouldReturnAllValues() {
@@ -25,7 +25,7 @@ public class FormatTest {
     }
 
     /**
-     * valueOf操作が正しく動作することをテスト
+     * {@summary valueOf操作が正しく動作することをテスト。}
      */
     @Test
     public void testFormatEnum_shouldResolveValueByName() {
@@ -35,7 +35,7 @@ public class FormatTest {
     }
 
     /**
-     * 不正な値でvalueOf操作を行った場合に例外が発生することをテスト
+     * {@summary 不正な値でvalueOf操作を行った場合に例外が発生することをテスト。}
      */
     @Test(expected = IllegalArgumentException.class)
     public void testFormatEnum_shouldThrowExceptionForInvalidValue() {
@@ -44,7 +44,7 @@ public class FormatTest {
     }
 
     /**
-     * 列挙型の各値が正しい名前と順序を持つことをテスト
+     * {@summary 列挙型の各値が正しい名前と順序を持つことをテスト。}
      */
     @Test
     public void testFormatEnum_shouldHaveCorrectNamesAndOrdinals() {
