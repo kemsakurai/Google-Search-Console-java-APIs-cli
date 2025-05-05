@@ -18,24 +18,45 @@ import java.net.URL;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.*;
 
+/**
+ * サイトマップ送信コマンドのテストクラス
+ */
 @RunWith(MockitoJUnitRunner.class)
 public class SubmitCommandTest {
 
+    /**
+     * WebmastersFactoryのモック
+     */
     @Mock
     private WebmastersFactory factory;
 
+    /**
+     * Webmastersのモック
+     */
     @Mock
     private Webmasters webmasters;
 
+    /**
+     * Sitemapsのモック
+     */
     @Mock
     private Webmasters.Sitemaps sitemaps;
 
+    /**
+     * Submit requestのモック
+     */
     @Mock
     private Webmasters.Sitemaps.Submit submitRequest;
 
+    /**
+     * テスト対象のコマンド
+     */
     @InjectMocks
     private SubmitCommand command;
 
+    /**
+     * テスト前の準備
+     */
     @Before
     public void setUp() throws Exception {
         command = new SubmitCommand();
@@ -48,33 +69,48 @@ public class SubmitCommandTest {
         when(sitemaps.submit(anyString(), anyString())).thenReturn(submitRequest);
     }
 
+    /**
+     * 正常系: サイトマップの送信が成功するケース
+     */
     @Test
-    public void testExecute_正常系() throws Exception {
+    public void testExecuteSuccess() throws Exception {
         doNothing().when(submitRequest).execute();
         command.execute();
         verify(submitRequest).execute();
     }
 
+    /**
+     * 異常系: サイトURLがnullのケース
+     */
     @Test(expected = CmdLineArgmentException.class)
-    public void testExecute_異常系_siteUrlがnull() throws Exception {
+    public void testExecuteFailureWithNullSiteUrl() throws Exception {
         command.siteUrl = null;
         command.execute();
     }
 
+    /**
+     * 異常系: feedpathがnullのケース
+     */
     @Test(expected = CmdLineArgmentException.class)
-    public void testExecute_異常系_feedpathがnull() throws Exception {
+    public void testExecuteFailureWithNullFeedpath() throws Exception {
         command.feedpath = null;
         command.execute();
     }
 
+    /**
+     * 異常系: API呼び出しでIOExceptionが発生するケース
+     */
     @Test(expected = CommandLineInputOutputException.class)
-    public void testExecute_異常系_API呼び出しでIOException() throws Exception {
+    public void testExecuteFailureWithIOException() throws Exception {
         when(submitRequest.execute()).thenThrow(new IOException("API Error"));
         command.execute();
     }
 
+    /**
+     * 正常系: usageメソッドが正しい説明文を返すこと
+     */
     @Test
-    public void testUsage_正常系() {
-        assertEquals("Submits a sitemap for this site.", command.usage());
+    public void testUsageReturnsCorrectDescription() {
+        assertEquals("説明文が一致すること", "Submits a sitemap for this site.", command.usage());
     }
 }

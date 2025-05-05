@@ -1,8 +1,5 @@
 package xyz.monotalk.google.webmaster.cli.subcommands.urlcrawlerrorscounts;
 
-import com.google.api.services.webmasters.Webmasters;
-import com.google.api.services.webmasters.model.UrlCrawlErrorsCountsQueryResponse;
-import java.io.IOException;
 import org.kohsuke.args4j.Option;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,6 +13,8 @@ import xyz.monotalk.google.webmaster.cli.WebmastersFactory;
 
 /**
  * URLクロールエラー数を取得するコマンド
+ * 
+ * 注: Google Search Console API変更により現在このAPIは利用できません
  */
 @Component
 public class QueryCommand implements Command {
@@ -57,31 +56,33 @@ public class QueryCommand implements Command {
     }
 
     /**
-     * URLクロールエラー数を取得し、指定された形式で出力します。
-     * Google APIは具象型を使用しているため、一部の警告は抑制します。
+     * URLクロールエラー数の取得を試みますが、現在のAPI互換性の問題により使用できないことを通知します。
      * 
-     * @throws CmdLineIOException if an error occurs while retrieving the URL crawl error counts
+     * Google Search Console API変更により、このAPIは利用できなくなりました。
      */
     @Override
     public void execute() {
-        if (LOGGER.isInfoEnabled()) {
-            LOGGER.info("Retrieving URL crawl error counts for site: {}", siteUrl);
+        if (LOGGER.isWarnEnabled()) {
+            LOGGER.warn("URLクロールエラー数 API は現在利用できません (非対応: サイト={})", siteUrl);
         }
         
+        final StringBuilder output = new StringBuilder(256);
+        output.append("URLクロールエラー数 API は現在利用できません。\n\n")
+              .append("Google Search Console API の変更により、このAPIは廃止されました。\n")
+              .append("Google Search Console ウェブインターフェースをご利用ください。\n")
+              .append("https://search.google.com/search-console");
+
         try {
-            final Webmasters.Urlcrawlerrorscounts.Query request = 
-                factory.create().urlcrawlerrorscounts().query(siteUrl);
-            final UrlCrawlErrorsCountsQueryResponse response = request.execute();
-            ResponseWriter.writeJson(response, format, filePath);
+            ResponseWriter.writeJson(output.toString(), format, filePath);
             
             if (LOGGER.isInfoEnabled()) {
-                LOGGER.info("URL crawl error counts retrieved successfully");
+                LOGGER.info("URLクロールエラー数API非対応メッセージを出力しました");
             }
-        } catch (IOException e) {
+        } catch (Exception e) {
             if (LOGGER.isErrorEnabled()) {
-                LOGGER.error("Failed to retrieve URL crawl error counts", e);
+                LOGGER.error("レスポンス出力中にエラーが発生しました", e);
             }
-            throw new CommandLineInputOutputException("URLクロールエラー数の取得に失敗しました", e);
+            throw new CommandLineInputOutputException("レスポンス出力中にエラーが発生しました", e);
         }
     }
 
@@ -92,6 +93,6 @@ public class QueryCommand implements Command {
      */
     @Override
     public String usage() {
-        return "Retrieves a time series of the number of URL crawl errors per error category and platform.";
+        return "※非推奨※ URLクロールエラー数をカテゴリとプラットフォーム別に時系列で取得します。";
     }
 }

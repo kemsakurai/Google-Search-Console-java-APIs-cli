@@ -66,6 +66,9 @@ public class WebmastersCommandRunner implements CommandLineRunner {
             impl = xyz.monotalk.google.webmaster.cli.subcommands.urlcrawlerrorssamples.ListCommand.class),
         @SubCommand(name = "webmasters.urlcrawlerrorssamples.markAsFixed",
             impl = xyz.monotalk.google.webmaster.cli.subcommands.urlcrawlerrorssamples.MarkAsFixedCommand.class),
+        // Java 21の機能を活用した新しいAPIインフォコマンドを追加
+        @SubCommand(name = "webmasters.api.info",
+            impl = xyz.monotalk.google.webmaster.cli.subcommands.apiinfo.ApiInfoCommand.class),
     })
     private Command command;
 
@@ -83,8 +86,7 @@ public class WebmastersCommandRunner implements CommandLineRunner {
     /**
      * コマンドライン引数に基づいてコマンドを実行します。
      * 
-     * 
-@param args コマンドライン引数
+     * @param args コマンドライン引数
      * @throws Exception 実行中に例外が発生した場合
      */
     @Override
@@ -121,23 +123,21 @@ public class WebmastersCommandRunner implements CommandLineRunner {
     
     /**
      * "--application" を含むコマンドライン引数を除外します。
+     * Java 21のストリームコレクション機能を使用して簡潔に実装します。
      * 
-     * 
-@param args 元のコマンドライン引数
+     * @param args 元のコマンドライン引数
      * @return フィルタリングされた引数リスト
      */
     private List<String> filterApplicationArgs(final String... args) {
-        final List<String> filteredArgs = new ArrayList<>();
-        for (final String arg : args) {
-            if (!arg.contains("--application")) {
-                filteredArgs.add(arg);
-            }
-        }
-        return filteredArgs;
+        // Java 21のフィルタ機能とコレクション変換
+        return Arrays.stream(args)
+                .filter(arg -> !arg.contains("--application"))
+                .toList();
     }
     
     /**
      * コマンドを実行します。
+     * Java 21のパターンマッチングを使用して例外処理を改善します。
      * 
      * @throws CmdLineException コマンドライン処理中にエラーが発生した場合
      */
@@ -145,29 +145,37 @@ public class WebmastersCommandRunner implements CommandLineRunner {
         context.getAutowireCapableBeanFactory().autowireBean(this.command);
         try {
             this.command.execute();
-        } catch (CommandLineInputOutputException e) {
-            if (LOGGER.isErrorEnabled()) {
-                LOGGER.error("Command execution failed due to I/O error: {}", e.getMessage());
+        } catch (Exception e) {
+            // Java 21のパターンマッチングを使用して例外を処理
+            switch (e) {
+                case CommandLineInputOutputException ioe -> {
+                    if (LOGGER.isErrorEnabled()) {
+                        LOGGER.error("Command execution failed due to I/O error: {}", ioe.getMessage());
+                    }
+                    throw new CmdLineException(ioe);
+                }
+                case CmdLineArgmentException ae -> {
+                    if (LOGGER.isErrorEnabled()) {
+                        LOGGER.error("Command execution failed due to invalid argument: {}", ae.getMessage());
+                    }
+                    throw new CmdLineException(ae);
+                }
+                default -> throw e; // その他の例外は再スロー
             }
-            throw new CmdLineException(e);
-        } catch (CmdLineArgmentException e) {
-            if (LOGGER.isErrorEnabled()) {
-                LOGGER.error("Command execution failed due to invalid argument: {}", e.getMessage());
-            }
-            throw new CmdLineException(e);
         }
     }
     
     /**
      * ヘルプ情報を表示します。
+     * テキストブロックを使用して可読性を向上させます。
      * 
-     * 
-@param parser コマンドラインパーサー
+     * @param parser コマンドラインパーサー
      */
     private void displayHelp(final CmdLineParser parser) {
         if (LOGGER.isErrorEnabled()) {
-            LOGGER.error("--------------------------------------------------------------------------");
-            LOGGER.error(usage());
+            LOGGER.error("""
+                --------------------------------------------------------------------------
+                %s""".formatted(usage()));
             parser.printUsage(System.err);
             LOGGER.error("---------------------------");
         }
@@ -175,15 +183,17 @@ public class WebmastersCommandRunner implements CommandLineRunner {
     
     /**
      * エラー情報を表示します。
+     * テキストブロックを使用して可読性を向上させます。
      * 
      * @param parser コマンドラインパーサー
      * @param exception 発生した例外
      */
     private void displayError(final CmdLineParser parser, final Exception exception) {
         if (LOGGER.isErrorEnabled()) {
-            LOGGER.error("error occurred: {}", exception.getMessage());
-            LOGGER.error("--------------------------------------------------------------------------");
-            LOGGER.error(usage());
+            LOGGER.error("""
+                error occurred: %s
+                --------------------------------------------------------------------------
+                %s""".formatted(exception.getMessage(), usage()));
             parser.printUsage(System.err);
             LOGGER.error("------------");
         }
@@ -191,13 +201,11 @@ public class WebmastersCommandRunner implements CommandLineRunner {
 
     /**
      * 使用方法（usage）情報を生成します。
+     * Java 21の文字列補間機能を使用して可読性を向上させます。
      * 
      * @return 使用方法の文字列
      */
     private String usage() {
-        final StringBuilder builder = new StringBuilder(200);
-        builder.append("usage: xyz.monotalk.google.webmaster.cli.CliApplication\n\n");
-        
         final Field field;
         try {
             field = this.getClass().getDeclaredField("command");
@@ -209,26 +217,32 @@ public class WebmastersCommandRunner implements CommandLineRunner {
         final StringJoiner joiner = new StringJoiner(",", "{", "}");
         Arrays.stream(subCommands.value()).forEach(e -> joiner.add(e.name()));
         
-        builder.append("  ").append(joiner.toString()).append("\n  ...\n\n")
-               .append("positional arguments:\n\n")
-               .append("  ").append(joiner.toString()).append('\n');
-               
-        Arrays.stream(subCommands.value()).map(e -> {
-            try {
-                return Pair.of(e.name(), (Command) e.impl().getDeclaredConstructor().newInstance());
-            } catch (InstantiationException | IllegalAccessException 
-                | InvocationTargetException | NoSuchMethodException ex) {
-                throw new IllegalStateException(ex);
-            }
-        }).forEach(e -> {
-            builder.append("    ")
-                   .append(e.getLeft())
-                   .append("  |  ")
-                   .append(e.getRight().usage())
-                   .append('\n');
-        });
+        var commandDescriptions = new StringBuilder();
+        Arrays.stream(subCommands.value())
+            .map(e -> {
+                try {
+                    return Pair.of(e.name(), (Command) e.impl().getDeclaredConstructor().newInstance());
+                } catch (InstantiationException | IllegalAccessException 
+                    | InvocationTargetException | NoSuchMethodException ex) {
+                    throw new IllegalStateException(ex);
+                }
+            })
+            .forEach(e -> commandDescriptions.append("""
+                    %s  |  %s
+                """.formatted("    " + e.getLeft(), e.getRight().usage())));
         
-        builder.append("\noptional arguments:\n\n");
-        return builder.toString();
+        // テキストブロックを使用してusageテキストを構造化
+        return """
+            usage: xyz.monotalk.google.webmaster.cli.CliApplication
+
+              %s
+              ...
+
+            positional arguments:
+
+              %s
+            %soptional arguments:
+
+            """.formatted(joiner, joiner, commandDescriptions);
     }
 }

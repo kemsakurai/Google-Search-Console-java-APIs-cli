@@ -29,12 +29,9 @@ public final class ResponseWriter {
      * レスポンスを出力します。
      * フォーマットに応じて適切な出力先に書き込みを行います。
      * 
-     * 
-@param response 出力するレスポンスオブジェクト
-     * 
-@param format 出力フォーマット
-     * 
-@param path 出力先のファイルパス
+     * @param response 出力するレスポンスオブジェクト
+     * @param format 出力フォーマット
+     * @param path 出力先のファイルパス
      * @throws CommandLineInputOutputException 入出力エラーが発生した場合
      */
     public static void writeJson(final Object response, final Format format, final String path) {
@@ -53,8 +50,7 @@ public final class ResponseWriter {
     /**
      * フォーマットの検証を行います。
      * 
-     * 
-@param format 検証する出力フォーマット
+     * @param format 検証する出力フォーマット
      * @throws CmdLineArgmentException フォーマットが無効な場合
      */
     private static void validateFormat(final Format format) {
@@ -65,33 +61,27 @@ public final class ResponseWriter {
 
     /**
      * レスポンスオブジェクトをJSON文字列に変換します。
+     * Java 21のパターンマッチングを使用して型に基づく処理を行います。
      * 
-     * 
-@param response 変換対象のレスポンスオブジェクト
+     * @param response 変換対象のレスポンスオブジェクト
      * @return JSON形式の文字列
      * @throws IOException JSON変換中にエラーが発生した場合
      */
     private static String convertToJsonString(final Object response) throws IOException {
-        final String result;
-        
-        if (response == null) {
-            result = "{}";
-        } else if (response instanceof GenericJson) {
-            result = ((GenericJson) response).toPrettyString();
-        } else {
-            result = response.toString();
-        }
-        return result;
+        // Java 21のパターンマッチング構文を使用して型チェックとキャストを一度に行う
+        return switch (response) {
+            case null -> "{}";
+            case GenericJson json -> json.toPrettyString();
+            default -> response.toString();
+        };
     }
 
     /**
      * 指定されたパスにコンテンツを書き込みます。
      * 親ディレクトリが存在しない場合は作成します。
      * 
-     * 
-@param path 書き込み先のファイルパス
-     * 
-@param content 書き込むコンテンツ
+     * @param path 書き込み先のファイルパス
+     * @param content 書き込むコンテンツ
      * @throws CommandLineInputOutputException ファイル操作中にエラーが発生した場合
      */
     private static void writeToFile(final String path, final String content) {
@@ -104,43 +94,40 @@ public final class ResponseWriter {
             }
             FileUtils.write(file, content, StandardCharsets.UTF_8);
         } catch (IOException e) {
-            throw new CommandLineInputOutputException("Failed to write to file: " + e.getMessage(),
-                    e);
+            throw new CommandLineInputOutputException(
+                """
+                Failed to write to file: %s
+                Cause: %s
+                """.formatted(path, e.getMessage()), e);
         }
     }
 
     /**
      * 指定されたフォーマットに従ってJSON文字列を出力します。
+     * Java 21の強化されたswitch式を使用してフォーマットに応じた処理を行います。
      * 
-     * 
-@param jsonString 出力するJSON文字列
-     * 
-@param format 出力フォーマット
-     * 
-@param path JSONフォーマットの場合の出力先ファイルパス
+     * @param jsonString 出力するJSON文字列
+     * @param format 出力フォーマット
+     * @param path JSONフォーマットの場合の出力先ファイルパス
      * @throws CommandLineInputOutputException ファイル操作中にエラーが発生した場合
      */
     private static void routeOutput(final String jsonString, final Format format, final String path) {
-        if (Format.JSON.equals(format)) {
-            validateJsonPath(path);
-            writeToFile(path, jsonString);
-        } else if (Format.CONSOLE.equals(format)) {
-            LOGGER.info(jsonString);
-        } else if (Format.CSV.equals(format)) {
-            // CSVフォーマットの処理
-            // 現在は未実装
-            LOGGER.warn("CSV format is not yet implemented");
-        } else {
-            // 将来追加される可能性のあるフォーマットのデフォルト処理
-            LOGGER.warn("Unsupported format: {}", format);
+        // Java 21の拡張されたswitch式を使用
+        switch (format) {
+            case Format.JSON -> {
+                validateJsonPath(path);
+                writeToFile(path, jsonString);
+            }
+            case Format.CONSOLE -> LOGGER.info(jsonString);
+            case Format.CSV -> LOGGER.warn("CSV format is not yet implemented");
+            default -> LOGGER.warn("Unsupported format: {}", format);
         }
     }
 
     /**
      * JSONフォーマット出力時のパスを検証します。
      * 
-     * 
-@param path 検証する出力先ファイルパス
+     * @param path 検証する出力先ファイルパス
      * @throws CmdLineArgmentException パスが無効な場合
      */
     private static void validateJsonPath(final String path) {
