@@ -12,7 +12,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 /**
- * CliApplicationのテストクラス
+ * {@summary CliApplicationのテストクラス。}
  */
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -23,7 +23,7 @@ public class CliApplicationTest {
     private ApplicationContext context;
 
     /**
-     * アプリケーションコンテキストが正しく起動することをテスト
+     * {@summary アプリケーションコンテキストが正しく起動することをテスト。}
      */
     @Test
     public void testContext_shouldLoadApplicationContextSuccessfully() {
@@ -31,7 +31,7 @@ public class CliApplicationTest {
     }
 
     /**
-     * 必要なBeanが登録されていることをテスト
+     * {@summary 必要なBeanが登録されていることをテスト。}
      */
     @Test
     public void testBeanConfiguration_shouldRegisterRequiredBeans() {
@@ -40,7 +40,7 @@ public class CliApplicationTest {
     }
 
     /**
-     * アプリケーションが正常に起動できることをテスト
+     * {@summary アプリケーションが正常に起動できることをテスト。}
      */
     @Test
     public void testMain_shouldStartApplicationWithoutException() {

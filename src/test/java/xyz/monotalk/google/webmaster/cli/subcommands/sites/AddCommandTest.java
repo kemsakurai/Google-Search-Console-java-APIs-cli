@@ -7,7 +7,7 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-import xyz.monotalk.google.webmaster.cli.CmdLineIOException;
+import xyz.monotalk.google.webmaster.cli.CommandLineInputOutputException;
 import xyz.monotalk.google.webmaster.cli.Format;
 import xyz.monotalk.google.webmaster.cli.WebmastersFactory;
 
@@ -59,7 +59,7 @@ public class AddCommandTest {
         verify(add).execute();
     }
 
-    @Test(expected = CmdLineIOException.class)
+    @Test(expected = CommandLineInputOutputException.class)
     public void testExecute_異常系_API実行時に例外発生() throws IOException {
         // Given
         when(add.execute()).thenThrow(new IOException("API Error"));

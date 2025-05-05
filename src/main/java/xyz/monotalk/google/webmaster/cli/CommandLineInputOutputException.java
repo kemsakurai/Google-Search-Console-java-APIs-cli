@@ -11,7 +11,8 @@ public class CommandLineInputOutputException extends RuntimeException {
     /**
      * エラーメッセージを指定して例外を生成します。
      *
-     * @param message エラーメッセージ
+     * 
+@param message エラーメッセージ
      */
     public CommandLineInputOutputException(final String message) {
         super(message);

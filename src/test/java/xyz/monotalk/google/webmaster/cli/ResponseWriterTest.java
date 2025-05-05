@@ -1,18 +1,9 @@
 package xyz.monotalk.google.webmaster.cli;
 
-import com.google.api.client.json.GenericJson;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
-import org.kohsuke.args4j.CmdLineException;
-import org.mockito.MockitoAnnotations;
-import org.slf4j.Logger;
-
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
@@ -23,13 +14,20 @@ import java.nio.file.attribute.FileAttribute;
 import java.nio.file.attribute.PosixFilePermission;
 import java.nio.file.attribute.PosixFilePermissions;
 import java.util.Set;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
+import org.slf4j.Logger;
+import com.google.api.client.json.GenericJson;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.when;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.mock;
-
+/**
+ * {@summary ResponseWriterクラスのテストクラス。}
+ */
 @RunWith(MockitoJUnitRunner.class)
 public class ResponseWriterTest {
 
@@ -45,17 +43,26 @@ public class ResponseWriterTest {
     private final ByteArrayOutputStream outContent = new ByteArrayOutputStream();
     private final PrintStream originalOut = System.out;
 
+    /**
+     * {@summary テスト前のセットアップ処理。}
+     */
     @Before
     public void setUpStreams() throws IOException {
         System.setOut(new PrintStream(outContent));
         when(mockResponse.toPrettyString()).thenReturn("{\"test\": \"value\"}");
     }
 
+    /**
+     * {@summary テスト後の後処理。}
+     */
     @After
     public void restoreStreams() {
         System.setOut(originalOut);
     }
 
+    /**
+     * {@summary テスト用のJSON拡張クラス。}
+     */
     private static class TestJson extends GenericJson {
         @com.google.api.client.util.Key
         public String key;

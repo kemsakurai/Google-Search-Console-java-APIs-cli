@@ -4,18 +4,17 @@ import org.junit.Test;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.beans.factory.support.GenericBeanDefinition;
-import static org.junit.Assert.assertEquals;
-import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 
+import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
 
 /**
- * FullyQualifiedClassNameBeanNameGeneratorのテストクラス。
+ * {@summary FullyQualifiedClassNameBeanNameGeneratorのテストクラス。}
  */
 public class FQCNBeanNameGeneratorTest {
 
     /**
-     * 完全修飾クラス名がbean名として正しく生成されることをテスト。
+     * {@summary 完全修飾クラス名がbean名として正しく生成されることをテスト。}
      */
     @Test
     public void testGenerateBeanName_shouldReturnFullyQualifiedClassName() {

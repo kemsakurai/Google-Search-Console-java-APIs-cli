@@ -2,23 +2,28 @@ package xyz.monotalk.google.webmaster.cli;
 
 import com.google.api.services.webmasters.Webmasters;
 import com.google.api.services.webmasters.model.SitesListResponse;
+import java.io.IOException;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner.Silent;
-import org.springframework.context.ApplicationContext;
 import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
+import org.springframework.context.ApplicationContext;
 import org.springframework.test.util.ReflectionTestUtils;
 import xyz.monotalk.google.webmaster.cli.subcommands.sites.ListCommand;
 
-import java.io.IOException;
-
 import static org.junit.Assert.fail;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.when;
 
+/**
+ * {@summary WebmastersCommandRunnerのテストクラス。}
+ */
 @RunWith(Silent.class) // lenientモードを使用
 public class WebmastersCommandRunnerTest {
 
@@ -52,6 +57,9 @@ public class WebmastersCommandRunnerTest {
     @Mock
     private ResponseWriter mockResponseWriter;
 
+    /**
+     * {@summary テスト前のセットアップ処理。}
+     */
     @Before
     public void setUp() {
         when(applicationContext.getAutowireCapableBeanFactory()).thenReturn(autowireCapableBeanFactory);
@@ -69,25 +77,28 @@ public class WebmastersCommandRunnerTest {
         when(applicationContext.getBean("webmasters.sites.list")).thenReturn(new ListCommand());
     }
 
+    /**
+     * {@summary コマンド実行が正常に成功するケースのテスト。}
+     */
     @Test
-    public void testRun_正常系_コマンド実行成功() throws Exception {
+    public void testRunWithCommandSuccessful() throws Exception {
         // Given
         String[] args = {"webmasters.sites.list"};
         try {
             when(mockWebmastersFactory.create()).thenReturn(mockWebmasters);
-        } catch (CmdLineIOException e) {
-            fail("CmdLineIOException should not occur: " + e.getMessage());
+        } catch (CommandLineInputOutputException e) {
+            fail("CommandLineInputOutputException should not occur: " + e.getMessage());
         }
         when(mockWebmasters.sites()).thenReturn(mockSites);
         try {
             when(mockSites.list()).thenReturn(mockSitesList);
-        } catch (IOException e) {
-            fail("IOException should not occur: " + e.getMessage());
+        } catch (CommandLineInputOutputException e) {
+            fail("CommandLineInputOutputException should not occur: " + e.getMessage());
         }
         try {
             when(mockSitesList.execute()).thenReturn(mockResponse);
-        } catch (IOException e) {
-            fail("IOException should not occur: " + e.getMessage());
+        } catch (CommandLineInputOutputException e) {
+            fail("CommandLineInputOutputException should not occur: " + e.getMessage());
         }
 
         // When
@@ -104,8 +115,11 @@ public class WebmastersCommandRunnerTest {
         verify(mockSitesList).execute();
     }
 
+    /**
+     * {@summary ヘルプを表示するケースのテスト。}
+     */
     @Test
-    public void testRun_正常系_ヘルプ表示() throws Exception {
+    public void testRunWithHelpOption() throws Exception {
         // Given
         String[] args = {"-?"};
 
@@ -120,8 +134,11 @@ public class WebmastersCommandRunnerTest {
         verifyNoInteractions(mockWebmastersFactory);
     }
 
+    /**
+     * {@summary 引数なしでヘルプが表示されるケースのテスト。}
+     */
     @Test
-    public void testRun_正常系_引数なしでヘルプ表示() throws Exception {
+    public void testRunWithNoArgumentsShowsHelp() throws Exception {
         // Given
         String[] args = {};
 
@@ -136,8 +153,11 @@ public class WebmastersCommandRunnerTest {
         verifyNoInteractions(mockWebmastersFactory);
     }
 
+    /**
+     * {@summary 不正な引数が渡された場合のテスト。}
+     */
     @Test
-    public void testRun_異常系_不正な引数() throws Exception {
+    public void testRunWithInvalidArgument() throws Exception {
         // Given
         String[] args = {"invalid.command"};
 
@@ -152,14 +172,17 @@ public class WebmastersCommandRunnerTest {
         verifyNoInteractions(mockWebmastersFactory);
     }
 
+    /**
+     * {@summary アプリケーション引数を除外するケースのテスト。}
+     */
     @Test
-    public void testRun_正常系_アプリケーション引数除外() throws Exception {
+    public void testRunExcludingApplicationArguments() throws Exception {
         // Given
         String[] args = {"webmasters.sites.list", "--application.keyFileLocation=test.json"};
         try {
             when(mockWebmastersFactory.create()).thenReturn(mockWebmasters);
-        } catch (CmdLineIOException e) {
-            fail("CmdLineIOException should not occur: " + e.getMessage());
+        } catch (CommandLineInputOutputException e) {
+            fail("CommandLineInputOutputException should not occur: " + e.getMessage());
         }
         when(mockWebmasters.sites()).thenReturn(mockSites);
         try {
@@ -187,8 +210,11 @@ public class WebmastersCommandRunnerTest {
         verify(mockSitesList).execute();
     }
 
+    /**
+     * {@summary 不正なアプリケーション引数が渡された場合のテスト。}
+     */
     @Test
-    public void testRun_異常系_不正なアプリケーション引数() throws Exception {
+    public void testRunWithInvalidApplicationArgument() throws Exception {
         // Given
         String[] args = {"--invalid-argument"};
 
@@ -203,8 +229,11 @@ public class WebmastersCommandRunnerTest {
         verifyNoInteractions(mockWebmastersFactory);
     }
 
+    /**
+     * {@summary 引数解析でエラーが発生した場合のテスト。}
+     */
     @Test
-    public void testRun_異常系_引数解析エラー() throws Exception {
+    public void testRunWithArgumentParsingError() throws Exception {
         // Given
         String[] args = {"--invalid-format"};
 

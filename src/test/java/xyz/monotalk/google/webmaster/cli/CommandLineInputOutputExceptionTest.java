@@ -3,7 +3,7 @@ package xyz.monotalk.google.webmaster.cli;
 import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 
-public class CmdLineIOExceptionTest {
+public class CommandLineInputOutputExceptionTest {
 
     @Test
     public void testConstructor_正常系_原因例外が正しく設定される() {
@@ -12,7 +12,8 @@ public class CmdLineIOExceptionTest {
         String message = "IOエラーが発生しました";
 
         // When
-        CmdLineIOException exception = new CmdLineIOException(message, cause);
+        
+        CommandLineInputOutputException exception = new CommandLineInputOutputException(message, cause);
 
         // Then
         assertEquals(message, exception.getMessage());

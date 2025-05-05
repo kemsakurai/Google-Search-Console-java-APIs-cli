@@ -13,7 +13,6 @@ import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
 import xyz.monotalk.google.webmaster.cli.CmdLineArgmentException;
-import xyz.monotalk.google.webmaster.cli.CmdLineIOException;
 import xyz.monotalk.google.webmaster.cli.CommandLineInputOutputException;
 import xyz.monotalk.google.webmaster.cli.Format;
 import xyz.monotalk.google.webmaster.cli.ResponseWriter;
@@ -63,7 +62,7 @@ public class ListCommandTest {
      * テスト前の準備
      */
     @Before
-    public void setup() throws IOException, CommandLineInputOutputException, CmdLineIOException, CmdLineArgmentException {
+    public void setup() throws IOException, CommandLineInputOutputException, CmdLineArgmentException {
         when(factory.create()).thenReturn(webmasters);
         when(webmasters.sitemaps()).thenReturn(sitemaps);
         when(sitemaps.list(anyString())).thenReturn(list);
@@ -128,7 +127,7 @@ public class ListCommandTest {
      * API呼び出しで例外が発生した場合のテスト
      * IOExceptionがCmdLineIOExceptionに変換されることを検証
      */
-    @Test(expected = CmdLineIOException.class)
+    @Test(expected = CommandLineInputOutputException.class)
     public void testExecute_WhenApiCallFails_ShouldThrowCmdLineIOException() throws Exception {
         // Given
         command.siteUrl = new URL("https://example.com").toString();

@@ -24,8 +24,10 @@ public class FQCNBeanNameGenerator implements BeanNameGenerator {
     /**
      * 指定されたBeanDefinitionから完全修飾クラス名をBean名として返します.
      *
-     * @param definition Bean定義
-     * @param registry Beanレジストリ
+     * 
+@param definition Bean定義
+     * 
+@param registry Beanレジストリ
      * @return 完全修飾クラス名
      */
     @Override

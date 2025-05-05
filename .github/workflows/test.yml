@@ -1,0 +1,59 @@
+name: JUnitテスト実行
+
+on:
+  pull_request:
+    branches: [ main ]
+  push:
+    branches: [ main ]
+
+jobs:
+  junit-tests:
+    runs-on: ubuntu-latest
+    steps:
+    - name: コードのチェックアウト
+      uses: actions/checkout@v4
+    
+    - name: JDK 8 セットアップ
+      uses: actions/setup-java@v4
+      with:
+        distribution: 'corretto'
+        java-version: '8'
+    
+    - name: Gradleラッパーに実行権限付与
+      run: chmod +x gradlew
+    
+    - name: Gradle キャッシュ
+      uses: actions/cache@v3
+      with:
+        path: |
+          ~/.gradle/caches
+          ~/.gradle/wrapper
+        key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+        restore-keys: |
+          ${{ runner.os }}-gradle-
+    
+    - name: JUnitテストを実行
+      run: ./gradlew test
+      # continue-on-error は設定しない - テスト失敗時はワークフローも失敗させる
+    
+    - name: テスト結果をJUnitレポートとして発行
+      uses: dorny/test-reporter@v1
+      if: always() # テスト失敗時も結果を表示するため
+      with:
+        name: JUnit テスト結果
+        path: build/test-results/test/*.xml
+        reporter: java-junit
+    
+    - name: テストレポートをアップロード
+      uses: actions/upload-artifact@v3
+      if: always() # テスト失敗時も結果をアップロードするため
+      with:
+        name: test-reports
+        path: build/reports/tests/
+        
+    - name: カバレッジレポートをアップロード
+      uses: actions/upload-artifact@v3
+      if: always() # テスト失敗時もカバレッジレポートをアップロードするため
+      with:
+        name: coverage-reports
+        path: build/reports/jacoco/

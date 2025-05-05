@@ -6,7 +6,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.StringJoiner;
-
 import org.apache.commons.lang3.tuple.Pair;
 import org.kohsuke.args4j.Argument;
 import org.kohsuke.args4j.CmdLineException;
@@ -84,7 +83,8 @@ public class WebmastersCommandRunner implements CommandLineRunner {
     /**
      * コマンドライン引数に基づいてコマンドを実行します。
      * 
-     * @param args コマンドライン引数
+     * 
+@param args コマンドライン引数
      * @throws Exception 実行中に例外が発生した場合
      */
     @Override
@@ -122,7 +122,8 @@ public class WebmastersCommandRunner implements CommandLineRunner {
     /**
      * "--application" を含むコマンドライン引数を除外します。
      * 
-     * @param args 元のコマンドライン引数
+     * 
+@param args 元のコマンドライン引数
      * @return フィルタリングされた引数リスト
      */
     private List<String> filterApplicationArgs(final String... args) {
@@ -160,7 +161,8 @@ public class WebmastersCommandRunner implements CommandLineRunner {
     /**
      * ヘルプ情報を表示します。
      * 
-     * @param parser コマンドラインパーサー
+     * 
+@param parser コマンドラインパーサー
      */
     private void displayHelp(final CmdLineParser parser) {
         if (LOGGER.isErrorEnabled()) {

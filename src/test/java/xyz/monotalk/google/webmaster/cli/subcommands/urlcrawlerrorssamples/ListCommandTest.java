@@ -11,7 +11,7 @@ import org.mockito.Mock;
 import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
-import xyz.monotalk.google.webmaster.cli.CmdLineIOException;
+import xyz.monotalk.google.webmaster.cli.CommandLineInputOutputException;
 import xyz.monotalk.google.webmaster.cli.Format;
 import xyz.monotalk.google.webmaster.cli.ResponseWriter;
 import xyz.monotalk.google.webmaster.cli.WebmastersFactory;
@@ -64,7 +64,7 @@ public class ListCommandTest {
      * URLクロールエラーサンプルが正常に取得されることを検証
      */
     @Test
-    public void testExecute_WithValidParameters_ShouldReturnErrorSamples() throws IOException, CmdLineIOException {
+    public void testExecute_WithValidParameters_ShouldReturnErrorSamples() throws IOException, CommandLineInputOutputException {
         // Given
         UrlCrawlErrorsSamplesListResponse response = new UrlCrawlErrorsSamplesListResponse();
         UrlCrawlErrorsSample sample = new UrlCrawlErrorsSample();
@@ -94,8 +94,8 @@ public class ListCommandTest {
      * API呼び出しでエラーが発生した場合のテスト
      * IOExceptionがCmdLineIOExceptionとしてスローされることを確認
      */
-    @Test(expected = CmdLineIOException.class)
-    public void testExecute_WhenApiCallFails_ShouldThrowCmdLineIOException() throws IOException, CmdLineIOException {
+    @Test(expected = CommandLineInputOutputException.class)
+    public void testExecute_WhenApiCallFails_ShouldThrowCmdLineIOException() throws IOException, CommandLineInputOutputException {
         // Given
         when(request.execute()).thenThrow(new IOException("API Error"));
 
