@@ -1,12 +1,10 @@
 package xyz.monotalk.google.webmaster.cli.subcommands.urlcrawlerrorssamples;
 
-import java.io.IOException;
 import org.kohsuke.args4j.Option;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import com.google.api.services.webmasters.Webmasters;
-import com.google.api.services.webmasters.model.UrlCrawlErrorsSample;
-import com.google.api.services.webmasters.model.UrlCrawlErrorsSamplesListResponse;
 import xyz.monotalk.google.webmaster.cli.Command;
 import xyz.monotalk.google.webmaster.cli.CommandLineInputOutputException;
 import xyz.monotalk.google.webmaster.cli.Format;
@@ -15,12 +13,14 @@ import xyz.monotalk.google.webmaster.cli.WebmastersFactory;
 
 /**
  * URLクロールエラーサンプルを一覧表示するコマンド
+ * 
+ * 注: Google Search Console API変更により現在このAPIは利用できません
  */
 @Component
-@SuppressWarnings({
-    "PMD.LooseCoupling" // Google API具象型のため警告抑制
-})
 public class ListCommand implements Command {
+
+    /** ロガーインスタンス */
+    private static final Logger LOGGER = LoggerFactory.getLogger(ListCommand.class);
 
     /** Webmasters APIクライアント生成ファクトリ */
     @Autowired
@@ -48,8 +48,7 @@ public class ListCommand implements Command {
     /**
      * サイトURLを設定します
      * 
-     * 
-@param siteUrl 設定するサイトURL
+     * @param siteUrl 設定するサイトURL
      */
     public void setSiteUrl(final String siteUrl) {
         this.siteUrl = siteUrl;
@@ -58,8 +57,7 @@ public class ListCommand implements Command {
     /**
      * エラーカテゴリを設定します
      * 
-     * 
-@param category 設定するエラーカテゴリ
+     * @param category 設定するエラーカテゴリ
      */
     public void setCategory(final String category) {
         this.category = category;
@@ -68,40 +66,34 @@ public class ListCommand implements Command {
     /**
      * プラットフォームを設定します
      * 
-     * 
-@param platform 設定するプラットフォーム
+     * @param platform 設定するプラットフォーム
      */
     public void setPlatform(final String platform) {
         this.platform = platform;
     }
 
     /**
-     * URLクロールエラーサンプルを取得し、出力します。
+     * URLクロールエラーサンプルの取得を試みますが、現在のAPI互換性の問題により使用できないことを通知します。
      * 
-     * Google APIは具象型を使用しているため、一部の警告は抑制します。
-     * インターフェースを使用するよう変更すると、
-     * Google APIとの互換性に問題が生じる可能性があります。
+     * Google Search Console API変更により、このAPIは利用できなくなりました。
      */
     @Override
     public void execute() {
+        if (LOGGER.isWarnEnabled()) {
+            LOGGER.warn("URLクロールエラーサンプル API は現在利用できません (非対応: サイト={}, カテゴリ={}, プラットフォーム={})", 
+                    siteUrl, category, platform);
+        }
+        
+        final StringBuilder output = new StringBuilder(256);
+        output.append("URLクロールエラーサンプル API は現在利用できません。\n\n")
+              .append("Google Search Console API の変更により、このAPIは廃止されました。\n")
+              .append("Google Search Console ウェブインターフェースをご利用ください。\n")
+              .append("https://search.google.com/search-console");
+
         try {
-            final Webmasters.Urlcrawlerrorssamples.List request = 
-                factory.create().urlcrawlerrorssamples().list(siteUrl, category, platform);
-            final UrlCrawlErrorsSamplesListResponse response = request.execute();
-            
-            final StringBuilder output = new StringBuilder(256);
-            for (final UrlCrawlErrorsSample sample : response.getUrlCrawlErrorSample()) {
-                output.append("Page URL: ").append(sample.getPageUrl()).append('\n')
-                      .append("First Detected: ").append(sample.getFirstDetected()).append('\n')
-                      .append("Last Crawled: ").append(sample.getLastCrawled()).append('\n')
-                      .append("Response Code: ").append(sample.getResponseCode()).append("\n\n");
-            }
-            if (output.length() == 0) {
-                output.append("No crawl error samples found.");
-            }
             ResponseWriter.writeJson(output.toString(), Format.CONSOLE, null);
-        } catch (IOException e) {
-            throw new CommandLineInputOutputException("URLクロールエラーサンプルの一覧取得に失敗しました", e);
+        } catch (Exception e) {
+            throw new CommandLineInputOutputException("レスポンス出力中にエラーが発生しました", e);
         }
     }
 
@@ -112,6 +104,6 @@ public class ListCommand implements Command {
      */
     @Override
     public String usage() {
-        return "指定されたクロールエラーカテゴリとプラットフォームのサンプルURLを一覧表示します。";
+        return "※非推奨※ 指定されたクロールエラーカテゴリとプラットフォームのサンプルURLを一覧表示します。";
     }
 }
