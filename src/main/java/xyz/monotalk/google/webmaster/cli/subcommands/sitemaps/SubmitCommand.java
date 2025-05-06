@@ -20,65 +20,40 @@ import xyz.monotalk.google.webmaster.cli.WebmastersFactory;
 @Component
 public class SubmitCommand implements Command {
 
-    /**
-     * ロガーインスタンス
-     */
     private static final Logger LOGGER = LoggerFactory.getLogger(SubmitCommand.class);
 
-    /**
-     * WebmastersファクトリーインスタンスDI用
-     */
     @Autowired
     private WebmastersFactory factory;
 
-    /**
-     * サイトURL
-     */
-    @Option(name = "-siteUrl", usage = "Site URL", metaVar = "<siteUrl>", required = true,
+    @Option(
+            name = "-siteUrl",
+            usage = "Site URL",
+            metaVar = "<siteUrl>",
+            required = true,
             handler = URLOptionHandler.class)
     protected URL siteUrl;
 
-    /**
-     * フィードパス
-     */
     @Option(name = "-feedpath", usage = "Feed path", required = true)
     protected String feedpath;
 
-    /**
-     * デフォルトコンストラクタ
-     */
     public SubmitCommand() {
         // デフォルトコンストラクタ
     }
 
     @Override
     public void execute() {
-        // パラメータのバリデーション
         validateParameters();
-        
-        // 処理開始ログ出力
         logSubmissionStart();
-        
+
         try {
-            // Webmastersクライアントの作成
             final Webmasters webmasters = createWebmastersClient();
-            
-            // サイトマップの送信リクエスト実行
             submitSitemap(webmasters);
-            
-            // 成功ログ出力
             logSubmissionSuccess();
         } catch (IOException e) {
-            // エラーログ出力と例外スロー
             handleException(e);
         }
     }
 
-    /**
-     * パラメータの妥当性を検証します
-     * 
-     * @throws CmdLineArgmentException パラメータが無効な場合
-     */
     private void validateParameters() {
         if (siteUrl == null) {
             throw new CmdLineArgmentException("Site URL is required");
@@ -88,21 +63,12 @@ public class SubmitCommand implements Command {
         }
     }
 
-    /**
-     * サイトマップ送信開始のログを出力します
-     */
     private void logSubmissionStart() {
         if (LOGGER.isInfoEnabled()) {
             LOGGER.info("Submitting sitemap {} for site {}", feedpath, siteUrl);
         }
     }
 
-    /**
-     * Webmastersクライアントを作成します
-     * 
-     * @return 作成されたWebmastersクライアント
-     * @throws CommandLineInputOutputException クライアント作成に失敗した場合
-     */
     private Webmasters createWebmastersClient() {
         final Webmasters webmasters = factory.create();
         if (webmasters == null) {
@@ -111,34 +77,17 @@ public class SubmitCommand implements Command {
         return webmasters;
     }
 
-    /**
-     * サイトマップを送信します
-     * 
-     * 
-@param webmasters Webmastersクライアント
-     * @throws IOException API実行エラーが発生した場合
-     */
     private void submitSitemap(final Webmasters webmasters) throws IOException {
         final Webmasters.Sitemaps.Submit request = webmasters.sitemaps().submit(siteUrl.toString(), feedpath);
         request.execute();
     }
 
-    /**
-     * サイトマップ送信成功のログを出力します
-     */
     private void logSubmissionSuccess() {
         if (LOGGER.isInfoEnabled()) {
             LOGGER.info("Sitemap submitted successfully");
         }
     }
 
-    /**
-     * 例外を処理します
-     * 
-     * 
-@param exception 発生した例外
-     * @throws CommandLineInputOutputException ラップされた例外
-     */
     private void handleException(final IOException exception) {
         if (LOGGER.isErrorEnabled()) {
             LOGGER.error("Failed to submit sitemap", exception);
