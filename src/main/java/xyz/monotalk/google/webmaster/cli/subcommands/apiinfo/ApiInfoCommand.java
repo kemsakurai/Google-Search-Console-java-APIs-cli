@@ -66,7 +66,11 @@ public class ApiInfoCommand implements Command {
     public void execute() {
         try {
             final ApiResponseRecord<?> response = apiInfoFetcher.fetchApiInfo();
-            responseProcessor.processResponse(response, format, filePath);
+            responseProcessor.processResponse(
+                response,
+                format,
+                filePath
+            );
         } catch (IOException e) {
             handleIoException(e);
         } catch (IllegalArgumentException e) {
@@ -80,7 +84,8 @@ public class ApiInfoCommand implements Command {
         if (LOGGER.isErrorEnabled()) {
             LOGGER.error("Error fetching API info: {}", ioException.getMessage());
         }
-        throw new CmdLineArgmentException("API info command failed due to an I/O error: " + ioException.getMessage(), ioException);
+        throw new CmdLineArgmentException("API info command failed due to an I/O error: " 
+            + ioException.getMessage(), ioException);
     }
 
     private void handleIllegalArgumentException(final IllegalArgumentException exception) {

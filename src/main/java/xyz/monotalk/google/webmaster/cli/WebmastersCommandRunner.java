@@ -141,7 +141,7 @@ public class WebmastersCommandRunner implements CommandLineRunner {
 
         // nullチェックを追加
         if (this.command == null) {
-            throw new CmdLineException(parser, "Command is not initialized.");
+            throw new CmdLineException(parser, "Command is not initialized.", null);
         }
 
         try {
@@ -238,21 +238,14 @@ public class WebmastersCommandRunner implements CommandLineRunner {
               .forEach(e -> commandDetails.append(
                   String.format("    %s  |  %s%n", e.getLeft(), e.getRight().usage())
               ));
-
-        return String.format(
-            """
+        
+        // spotbugsの以下のIssueからString.formatted()を使用した方が良さそう
+        // @see https://github.com/spotbugs/spotbugs/issues/1877
+        return """
             usage: xyz.monotalk.google.webmaster.cli.CliApplication
-
-              %s
-              ...
-
+              %s              ...
             positional arguments:
-
-              %s
-            %soptional arguments:
-
-            """,
-            joiner, joiner, commandDetails
-        );
+              %s optional arguments:
+            """.formatted(joiner, commandDetails);
     }
 }

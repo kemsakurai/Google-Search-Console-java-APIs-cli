@@ -160,9 +160,10 @@ pmd {
 
 // SpotBugsの設定
 spotbugs {
-    toolVersion = '4.8.0'
+    toolVersion = '4.8.1'
     effort = 'default'
     reportLevel = 'medium'
+    showStackTraces = true
 }
 
 spotbugsMain {

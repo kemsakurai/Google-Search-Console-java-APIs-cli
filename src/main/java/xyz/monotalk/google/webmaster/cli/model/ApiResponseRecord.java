@@ -43,7 +43,7 @@ public record ApiResponseRecord<T>(
         this.code = code;
         this.time = time;
         this.data = data;
-        this.hdrs = hdrs;
+        this.hdrs = hdrs != null ? Map.copyOf(hdrs) : Map.of();
         this.err = err;
     }
 
@@ -146,7 +146,7 @@ public record ApiResponseRecord<T>(
          * @return このビルダー
          */
         public Builder<T> headers(final Map<String, List<String>> responseHeaders) {
-            this.responseHeaders = responseHeaders;
+            this.responseHeaders = responseHeaders != null ? Map.copyOf(responseHeaders) : Map.of();
             return this;
         }
 
@@ -219,7 +219,7 @@ public record ApiResponseRecord<T>(
          * @param responseHeaders レスポンスヘッダー
          */
         public void setResponseHeaders(final Map<String, List<String>> responseHeaders) {
-            this.responseHeaders = responseHeaders;
+            this.responseHeaders = responseHeaders != null ? Map.copyOf(responseHeaders) : Map.of();
         }
 
         /**
@@ -304,7 +304,7 @@ public record ApiResponseRecord<T>(
      * @return レスポンスヘッダーのマップ
      */
     public Map<String, List<String>> getHeaders() {
-        return hdrs;
+        return hdrs != null ? Map.copyOf(hdrs) : Map.of();
     }
 
     /**
