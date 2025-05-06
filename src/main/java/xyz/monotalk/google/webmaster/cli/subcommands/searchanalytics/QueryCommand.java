@@ -18,7 +18,10 @@ import xyz.monotalk.google.webmaster.cli.Command;
 import xyz.monotalk.google.webmaster.cli.WebmastersFactory;
 
 /**
- * QueryCommandクラス - Search Analyticsデータのクエリを実行するコマンド。
+ * QueryCommandクラス - 検索分析クエリコマンド。
+ *
+ * <p>このクラスは、Google Search Console APIを使用して、
+ * 検索分析クエリを実行します。</p>
  */
 @Component
 public class QueryCommand implements Command {

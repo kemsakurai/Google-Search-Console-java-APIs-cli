@@ -16,10 +16,10 @@ import xyz.monotalk.google.webmaster.cli.ResponseWriter;
 import xyz.monotalk.google.webmaster.cli.WebmastersFactory;
 
 /**
- * サイトマップ情報を取得するコマンドです。
+ * GetCommandクラス - サイトマップ取得コマンド。
  *
  * <p>このクラスは、Google Search Console APIを使用して、
- * 指定されたサイトの特定のサイトマップ情報を取得します。</p>
+ * 指定されたサイトのサイトマップを取得します。</p>
  */
 @Component
 public class GetCommand implements Command {

@@ -7,11 +7,10 @@ import org.springframework.beans.factory.support.BeanNameGenerator;
 import org.springframework.stereotype.Component;
 
 /**
- * FQCNBeanNameGeneratorクラスは、完全修飾クラス名を使用してBean名を生成します。
+ * FQCNBeanNameGeneratorクラス - 完全修飾クラス名を使用したBean名生成。
  *
- * @param beanDefinition Bean定義
- * @param beanName Bean名
- * @return 生成されたBean名
+ * <p>このクラスは、Spring FrameworkのBean名生成において、
+ * 完全修飾クラス名を使用します。</p>
  */
 @Component
 @SuppressWarnings("checkstyle:AbbreviationAsWordInName")

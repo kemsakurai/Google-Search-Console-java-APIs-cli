@@ -1,7 +1,8 @@
 /**
- * URLクロールエラーを修正済みとしてマークするコマンド。
+ * MarkAsFixedCommandクラス - URLを修正済みとしてマークするコマンド。
  *
- * <p>このコマンドは、指定されたURLのクロールエラーを修正済みとしてマークします。</p>
+ * <p>このクラスは、Google Search Console APIを使用して、
+ * 指定されたURLを修正済みとしてマークします。</p>
  *
  * <p>注意: Google Search Console APIの変更により現在このAPIは利用できません。</p>
  *
