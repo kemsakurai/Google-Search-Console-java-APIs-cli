@@ -22,7 +22,6 @@ public class CliApplication {
     /**
      * アプリケーションのエントリーポイントです。 Spring Bootアプリケーションを初期化し、起動します。
      *
-     * 
      * @param args コマンドライン引数
      */
     public static void main(final String[] args) {

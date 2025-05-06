@@ -17,20 +17,18 @@ import org.springframework.stereotype.Component;
 public class FQCNBeanNameGenerator implements BeanNameGenerator {
 
     /**
-     * デフォルトコンストラクタ.
+     * デフォルトコンストラクタ。
      */
     public FQCNBeanNameGenerator() {
         // デフォルトの初期化処理
     }
 
     /**
-     * 指定されたBeanDefinitionから完全修飾クラス名をBean名として返します.
+     * 指定されたBeanDefinitionから完全修飾クラス名をBean名として返します。
      *
-     * 
-@param definition Bean定義
-     * 
-@param registry Beanレジストリ
-     * @return 完全修飾クラス名
+     * @param definition Bean定義。
+     * @param registry Beanレジストリ。
+     * @return 完全修飾クラス名。
      */
     @Override
     @Nullable

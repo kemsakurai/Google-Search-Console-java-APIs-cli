@@ -92,9 +92,9 @@ public class ListCommand implements Command {
     }
 
     /**
-     * コマンドの使用方法を返します.
+     * コマンドの使用方法を返します。
      *
-     * @return 使用方法の説明
+     * @return 使用方法の説明。
      */
     @Override
     public String usage() {

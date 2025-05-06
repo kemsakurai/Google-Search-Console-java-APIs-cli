@@ -39,6 +39,9 @@ public class SubmitCommand implements Command {
     @Option(name = "-feedpath", usage = "Feed path", required = true)
     protected String feedpath;
 
+    /**
+     * デフォルトコンストラクタ。
+     */
     public SubmitCommand() {
         // デフォルトコンストラクタ
     }
@@ -65,7 +68,9 @@ public class SubmitCommand implements Command {
     }
 
     /**
-     * サイトマップを送信するコマンドです。
+     * サイトマップ送信のためのパラメータを検証します。
+     *
+     * @throws CmdLineArgmentException 必須パラメータが不足している場合。
      */
     private void validateParameters() {
         if (siteUrl == null) {

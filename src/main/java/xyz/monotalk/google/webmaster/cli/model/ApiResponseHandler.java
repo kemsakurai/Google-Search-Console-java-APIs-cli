@@ -29,12 +29,12 @@ public final class ApiResponseHandler {
 
     /**
      * HttpResponseをApiResponseRecordに変換します。
-     * 
-     * @param <T> 応答データの型
-     * @param response 処理するHttpResponse
-     * @param responseClass 応答データのクラス
-     * @return 変換されたApiResponseRecord
-     * @throws CommandLineInputOutputException APIレスポンスの処理中にエラーが発生した場合
+     *
+     * @param <T> 応答データの型。
+     * @param response 処理するHttpResponse。
+     * @param responseClass 応答データのクラス。
+     * @return 変換されたApiResponseRecord。
+     * @throws CommandLineInputOutputException APIレスポンスの処理中にエラーが発生した場合。
      */
     public static <T> ApiResponseRecord<T> handleResponse(
             final HttpResponse response, final Class<T> responseClass) {
@@ -48,31 +48,13 @@ public final class ApiResponseHandler {
     }
 
     /**
-     * HttpResponseをGenericJsonとしてApiResponseRecordに変換します。
-     * 
-     * @param response 処理するHttpResponse
-     * @return 変換されたApiResponseRecord
-     * @throws CommandLineInputOutputException APIレスポンスの処理中にエラーが発生した場合
-     */
-    public static ApiResponseRecord<GenericJson> handleJsonResponse(final HttpResponse response) {
-        return handleResponse(response, r -> {
-            try {
-                return r.parseAs(GenericJson.class);
-            } catch (final IOException e) {
-                throw new CommandLineInputOutputException(
-                        "Failed to parse JSON response: " + e.getMessage(), e);
-            }
-        });
-    }
-
-    /**
      * HttpResponseを指定された変換関数を使用してApiResponseRecordに変換します。
-     * 
-     * @param <T> 応答データの型
-     * @param response 処理するHttpResponse
-     * @param converter レスポンスをデータ型に変換する関数
-     * @return 変換されたApiResponseRecord
-     * @throws CommandLineInputOutputException APIレスポンスの処理中にエラーが発生した場合
+     *
+     * @param <T> 応答データの型。
+     * @param response 処理するHttpResponse。
+     * @param converter レスポンスをデータ型に変換する関数。
+     * @return 変換されたApiResponseRecord。
+     * @throws CommandLineInputOutputException APIレスポンスの処理中にエラーが発生した場合。
      */
     public static <T> ApiResponseRecord<T> handleResponse(
             final HttpResponse response, final Function<HttpResponse, T> converter) {
@@ -119,8 +101,26 @@ public final class ApiResponseHandler {
     }
 
     /**
+     * HttpResponseをGenericJsonとしてApiResponseRecordに変換します。
+     *
+     * @param response 処理するHttpResponse。
+     * @return 変換されたApiResponseRecord。
+     * @throws CommandLineInputOutputException APIレスポンスの処理中にエラーが発生した場合。
+     */
+    public static ApiResponseRecord<GenericJson> handleJsonResponse(final HttpResponse response) {
+        return handleResponse(response, r -> {
+            try {
+                return r.parseAs(GenericJson.class);
+            } catch (final IOException e) {
+                throw new CommandLineInputOutputException(
+                        "Failed to parse JSON response: " + e.getMessage(), e);
+            }
+        });
+    }
+
+    /**
      * ヘッダーマップからヘッダー情報を抽出します。
-     * 
+     *
      * @param headerMap 元のヘッダーマップ
      * @return 処理済みのヘッダーマップ
      */
@@ -142,7 +142,7 @@ public final class ApiResponseHandler {
 
     /**
      * オブジェクト値を文字列リストに変換します。
-     * 
+     *
      * @param values 変換するオブジェクト
      * @return 文字列のリスト
      */
@@ -163,7 +163,7 @@ public final class ApiResponseHandler {
 
     /**
      * コレクションの各要素を文字列リストに追加します。
-     * 
+     *
      * @param collection 処理するコレクション
      * @param stringValues 文字列を追加するリスト
      */
@@ -177,10 +177,10 @@ public final class ApiResponseHandler {
     }
 
     /**
-     * <p>配列の各要素を文字列リストに追加します。</p>
-     * 
-     * @param array 処理する配列
-     * @param stringValues 文字列を追加するリスト
+     * 配列の各要素を文字列リストに追加します。
+     *
+     * @param array 処理する配列。
+     * @param stringValues 文字列を追加するリスト。
      */
     private static void processArray(final Object[] array, final List<String> stringValues) {
         for (final Object value : array) {
@@ -192,7 +192,7 @@ public final class ApiResponseHandler {
 
     /**
      * HttpResponseExceptionからエラー応答レコードを作成します。
-     * 
+     *
      * @param <T> 応答データの型
      * @param e HttpResponseException
      * @return エラー応答レコード
@@ -213,7 +213,7 @@ public final class ApiResponseHandler {
 
     /**
      * HTTPステータスコードに基づいてレスポンスステータスを決定します。
-     * 
+     *
      * @param statusCode HTTPステータスコード
      * @return 対応するレスポンスステータス
      */

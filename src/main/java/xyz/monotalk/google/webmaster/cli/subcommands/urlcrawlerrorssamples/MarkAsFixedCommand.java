@@ -1,8 +1,8 @@
 /**
- * MarkAsFixedCommandクラス - URLを修正済みとしてマークするコマンド。
+ * URLクロールエラーサンプルを修正済みとしてマークするコマンドクラス。
  *
  * <p>このクラスは、Google Search Console APIを使用して、
- * 指定されたURLを修正済みとしてマークします。</p>
+ * 指定されたURLを修正済みとしてマークします。ただし、現在このAPIは利用できません。</p>
  *
  * <p>注意: Google Search Console APIの変更により現在このAPIは利用できません。</p>
  *
@@ -21,6 +21,11 @@ import xyz.monotalk.google.webmaster.cli.CommandLineInputOutputException;
 import xyz.monotalk.google.webmaster.cli.Format;
 import xyz.monotalk.google.webmaster.cli.ResponseWriter;
 
+/**
+ * URLクロールエラーサンプルを修正済みとしてマークするコマンド。
+ * 注: Google Search Console API変更により現在このAPIは利用できません
+ * 
+ */
 @Component
 public class MarkAsFixedCommand implements Command {
 

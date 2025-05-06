@@ -25,7 +25,7 @@ import xyz.monotalk.google.webmaster.cli.WebmastersFactory;
 public class GetCommand implements Command {
 
     /**
-     * WebmastersファクトリーインスタンスDI用
+     * WebmastersファクトリーインスタンスDI用。
      */
     @Autowired
     protected WebmastersFactory factory;
@@ -95,6 +95,11 @@ public class GetCommand implements Command {
         }
     }
 
+    /**
+     * コマンドの使用方法を返します。
+     *
+     * @return 使用方法の説明。
+     */
     @Override
     public String usage() {
         return "Gets information about a specific sitemap";

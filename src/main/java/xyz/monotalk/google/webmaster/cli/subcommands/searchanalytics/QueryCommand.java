@@ -110,11 +110,10 @@ public class QueryCommand implements Command {
     }
 
     /**
-     * 検索分析APIリクエストを実行します
+     * 検索分析APIリクエストを実行します。
      *
-     * 
-@param query 検索分析クエリリクエスト
-     * @return 検索分析クエリレスポンス（エラー時はnull）
+     * @param query 検索分析クエリリクエスト。
+     * @return 検索分析クエリレスポンス（エラー時はnull）。
      */
     private SearchAnalyticsQueryResponse executeApiRequest(final SearchAnalyticsQueryRequest query) {
         try {
@@ -128,10 +127,9 @@ public class QueryCommand implements Command {
     }
 
     /**
-     * レスポンス全体を出力します
+     * レスポンス全体を出力します。
      *
-     * 
-@param response 検索分析クエリレスポンス
+     * @param response 検索分析クエリレスポンス。
      */
     private void printFullResponse(final SearchAnalyticsQueryResponse response) {
         out.println("searchAnalyticsQueryResponse#.toPrettyString() START>>>");
@@ -150,10 +148,9 @@ public class QueryCommand implements Command {
     }
 
     /**
-     * レスポンスの各行データを出力します
+     * レスポンスの各行データを出力します。
      *
-     * 
-@param response 検索分析クエリレスポンス
+     * @param response 検索分析クエリレスポンス。
      */
     private void printRowsData(final SearchAnalyticsQueryResponse response) {
         if (response == null || response.getRows() == null) {
