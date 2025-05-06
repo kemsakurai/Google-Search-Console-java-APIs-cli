@@ -15,7 +15,10 @@ import xyz.monotalk.google.webmaster.cli.CommandLineInputOutputException;
 import xyz.monotalk.google.webmaster.cli.WebmastersFactory;
 
 /**
- * SubmitCommandクラス - サイトマップ送信コマンド
+ * SubmitCommandクラス - サイトマップ送信コマンド。
+ *
+ * <p>このクラスは、Google Search Console APIを使用して、
+ * 指定されたサイトのサイトマップを送信します。</p>
  */
 @Component
 public class SubmitCommand implements Command {
@@ -40,6 +43,13 @@ public class SubmitCommand implements Command {
         // デフォルトコンストラクタ
     }
 
+    /**
+     * サイトマップ送信コマンドを実行します。
+     *
+     * <p>このコマンドは、指定されたサイトのサイトマップをGoogle Search Consoleに送信します。</p>
+     *
+     * @throws CommandLineInputOutputException 入出力エラーが発生した場合。
+     */
     @Override
     public void execute() {
         validateParameters();
@@ -54,6 +64,9 @@ public class SubmitCommand implements Command {
         }
     }
 
+    /**
+     * サイトマップを送信するコマンドです。
+     */
     private void validateParameters() {
         if (siteUrl == null) {
             throw new CmdLineArgmentException("Site URL is required");
@@ -63,12 +76,22 @@ public class SubmitCommand implements Command {
         }
     }
 
+    /**
+     * サイトURLを設定します。
+     *
+     * @param siteUrl サイトのURL。
+     */
     private void logSubmissionStart() {
         if (LOGGER.isInfoEnabled()) {
             LOGGER.info("Submitting sitemap {} for site {}", feedpath, siteUrl);
         }
     }
 
+    /**
+     * サイトマップのURLを設定します。
+     *
+     * @param sitemapUrl サイトマップのURL。
+     */
     private Webmasters createWebmastersClient() {
         final Webmasters webmasters = factory.create();
         if (webmasters == null) {
@@ -82,6 +105,11 @@ public class SubmitCommand implements Command {
         request.execute();
     }
 
+    /**
+     * サイトマップを送信します。
+     *
+     * @throws CommandLineInputOutputException API実行エラーが発生した場合。
+     */
     private void logSubmissionSuccess() {
         if (LOGGER.isInfoEnabled()) {
             LOGGER.info("Sitemap submitted successfully");

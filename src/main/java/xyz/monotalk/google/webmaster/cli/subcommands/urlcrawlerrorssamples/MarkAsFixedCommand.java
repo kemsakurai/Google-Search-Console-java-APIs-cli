@@ -1,9 +1,9 @@
 /**
- * URLクロールエラーを修正済みとしてマークするコマンドです。
+ * URLクロールエラーを修正済みとしてマークするコマンド。
  *
- * <p>
- * このコマンドは、指定されたURLのクロールエラーを修正済みとしてマークします。
- * </p>
+ * <p>このコマンドは、指定されたURLのクロールエラーを修正済みとしてマークします。</p>
+ *
+ * <p>注意: Google Search Console APIの変更により現在このAPIは利用できません。</p>
  *
  * @author Kensakurai
  */
@@ -13,35 +13,24 @@ package xyz.monotalk.google.webmaster.cli.subcommands.urlcrawlerrorssamples;
 import org.kohsuke.args4j.Option;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import xyz.monotalk.google.webmaster.cli.CmdLineArgmentException;
 import xyz.monotalk.google.webmaster.cli.Command;
 import xyz.monotalk.google.webmaster.cli.CommandLineInputOutputException;
 import xyz.monotalk.google.webmaster.cli.Format;
 import xyz.monotalk.google.webmaster.cli.ResponseWriter;
-import xyz.monotalk.google.webmaster.cli.WebmastersFactory;
 
-/**
- * URLクロールエラーサンプルを修正済みとしてマークするコマンド。
- * 注: Google Search Console API変更により現在このAPIは利用できません。
- * 
- */
 @Component
 public class MarkAsFixedCommand implements Command {
 
     /** ロガーインスタンス。 */
     private static final Logger LOGGER = LoggerFactory.getLogger(MarkAsFixedCommand.class);
 
-    /** Webmasters APIクライアント生成ファクトリ。 */
-    @Autowired
-    private WebmastersFactory factory;
-
     /** 修正済みとしてマークするURL。 */
     @Option(name = "-url", usage = "URL to mark as fixed", required = true)
     private String url;
 
-    /** プラットフォーム (web, mobile, smartphoneOnly) */
+    /** プラットフォーム (web, mobile, smartphoneOnly)。 */
     @Option(name = "-platform", usage = "Platform (web, mobile, smartphoneOnly)", required = true)
     private String platform = "web";
 
@@ -66,9 +55,26 @@ public class MarkAsFixedCommand implements Command {
     }
 
     /**
+     * プラットフォームを設定します。
+     *
+     * @param platform プラットフォーム (web, mobile, smartphoneOnly)
+     */
+    public void setPlatform(final String platform) {
+        this.platform = platform;
+    }
+
+    /**
+     * エラーカテゴリを設定します。
+     *
+     * @param category エラーカテゴリ
+     */
+    public void setCategory(final String category) {
+        this.category = category;
+    }
+
+    /**
      * URLクロールエラーサンプルを修正済みとマークする処理を試みますが、現在のAPI互換性の問題により使用できないことを通知します。
      * Google Search Console API変更により、このAPIは利用できなくなりました。
-     * 
      */
     @Override
     public void execute() {

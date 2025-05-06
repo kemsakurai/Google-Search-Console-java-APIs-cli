@@ -30,12 +30,12 @@ public record ApiResponseRecord<T>(
      * API応答のステータスを表す列挙型。
      */
     public enum ResponseStatus {
-    SUCCESS,
-    ERROR,
-    REDIRECT,
-    NOT_FOUND,
-    UNAUTHORIZED,
-    RATE_LIMITED
+        SUCCESS,
+        ERROR,
+        REDIRECT,
+        NOT_FOUND,
+        UNAUTHORIZED,
+        RATE_LIMITED
     }
 
     /**
@@ -44,87 +44,87 @@ public record ApiResponseRecord<T>(
      * @param <T> 応答データの型
      */
     public static class Builder<T> {
-    private ResponseStatus status = ResponseStatus.SUCCESS;
-    private int statusCode = 200;
-    private LocalDateTime timestamp = LocalDateTime.now();
-    private T data = null;
-    private Map<String, List<String>> headers = Map.of();
-    private String errorMessage = null;
+        private ResponseStatus status = ResponseStatus.SUCCESS;
+        private int statusCode = 200;
+        private LocalDateTime timestamp = LocalDateTime.now();
+        private T data = null;
+        private Map<String, List<String>> headers = Map.of();
+        private String errorMessage = null;
 
-    /**
-     * ステータスを設定します。
-     *
-     * @param status 応答ステータス
-     * @return このビルダー
-     */
-    public Builder<T> status(ResponseStatus status) {
-        this.status = status;
-        return this;
-    }
+        /**
+         * ステータスを設定します。
+         *
+         * @param status 応答ステータス
+         * @return このビルダー
+         */
+        public Builder<T> status(ResponseStatus status) {
+            this.status = status;
+            return this;
+        }
 
-    /**
-     * HTTPステータスコードを設定します。
-     *
-     * @param statusCode HTTPステータスコード
-     * @return このビルダー
-     */
-    public Builder<T> statusCode(int statusCode) {
-        this.statusCode = statusCode;
-        return this;
-    }
+        /**
+         * HTTPステータスコードを設定します。
+         *
+         * @param statusCode HTTPステータスコード
+         * @return このビルダー
+         */
+        public Builder<T> statusCode(int statusCode) {
+            this.statusCode = statusCode;
+            return this;
+        }
 
-    /**
-     * タイムスタンプを設定します。
-     *
-     * @param timestamp 応答タイムスタンプ
-     * @return このビルダー
-     */
-    public Builder<T> timestamp(LocalDateTime timestamp) {
-        this.timestamp = timestamp;
-        return this;
-    }
+        /**
+         * タイムスタンプを設定します。
+         *
+         * @param timestamp 応答タイムスタンプ
+         * @return このビルダー
+         */
+        public Builder<T> timestamp(LocalDateTime timestamp) {
+            this.timestamp = timestamp;
+            return this;
+        }
 
-    /**
-     * 応答データを設定します。
-     *
-     * @param data 応答データ
-     * @return このビルダー
-     */
-    public Builder<T> data(T data) {
-        this.data = data;
-        return this;
-    }
+        /**
+         * 応答データを設定します。
+         *
+         * @param data 応答データ
+         * @return このビルダー
+         */
+        public Builder<T> data(T data) {
+            this.data = data;
+            return this;
+        }
 
-    /**
-     * レスポンスヘッダーを設定します。
-     *
-     * @param headers レスポンスヘッダー
-     * @return このビルダー
-     */
-    public Builder<T> headers(Map<String, List<String>> headers) {
-        this.headers = headers;
-        return this;
-    }
+        /**
+         * レスポンスヘッダーを設定します。
+         *
+         * @param headers レスポンスヘッダー
+         * @return このビルダー
+         */
+        public Builder<T> headers(Map<String, List<String>> headers) {
+            this.headers = headers;
+            return this;
+        }
 
-    /**
-     * エラーメッセージを設定します。
-     *
-     * @param errorMessage エラーメッセージ
-     * @return このビルダー
-     */
-    public Builder<T> errorMessage(String errorMessage) {
-        this.errorMessage = errorMessage;
-        return this;
-    }
+        /**
+         * エラーメッセージを設定します。
+         *
+         * @param errorMessage エラーメッセージ
+         * @return このビルダー
+         */
+        public Builder<T> errorMessage(String errorMessage) {
+            this.errorMessage = errorMessage;
+            return this;
+        }
 
-    /**
-     * ApiResponseRecordを構築します。
-     *
-     * @return 構築されたApiResponseRecord
-     */
-    public ApiResponseRecord<T> build() {
-        return new ApiResponseRecord<>(status, statusCode, timestamp, data, headers, errorMessage);
-    }
+        /**
+         * ApiResponseRecordを構築します。
+         *
+         * @return 構築されたApiResponseRecord
+         */
+        public ApiResponseRecord<T> build() {
+            return new ApiResponseRecord<>(status, statusCode, timestamp, data, headers, errorMessage);
+        }
     }
 
     /**
@@ -134,7 +134,7 @@ public record ApiResponseRecord<T>(
      * @return 新しいビルダーインスタンス
      */
     public static <T> Builder<T> builder() {
-    return new Builder<>();
+        return new Builder<>();
     }
 
     /**
@@ -145,11 +145,11 @@ public record ApiResponseRecord<T>(
      * @return 成功応答
      */
     public static <T> ApiResponseRecord<T> success(T data) {
-    return new Builder<T>()
-        .status(ResponseStatus.SUCCESS)
-        .statusCode(200)
-        .data(data)
-        .build();
+        return new Builder<T>()
+            .status(ResponseStatus.SUCCESS)
+            .statusCode(200)
+            .data(data)
+            .build();
     }
 
     /**
@@ -161,11 +161,11 @@ public record ApiResponseRecord<T>(
      * @return エラー応答
      */
     public static <T> ApiResponseRecord<T> error(String errorMessage, int statusCode) {
-    return new Builder<T>()
-        .status(ResponseStatus.ERROR)
-        .statusCode(statusCode)
-        .errorMessage(errorMessage)
-        .build();
+        return new Builder<T>()
+            .status(ResponseStatus.ERROR)
+            .statusCode(statusCode)
+            .errorMessage(errorMessage)
+            .build();
     }
 
     /**
@@ -174,7 +174,7 @@ public record ApiResponseRecord<T>(
      * @return 成功の場合はtrue
      */
     public boolean isSuccess() {
-    return status == ResponseStatus.SUCCESS && statusCode >= 200 && statusCode < 300;
+        return status == ResponseStatus.SUCCESS && statusCode >= 200 && statusCode < 300;
     }
 
     /**
@@ -183,7 +183,7 @@ public record ApiResponseRecord<T>(
      * @return エラーメッセージを含むOptional
      */
     public Optional<String> getErrorMessage() {
-    return Optional.ofNullable(errorMessage);
+        return Optional.ofNullable(errorMessage);
     }
 
     /**
@@ -192,6 +192,6 @@ public record ApiResponseRecord<T>(
      * @return データを含むOptional
      */
     public Optional<T> getData() {
-    return Optional.ofNullable(data);
+        return Optional.ofNullable(data);
     }
 }

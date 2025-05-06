@@ -49,7 +49,7 @@ public class DeleteCommand implements Command {
 
     /**
      * サイトマップを削除します。
-     * 
+     *
      * @throws CommandLineInputOutputException 入出力操作中にエラーが発生した場合。
      */
     @Override
@@ -76,10 +76,8 @@ public class DeleteCommand implements Command {
 
     /**
      * サイトURLを設定します。
-     * 
-     * 
-@param siteUrl
-     *            サイトのURL。
+     *
+     * @param siteUrl サイトのURL。
      */
     public void setSiteUrl(final String siteUrl) {
         this.siteUrl = siteUrl;
@@ -87,10 +85,8 @@ public class DeleteCommand implements Command {
 
     /**
      * サイトマップのフィードパスを設定します。
-     * 
-     * 
-@param feedPath
-     *            サイトマップのフィードパス。
+     *
+     * @param feedPath サイトマップのフィードパス。
      */
     public void setFeedPath(final String feedPath) {
         this.feedPath = feedPath;

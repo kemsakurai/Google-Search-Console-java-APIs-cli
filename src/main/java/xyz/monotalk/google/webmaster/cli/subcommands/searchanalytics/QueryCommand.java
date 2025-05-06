@@ -34,7 +34,7 @@ public class QueryCommand implements Command {
     private static final Logger LOGGER = LoggerFactory.getLogger(QueryCommand.class);
 
     /**
-     * デフォルトコンストラクタ
+     * デフォルトコンストラクタ。
      */
     public QueryCommand() {
         // デフォルトコンストラクタ
@@ -42,7 +42,7 @@ public class QueryCommand implements Command {
 
     /**
      * Google Search Console APIからデータを取得するクエリコマンドを実行します。
-     * 
+     *
      * @throws CmdLineIOException API呼び出し中にIOエラーが発生した場合。
      */
     @Override
@@ -71,7 +71,7 @@ public class QueryCommand implements Command {
     }
 
     /**
-     * 検索分析クエリリクエストを作成します
+     * 検索分析クエリリクエストを作成します。
      *
      * @return 設定済みの検索分析クエリリクエスト
      */

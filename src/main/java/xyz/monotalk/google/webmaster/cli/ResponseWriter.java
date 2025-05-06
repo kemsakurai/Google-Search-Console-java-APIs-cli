@@ -1,11 +1,9 @@
 package xyz.monotalk.google.webmaster.cli;
 
 import com.google.api.client.json.GenericJson;
-
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -27,8 +25,7 @@ public final class ResponseWriter {
 
     /**
      * レスポンスを出力します。
-     * フォーマットに応じて適切な出力先に書き込みを行います。
-     * 
+     *
      * @param response 出力するレスポンスオブジェクト
      * @param format 出力フォーマット
      * @param path 出力先のファイルパス

@@ -3,9 +3,7 @@ package xyz.monotalk.google.webmaster.cli;
 /**
  * コマンドライン引数に関する例外を表します。
  *
- * <p>
- * この例外は、無効な引数が提供された場合にスローされます。
- * </p>
+ * <p>この例外は、無効な引数が提供された場合にスローされます。</p>
  */
 public class CmdLineArgmentException extends IllegalArgumentException {
     private static final long serialVersionUID = 1L;

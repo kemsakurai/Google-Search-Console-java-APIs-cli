@@ -4,6 +4,8 @@ import com.google.api.client.http.GenericUrl;
 import com.google.api.client.http.HttpRequest;
 import com.google.api.client.http.HttpRequestFactory;
 import com.google.api.client.json.GenericJson;
+import java.util.HashMap;
+import java.util.Map;
 import org.kohsuke.args4j.Option;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,9 +18,6 @@ import xyz.monotalk.google.webmaster.cli.ResponseWriter;
 import xyz.monotalk.google.webmaster.cli.WebmastersFactory;
 import xyz.monotalk.google.webmaster.cli.model.ApiResponseHandler;
 import xyz.monotalk.google.webmaster.cli.model.ApiResponseRecord;
-
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * API情報を取得するコマンドクラス。
@@ -68,6 +67,12 @@ public class ApiInfoCommand implements Command {
         }
     }
 
+    /**
+     * API情報を取得します。
+     *
+     * @return API情報を含むレスポンスレコード
+     * @throws Exception API呼び出し中にエラーが発生した場合
+     */
     private ApiResponseRecord<GenericJson> fetchApiInfo() throws Exception {
         var client = factory.create();
         HttpRequestFactory requestFactory = client.getRequestFactory();
@@ -76,7 +81,11 @@ public class ApiInfoCommand implements Command {
         return ApiResponseHandler.handleJsonResponse(request.execute());
     }
 
-    @SuppressWarnings("unchecked")
+    /**
+     * 取得したAPI情報を処理します。
+     *
+     * @param apiInfo API情報のJSONオブジェクト
+     */
     private void processApiInfo(GenericJson apiInfo) {
         Map<String, Object> result = new HashMap<>();
         result.put("apiName", apiInfo.get("name"));
