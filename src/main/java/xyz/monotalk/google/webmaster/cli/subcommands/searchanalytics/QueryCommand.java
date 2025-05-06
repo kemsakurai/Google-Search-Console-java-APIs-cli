@@ -18,7 +18,10 @@ import xyz.monotalk.google.webmaster.cli.Command;
 import xyz.monotalk.google.webmaster.cli.WebmastersFactory;
 
 /**
- * QueryCommandクラス - Search Analyticsデータのクエリを実行するコマンド。
+ * QueryCommandクラス - 検索分析クエリコマンド。
+ *
+ * <p>このクラスは、Google Search Console APIを使用して、
+ * 検索分析クエリを実行します。</p>
  */
 @Component
 public class QueryCommand implements Command {
@@ -34,7 +37,7 @@ public class QueryCommand implements Command {
     private static final Logger LOGGER = LoggerFactory.getLogger(QueryCommand.class);
 
     /**
-     * デフォルトコンストラクタ
+     * デフォルトコンストラクタ。
      */
     public QueryCommand() {
         // デフォルトコンストラクタ
@@ -42,7 +45,7 @@ public class QueryCommand implements Command {
 
     /**
      * Google Search Console APIからデータを取得するクエリコマンドを実行します。
-     * 
+     *
      * @throws CmdLineIOException API呼び出し中にIOエラーが発生した場合。
      */
     @Override
@@ -71,7 +74,7 @@ public class QueryCommand implements Command {
     }
 
     /**
-     * 検索分析クエリリクエストを作成します
+     * 検索分析クエリリクエストを作成します。
      *
      * @return 設定済みの検索分析クエリリクエスト
      */
@@ -107,11 +110,10 @@ public class QueryCommand implements Command {
     }
 
     /**
-     * 検索分析APIリクエストを実行します
+     * 検索分析APIリクエストを実行します。
      *
-     * 
-@param query 検索分析クエリリクエスト
-     * @return 検索分析クエリレスポンス（エラー時はnull）
+     * @param query 検索分析クエリリクエスト。
+     * @return 検索分析クエリレスポンス（エラー時はnull）。
      */
     private SearchAnalyticsQueryResponse executeApiRequest(final SearchAnalyticsQueryRequest query) {
         try {
@@ -125,10 +127,9 @@ public class QueryCommand implements Command {
     }
 
     /**
-     * レスポンス全体を出力します
+     * レスポンス全体を出力します。
      *
-     * 
-@param response 検索分析クエリレスポンス
+     * @param response 検索分析クエリレスポンス。
      */
     private void printFullResponse(final SearchAnalyticsQueryResponse response) {
         out.println("searchAnalyticsQueryResponse#.toPrettyString() START>>>");
@@ -147,10 +148,9 @@ public class QueryCommand implements Command {
     }
 
     /**
-     * レスポンスの各行データを出力します
+     * レスポンスの各行データを出力します。
      *
-     * 
-@param response 検索分析クエリレスポンス
+     * @param response 検索分析クエリレスポンス。
      */
     private void printRowsData(final SearchAnalyticsQueryResponse response) {
         if (response == null || response.getRows() == null) {

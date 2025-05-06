@@ -75,7 +75,7 @@ public class ListCommandTest {
         // ResponseWriter.writeJsonをモック化してエラーをスロー
         try (MockedStatic<ResponseWriter> mockedStatic = Mockito.mockStatic(ResponseWriter.class)) {
             mockedStatic.when(() -> ResponseWriter.writeJson(anyString(), eq(Format.CONSOLE), eq(null)))
-                .thenThrow(new RuntimeException("テスト例外"));
+                .thenThrow(new CommandLineInputOutputException("テスト例外"));
 
             // When
             command.execute();

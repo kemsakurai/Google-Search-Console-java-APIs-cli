@@ -7,41 +7,41 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import xyz.monotalk.google.webmaster.cli.CommandLineInputOutputException;
 import xyz.monotalk.google.webmaster.cli.Command;
+import xyz.monotalk.google.webmaster.cli.CommandLineInputOutputException;
 import xyz.monotalk.google.webmaster.cli.WebmastersFactory;
 
 /**
- * DeleteCommandクラス - サイトマップ削除コマンド
+ * DeleteCommandクラス - サイトマップ削除コマンド。
  */
 @Component
 public class DeleteCommand implements Command {
 
     /**
-     * ロガーインスタンス
+     * ロガーインスタンス。
      */
     private static final Logger LOGGER = LoggerFactory.getLogger(DeleteCommand.class);
     
     /**
-     * WebmastersファクトリインスタンスへのAutowired参照
+     * WebmastersファクトリインスタンスへのAutowired参照。
      */
     @Autowired
     private WebmastersFactory factory;
 
     /**
-     * サイトのURL
+     * サイトのURL。
      */
     @Option(name = "-siteUrl", usage = "Url of site", required = true)
     private String siteUrl;
 
     /**
-     * サイトマップのフィードパス
+     * サイトマップのフィードパス。
      */
     @Option(name = "-feedPath", usage = "Url of feedPath", required = true)
     private String feedPath;
         
     /**
-     * デフォルトコンストラクタ
+     * デフォルトコンストラクタ。
      */
     public DeleteCommand() {
         // デフォルトコンストラクタ
@@ -49,7 +49,7 @@ public class DeleteCommand implements Command {
 
     /**
      * サイトマップを削除します。
-     * 
+     *
      * @throws CommandLineInputOutputException 入出力操作中にエラーが発生した場合。
      */
     @Override
@@ -76,10 +76,8 @@ public class DeleteCommand implements Command {
 
     /**
      * サイトURLを設定します。
-     * 
-     * 
-@param siteUrl
-     *            サイトのURL。
+     *
+     * @param siteUrl サイトのURL。
      */
     public void setSiteUrl(final String siteUrl) {
         this.siteUrl = siteUrl;
@@ -87,10 +85,8 @@ public class DeleteCommand implements Command {
 
     /**
      * サイトマップのフィードパスを設定します。
-     * 
-     * 
-@param feedPath
-     *            サイトマップのフィードパス。
+     *
+     * @param feedPath サイトマップのフィードパス。
      */
     public void setFeedPath(final String feedPath) {
         this.feedPath = feedPath;

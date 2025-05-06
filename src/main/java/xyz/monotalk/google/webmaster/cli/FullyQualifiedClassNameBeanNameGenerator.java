@@ -10,7 +10,7 @@ import org.springframework.context.annotation.AnnotationBeanNameGenerator;
 public class FullyQualifiedClassNameBeanNameGenerator extends AnnotationBeanNameGenerator {
 
     /**
-     * デフォルトコンストラクタ
+     * デフォルトコンストラクタ。
      */
     public FullyQualifiedClassNameBeanNameGenerator() {
         super();

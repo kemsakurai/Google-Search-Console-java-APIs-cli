@@ -11,12 +11,12 @@ import xyz.monotalk.google.webmaster.cli.WebmastersFactory;
 @Component
 public class GetCommand implements Command {
 
-    /** Webmasters APIクライアント生成ファクトリ */
+    /** Webmasters APIクライアント生成ファクトリ。 */
     @Autowired
     private WebmastersFactory factory;
-    
+
     /**
-     * デフォルトコンストラクタ
+     * デフォルトコンストラクタ。
      */
     public GetCommand() {
         // デフォルトコンストラクタ

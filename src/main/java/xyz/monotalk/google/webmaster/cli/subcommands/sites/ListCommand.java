@@ -7,33 +7,25 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import xyz.monotalk.google.webmaster.cli.CommandLineInputOutputException;
 import xyz.monotalk.google.webmaster.cli.Command;
+import xyz.monotalk.google.webmaster.cli.CommandLineInputOutputException;
 import xyz.monotalk.google.webmaster.cli.Format;
 import xyz.monotalk.google.webmaster.cli.ResponseWriter;
 import xyz.monotalk.google.webmaster.cli.WebmastersFactory;
 
 /**
- * サイト一覧を取得するコマンドクラス
+ * サイト一覧を取得するコマンドクラス。
  */
-
 @Component
 public class ListCommand implements Command {
 
-    /**
-     * ロガーインスタンス
-     */
+    /** ロガーインスタンス。 */
     private static final Logger LOGGER = LoggerFactory.getLogger(ListCommand.class);
 
-    /**
-     * WebmastersファクトリーインスタンスDI用
-     */
-    @Autowired
-    private WebmastersFactory factory;
+    /** WebmastersファクトリーインスタンスDI用。 */
+    @Autowired private WebmastersFactory factory;
 
-    /**
-     * デフォルトコンストラクタ
-     */
+    /** デフォルトコンストラクタ。 */
     public ListCommand() {
         // デフォルトコンストラクタ
     }
@@ -46,13 +38,13 @@ public class ListCommand implements Command {
         if (LOGGER.isInfoEnabled()) {
             LOGGER.info("Retrieving site list");
         }
-        
+
         try {
             final Webmasters webmasters = factory.create();
             final Webmasters.Sites.List list = webmasters.sites().list();
             final SitesListResponse response = list.execute();
             ResponseWriter.writeJson(response, Format.CONSOLE, null);
-            
+
             if (LOGGER.isInfoEnabled()) {
                 LOGGER.info("Site list retrieved successfully");
             }

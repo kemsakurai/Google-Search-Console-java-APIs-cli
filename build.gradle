@@ -146,26 +146,24 @@ jar {
 
 // Checkstyleの設定
 checkstyle {
-    toolVersion = '10.14.2'
+    toolVersion = '10.23.1'
     configFile = file("${rootDir}/config/checkstyle/checkstyle.xml")
-    ignoreFailures = true // falseからtrueに変更してビルドが失敗しないようにする
     maxWarnings = 1000 // 0から1000に変更して一時的に警告を許容する
 }
 
 // PMDの設定
 pmd {
-    toolVersion = '7.0.0'  // 7.15.0から7.0.0に変更
+    toolVersion = '7.13.0'  // 7.15.0から7.0.0に変更
     ruleSetFiles = files("${rootDir}/config/pmd/ruleset.xml")
-    ignoreFailures = true // 一時的に失敗を無視する
     consoleOutput = true
 }
 
 // SpotBugsの設定
 spotbugs {
-    toolVersion = '4.8.0'
-    ignoreFailures = true // 一時的に失敗を無視する
+    toolVersion = '4.8.1'
     effort = 'default'
     reportLevel = 'medium'
+    showStackTraces = true
 }
 
 spotbugsMain {

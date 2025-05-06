@@ -15,69 +15,72 @@ import xyz.monotalk.google.webmaster.cli.CommandLineInputOutputException;
 import xyz.monotalk.google.webmaster.cli.WebmastersFactory;
 
 /**
- * SubmitCommandクラス - サイトマップ送信コマンド
+ * サイトマップを送信するコマンドクラス。
  */
 @Component
 public class SubmitCommand implements Command {
-
     /**
-     * ロガーインスタンス
+     * ロガーインスタンス。
      */
     private static final Logger LOGGER = LoggerFactory.getLogger(SubmitCommand.class);
 
     /**
-     * WebmastersファクトリーインスタンスDI用
+     * Webmasters APIクライアント生成ファクトリ。
      */
     @Autowired
     private WebmastersFactory factory;
 
     /**
-     * サイトURL
+     * サイトURLを指定します。
+     * このURLはGoogle Search Consoleで管理されているサイトのURLである必要があります。
      */
-    @Option(name = "-siteUrl", usage = "Site URL", metaVar = "<siteUrl>", required = true,
+    @Option(
+            name = "-siteUrl",
+            usage = "Site URL",
+            metaVar = "<siteUrl>",
+            required = true,
             handler = URLOptionHandler.class)
     protected URL siteUrl;
 
     /**
-     * フィードパス
+     * サイトマップのフィードパス。
+     * サイトマップの相対パスまたは完全なURLを指定します。
      */
     @Option(name = "-feedpath", usage = "Feed path", required = true)
     protected String feedpath;
 
     /**
-     * デフォルトコンストラクタ
+     * デフォルトコンストラクタ。
      */
     public SubmitCommand() {
         // デフォルトコンストラクタ
     }
 
+    /**
+     * サイトマップ送信コマンドを実行します。
+     *
+     * <p>このコマンドは、指定されたサイトのサイトマップをGoogle Search Consoleに送信します。</p>
+     *
+     * @throws CommandLineInputOutputException 入出力エラーが発生した場合。
+     */
     @Override
     public void execute() {
-        // パラメータのバリデーション
         validateParameters();
-        
-        // 処理開始ログ出力
         logSubmissionStart();
-        
+
         try {
-            // Webmastersクライアントの作成
             final Webmasters webmasters = createWebmastersClient();
-            
-            // サイトマップの送信リクエスト実行
             submitSitemap(webmasters);
-            
-            // 成功ログ出力
             logSubmissionSuccess();
         } catch (IOException e) {
-            // エラーログ出力と例外スロー
             handleException(e);
         }
     }
 
     /**
-     * パラメータの妥当性を検証します
-     * 
-     * @throws CmdLineArgmentException パラメータが無効な場合
+     * サイトマップ送信のためのパラメータを検証します。
+     *
+     * @throws CmdLineArgmentException 必須パラメータが不足している場合。
      */
     private void validateParameters() {
         if (siteUrl == null) {
@@ -89,7 +92,9 @@ public class SubmitCommand implements Command {
     }
 
     /**
-     * サイトマップ送信開始のログを出力します
+     * サイトURLを設定します。
+     *
+     * @param siteUrl サイトのURL。
      */
     private void logSubmissionStart() {
         if (LOGGER.isInfoEnabled()) {
@@ -98,10 +103,9 @@ public class SubmitCommand implements Command {
     }
 
     /**
-     * Webmastersクライアントを作成します
-     * 
-     * @return 作成されたWebmastersクライアント
-     * @throws CommandLineInputOutputException クライアント作成に失敗した場合
+     * サイトマップのURLを設定します。
+     *
+     * @param sitemapUrl サイトマップのURL。
      */
     private Webmasters createWebmastersClient() {
         final Webmasters webmasters = factory.create();
@@ -111,20 +115,15 @@ public class SubmitCommand implements Command {
         return webmasters;
     }
 
-    /**
-     * サイトマップを送信します
-     * 
-     * 
-@param webmasters Webmastersクライアント
-     * @throws IOException API実行エラーが発生した場合
-     */
     private void submitSitemap(final Webmasters webmasters) throws IOException {
         final Webmasters.Sitemaps.Submit request = webmasters.sitemaps().submit(siteUrl.toString(), feedpath);
         request.execute();
     }
 
     /**
-     * サイトマップ送信成功のログを出力します
+     * サイトマップを送信します。
+     *
+     * @throws CommandLineInputOutputException API実行エラーが発生した場合。
      */
     private void logSubmissionSuccess() {
         if (LOGGER.isInfoEnabled()) {
@@ -132,13 +131,6 @@ public class SubmitCommand implements Command {
         }
     }
 
-    /**
-     * 例外を処理します
-     * 
-     * 
-@param exception 発生した例外
-     * @throws CommandLineInputOutputException ラップされた例外
-     */
     private void handleException(final IOException exception) {
         if (LOGGER.isErrorEnabled()) {
             LOGGER.error("Failed to submit sitemap", exception);

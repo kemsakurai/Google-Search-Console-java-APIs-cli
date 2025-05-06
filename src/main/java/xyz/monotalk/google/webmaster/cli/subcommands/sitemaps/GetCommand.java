@@ -1,41 +1,48 @@
 package xyz.monotalk.google.webmaster.cli.subcommands.sitemaps;
 
+import com.google.api.services.webmasters.Webmasters;
+import com.google.api.services.webmasters.model.WmxSitemap;
 import java.io.IOException;
 import java.net.URL;
 import org.kohsuke.args4j.Option;
 import org.kohsuke.args4j.spi.URLOptionHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import com.google.api.services.webmasters.Webmasters;
-import com.google.api.services.webmasters.model.WmxSitemap;
 import xyz.monotalk.google.webmaster.cli.CmdLineArgmentException;
-import xyz.monotalk.google.webmaster.cli.CommandLineInputOutputException;
 import xyz.monotalk.google.webmaster.cli.Command;
+import xyz.monotalk.google.webmaster.cli.CommandLineInputOutputException;
 import xyz.monotalk.google.webmaster.cli.Format;
 import xyz.monotalk.google.webmaster.cli.ResponseWriter;
 import xyz.monotalk.google.webmaster.cli.WebmastersFactory;
 
 /**
- * GetCommandクラス - 特定のサイトマップ情報を取得するコマンド
+ * GetCommandクラス - サイトマップ取得コマンド。
+ *
+ * <p>このクラスは、Google Search Console APIを使用して、
+ * 指定されたサイトのサイトマップを取得します。</p>
  */
 @Component
 public class GetCommand implements Command {
 
     /**
-     * WebmastersファクトリーインスタンスDI用
+     * WebmastersファクトリーインスタンスDI用。
      */
     @Autowired
     protected WebmastersFactory factory;
 
     /**
-     * サイトURL
+     * サイトURLを設定します。
+     *
+     * @param siteUrl サイトのURL。
      */
     @Option(name = "-siteUrl", usage = "Site URL", metaVar = "<siteUrl>", required = true,
             handler = URLOptionHandler.class)
     protected URL siteUrl;
 
     /**
-     * フィードパス
+     * サイトマップのフィードパスを設定します。
+     *
+     * @param feedpath サイトマップのフィードパス。
      */
     @Option(name = "-feedpath", usage = "Feed path", required = true)
     protected String feedpath;
@@ -59,6 +66,11 @@ public class GetCommand implements Command {
         // デフォルトコンストラクタ
     }
 
+    /**
+     * サイトマップ情報を取得します。
+     *
+     * @throws CommandLineInputOutputException API実行エラーが発生した場合。
+     */
     @Override
     public void execute() {
         // パラメータのバリデーション
@@ -83,6 +95,11 @@ public class GetCommand implements Command {
         }
     }
 
+    /**
+     * コマンドの使用方法を返します。
+     *
+     * @return 使用方法の説明。
+     */
     @Override
     public String usage() {
         return "Gets information about a specific sitemap";

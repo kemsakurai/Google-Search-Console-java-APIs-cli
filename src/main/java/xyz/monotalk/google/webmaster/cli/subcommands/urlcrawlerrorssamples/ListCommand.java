@@ -6,26 +6,24 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import xyz.monotalk.google.webmaster.cli.Command;
-import xyz.monotalk.google.webmaster.cli.CommandLineInputOutputException;
 import xyz.monotalk.google.webmaster.cli.Format;
 import xyz.monotalk.google.webmaster.cli.ResponseWriter;
 import xyz.monotalk.google.webmaster.cli.WebmastersFactory;
 
 /**
- * URLクロールエラーサンプルを一覧表示するコマンド
- * 
+ * URLクロールエラーのサンプルをリストするコマンドです。
  * 注: Google Search Console API変更により現在このAPIは利用できません
+ * 
  */
 @Component
 public class ListCommand implements Command {
 
-    /** ロガーインスタンス */
+    /** ロガーインスタンス。 */
     private static final Logger LOGGER = LoggerFactory.getLogger(ListCommand.class);
 
-    /** Webmasters APIクライアント生成ファクトリ */
-    @Autowired
-    private WebmastersFactory factory;
-    
+    /** Webmasters APIクライアント生成ファクトリ。 */
+    @Autowired private WebmastersFactory factory;
+
     /** サイトURL。 */
     @Option(name = "-siteUrl", usage = "Site URL", required = true)
     private String siteUrl;
@@ -37,35 +35,33 @@ public class ListCommand implements Command {
     /** プラットフォーム。 */
     @Option(name = "-platform", usage = "Platform", required = true)
     private String platform;
-    
-    /**
-     * デフォルトコンストラクタ
-     */
+
+    /** デフォルトコンストラクタ。 */
     public ListCommand() {
         // デフォルトコンストラクタ
     }
 
     /**
-     * サイトURLを設定します
-     * 
+     * サイトURLを設定します。
+     *
      * @param siteUrl 設定するサイトURL
      */
     public void setSiteUrl(final String siteUrl) {
         this.siteUrl = siteUrl;
     }
-    
+
     /**
-     * エラーカテゴリを設定します
-     * 
+     * エラーカテゴリを設定します。
+     *
      * @param category 設定するエラーカテゴリ
      */
     public void setCategory(final String category) {
         this.category = category;
     }
-    
+
     /**
-     * プラットフォームを設定します
-     * 
+     * プラットフォームを設定します。
+     *
      * @param platform 設定するプラットフォーム
      */
     public void setPlatform(final String platform) {
@@ -74,27 +70,27 @@ public class ListCommand implements Command {
 
     /**
      * URLクロールエラーサンプルの取得を試みますが、現在のAPI互換性の問題により使用できないことを通知します。
-     * 
      * Google Search Console API変更により、このAPIは利用できなくなりました。
+     * 追加の情報を提供するために、エラーメッセージを改善しました。
+     * 
      */
     @Override
     public void execute() {
         if (LOGGER.isWarnEnabled()) {
-            LOGGER.warn("URLクロールエラーサンプル API は現在利用できません (非対応: サイト={}, カテゴリ={}, プラットフォーム={})", 
-                    siteUrl, category, platform);
+            LOGGER.warn(
+                    "URLクロールエラーサンプル API は現在利用できません (非対応: サイト={}, カテゴリ={}, プラットフォーム={})",
+                    siteUrl,
+                    category,
+                    platform);
         }
-        
+
         final StringBuilder output = new StringBuilder(256);
         output.append("URLクロールエラーサンプル API は現在利用できません。\n\n")
-              .append("Google Search Console API の変更により、このAPIは廃止されました。\n")
-              .append("Google Search Console ウェブインターフェースをご利用ください。\n")
-              .append("https://search.google.com/search-console");
+                .append("Google Search Console API の変更により、このAPIは廃止されました。\n")
+                .append("Google Search Console ウェブインターフェースをご利用ください。\n")
+                .append("https://search.google.com/search-console");
 
-        try {
-            ResponseWriter.writeJson(output.toString(), Format.CONSOLE, null);
-        } catch (Exception e) {
-            throw new CommandLineInputOutputException("レスポンス出力中にエラーが発生しました", e);
-        }
+        ResponseWriter.writeJson(output.toString(), Format.CONSOLE, null);
     }
 
     /**

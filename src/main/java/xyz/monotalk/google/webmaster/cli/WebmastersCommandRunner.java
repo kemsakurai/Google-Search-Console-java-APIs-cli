@@ -2,7 +2,6 @@ package xyz.monotalk.google.webmaster.cli;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.StringJoiner;
@@ -35,40 +34,38 @@ public class WebmastersCommandRunner implements CommandLineRunner {
     private ApplicationContext context;
 
     /**
-     * サブコマンド実装オブジェクトです。
-     * 引数によって実行するオブジェクトを切り替えます。
+     * サブコマンド実装オブジェクトです。 引数によって実行するオブジェクトを切り替えます。
      */
     @Argument(handler = SubCommandHandler.class, metaVar = "subCommands")
     @SubCommands({
         @SubCommand(name = "webmasters.searchanalytics.query",
-            impl = xyz.monotalk.google.webmaster.cli.subcommands.searchanalytics.QueryCommand.class),
+                impl = xyz.monotalk.google.webmaster.cli.subcommands.searchanalytics.QueryCommand.class),
         @SubCommand(name = "webmasters.sitemaps.list",
-            impl = xyz.monotalk.google.webmaster.cli.subcommands.sitemaps.ListCommand.class),
+                impl = xyz.monotalk.google.webmaster.cli.subcommands.sitemaps.ListCommand.class),
         @SubCommand(name = "webmasters.sitemaps.delete",
-            impl = xyz.monotalk.google.webmaster.cli.subcommands.sitemaps.DeleteCommand.class),
+                impl = xyz.monotalk.google.webmaster.cli.subcommands.sitemaps.DeleteCommand.class),
         @SubCommand(name = "webmasters.sitemaps.get",
-            impl = xyz.monotalk.google.webmaster.cli.subcommands.sitemaps.GetCommand.class),
+                impl = xyz.monotalk.google.webmaster.cli.subcommands.sitemaps.GetCommand.class),
         @SubCommand(name = "webmasters.sitemaps.submit",
-            impl = xyz.monotalk.google.webmaster.cli.subcommands.sitemaps.SubmitCommand.class),
+                impl = xyz.monotalk.google.webmaster.cli.subcommands.sitemaps.SubmitCommand.class),
         @SubCommand(name = "webmasters.sites.add",
-            impl = xyz.monotalk.google.webmaster.cli.subcommands.sites.AddCommand.class),
+                impl = xyz.monotalk.google.webmaster.cli.subcommands.sites.AddCommand.class),
         @SubCommand(name = "webmasters.sites.delete",
-            impl = xyz.monotalk.google.webmaster.cli.subcommands.sites.DeleteCommand.class),
+                impl = xyz.monotalk.google.webmaster.cli.subcommands.sites.DeleteCommand.class),
         @SubCommand(name = "webmasters.sites.get",
-            impl = xyz.monotalk.google.webmaster.cli.subcommands.sites.GetCommand.class),
+                impl = xyz.monotalk.google.webmaster.cli.subcommands.sites.GetCommand.class),
         @SubCommand(name = "webmasters.sites.list",
-            impl = xyz.monotalk.google.webmaster.cli.subcommands.sites.ListCommand.class),
+                impl = xyz.monotalk.google.webmaster.cli.subcommands.sites.ListCommand.class),
         @SubCommand(name = "webmasters.urlcrawlerrorscounts.query",
-            impl = xyz.monotalk.google.webmaster.cli.subcommands.urlcrawlerrorscounts.QueryCommand.class),
+                impl = xyz.monotalk.google.webmaster.cli.subcommands.urlcrawlerrorscounts.QueryCommand.class),
         @SubCommand(name = "webmasters.urlcrawlerrorssamples.get",
-            impl = xyz.monotalk.google.webmaster.cli.subcommands.urlcrawlerrorssamples.GetCommand.class),
+                impl = xyz.monotalk.google.webmaster.cli.subcommands.urlcrawlerrorssamples.GetCommand.class),
         @SubCommand(name = "webmasters.urlcrawlerrorssamples.list",
-            impl = xyz.monotalk.google.webmaster.cli.subcommands.urlcrawlerrorssamples.ListCommand.class),
+                impl = xyz.monotalk.google.webmaster.cli.subcommands.urlcrawlerrorssamples.ListCommand.class),
         @SubCommand(name = "webmasters.urlcrawlerrorssamples.markAsFixed",
-            impl = xyz.monotalk.google.webmaster.cli.subcommands.urlcrawlerrorssamples.MarkAsFixedCommand.class),
-        // Java 21の機能を活用した新しいAPIインフォコマンドを追加
+                impl = xyz.monotalk.google.webmaster.cli.subcommands.urlcrawlerrorssamples.MarkAsFixedCommand.class),
         @SubCommand(name = "webmasters.api.info",
-            impl = xyz.monotalk.google.webmaster.cli.subcommands.apiinfo.ApiInfoCommand.class),
+                impl = xyz.monotalk.google.webmaster.cli.subcommands.apiinfo.ApiInfoCommand.class)
     })
     private Command command;
 
@@ -85,7 +82,7 @@ public class WebmastersCommandRunner implements CommandLineRunner {
 
     /**
      * コマンドライン引数に基づいてコマンドを実行します。
-     * 
+     *
      * @param args コマンドライン引数
      * @throws Exception 実行中に例外が発生した場合
      */
@@ -94,106 +91,114 @@ public class WebmastersCommandRunner implements CommandLineRunner {
         if (LOGGER.isInfoEnabled()) {
             LOGGER.info("Starting command execution");
         }
-        
+
         // コマンドライン引数を処理
         final List<String> filteredArgs = filterApplicationArgs(args);
         final CmdLineParser parser = new CmdLineParser(this);
-        
+
         // 引数が空の場合はヘルプを表示
         if (filteredArgs.isEmpty()) {
             displayHelp(parser);
             return;
         }
-        
+
         try {
             // コマンドライン引数を解析
             parser.parseArgument(filteredArgs);
-            
+
             // ヘルプフラグが指定されている場合はヘルプを表示
             if (usageFlag) {
                 displayHelp(parser);
                 return;
             }
+
             // コマンドを実行
-            executeCommand();
+            executeCommand(parser);
         } catch (CmdLineArgmentException | CmdLineException e) {
             displayError(parser, e);
         }
     }
-    
+
     /**
      * "--application" を含むコマンドライン引数を除外します。
-     * Java 21のストリームコレクション機能を使用して簡潔に実装します。
-     * 
+     *
      * @param args 元のコマンドライン引数
      * @return フィルタリングされた引数リスト
      */
     private List<String> filterApplicationArgs(final String... args) {
-        // Java 21のフィルタ機能とコレクション変換
         return Arrays.stream(args)
                 .filter(arg -> !arg.contains("--application"))
                 .toList();
     }
-    
+
     /**
      * コマンドを実行します。
-     * Java 21のパターンマッチングを使用して例外処理を改善します。
-     * 
+     *
      * @throws CmdLineException コマンドライン処理中にエラーが発生した場合
      */
-    private void executeCommand() throws CmdLineException {
+    private void executeCommand(final CmdLineParser parser) throws CmdLineException {
         context.getAutowireCapableBeanFactory().autowireBean(this.command);
+
+        // nullチェックを追加
+        if (this.command == null) {
+            throw new CmdLineException(parser, "Command is not initialized.", null);
+        }
+
         try {
             this.command.execute();
-        } catch (Exception e) {
-            // Java 21のパターンマッチングを使用して例外を処理
-            switch (e) {
-                case CommandLineInputOutputException ioe -> {
-                    if (LOGGER.isErrorEnabled()) {
-                        LOGGER.error("Command execution failed due to I/O error: {}", ioe.getMessage());
-                    }
-                    throw new CmdLineException(ioe);
-                }
-                case CmdLineArgmentException ae -> {
-                    if (LOGGER.isErrorEnabled()) {
-                        LOGGER.error("Command execution failed due to invalid argument: {}", ae.getMessage());
-                    }
-                    throw new CmdLineException(ae);
-                }
-                default -> throw e; // その他の例外は再スロー
-            }
+        } catch (CommandLineInputOutputException ioEx) {
+            handleCommandException(parser, ioEx, "I/O error");
+        } catch (CmdLineArgmentException argEx) {
+            handleCommandException(parser, argEx, "Invalid argument");
         }
     }
-    
+
+    /**
+     * コマンド実行中の例外を処理します。
+     *
+     * @param parser コマンドラインパーサー
+     * @param exception 発生した例外
+     * @param message エラーメッセージ
+     * @throws CmdLineException ラップされた例外
+     */
+    private void handleCommandException(
+            final CmdLineParser parser, final Exception exception, final String message) throws CmdLineException {
+        if (LOGGER.isErrorEnabled()) {
+            LOGGER.error("Command execution failed due to {}: {}", message, exception.getMessage(), exception);
+        }
+        throw new CmdLineException(parser, message, exception);
+    }
+
     /**
      * ヘルプ情報を表示します。
-     * テキストブロックを使用して可読性を向上させます。
-     * 
+     *
      * @param parser コマンドラインパーサー
      */
     private void displayHelp(final CmdLineParser parser) {
         if (LOGGER.isErrorEnabled()) {
-            LOGGER.error("""
+            LOGGER.error(
+                """
                 --------------------------------------------------------------------------
-                %s""".formatted(usage()));
+                %s
+                """.formatted(usage())
+            );
             parser.printUsage(System.err);
             LOGGER.error("---------------------------");
         }
     }
-    
+
     /**
      * エラー情報を表示します。
-     * テキストブロックを使用して可読性を向上させます。
-     * 
-     * @param parser コマンドラインパーサー
+     *
+     * @param parser    コマンドラインパーサー
      * @param exception 発生した例外
      */
     private void displayError(final CmdLineParser parser, final Exception exception) {
         if (LOGGER.isErrorEnabled()) {
             LOGGER.error("""
-                error occurred: %s
-                --------------------------------------------------------------------------
-                %s""".formatted(exception.getMessage(), usage()));
+                    error occurred: %s
+                    --------------------------------------------------------------------------
+                    %s""".formatted(exception.getMessage(), usage()));
             parser.printUsage(System.err);
             LOGGER.error("------------");
         }
@@ -201,8 +206,7 @@ public class WebmastersCommandRunner implements CommandLineRunner {
 
     /**
      * 使用方法（usage）情報を生成します。
-     * Java 21の文字列補間機能を使用して可読性を向上させます。
-     * 
+     *
      * @return 使用方法の文字列
      */
     private String usage() {
@@ -212,37 +216,36 @@ public class WebmastersCommandRunner implements CommandLineRunner {
         } catch (NoSuchFieldException e) {
             throw new IllegalStateException(e);
         }
-        
+
         final SubCommands subCommands = field.getAnnotation(SubCommands.class);
         final StringJoiner joiner = new StringJoiner(",", "{", "}");
-        Arrays.stream(subCommands.value()).forEach(e -> joiner.add(e.name()));
-        
-        var commandDescriptions = new StringBuilder();
         Arrays.stream(subCommands.value())
-            .map(e -> {
-                try {
-                    return Pair.of(e.name(), (Command) e.impl().getDeclaredConstructor().newInstance());
-                } catch (InstantiationException | IllegalAccessException 
-                    | InvocationTargetException | NoSuchMethodException ex) {
-                    throw new IllegalStateException(ex);
-                }
-            })
-            .forEach(e -> commandDescriptions.append("""
-                    %s  |  %s
-                """.formatted("    " + e.getLeft(), e.getRight().usage())));
+              .forEach(e -> joiner.add(e.name()));
+
+        final StringBuilder commandDetails = new StringBuilder();
+        Arrays.stream(subCommands.value())
+              .map(e -> {
+                  try {
+                      return Pair.of(
+                          e.name(),
+                          (Command) e.impl().getDeclaredConstructor().newInstance()
+                      );
+                  } catch (InstantiationException | IllegalAccessException 
+                           | InvocationTargetException | NoSuchMethodException ex) {
+                      throw new IllegalStateException(ex);
+                  }
+              })
+              .forEach(e -> commandDetails.append(
+                  String.format("    %s  |  %s%n", e.getLeft(), e.getRight().usage())
+              ));
         
-        // テキストブロックを使用してusageテキストを構造化
+        // spotbugsの以下のIssueからString.formatted()を使用した方が良さそう
+        // @see https://github.com/spotbugs/spotbugs/issues/1877
         return """
             usage: xyz.monotalk.google.webmaster.cli.CliApplication
-
-              %s
-              ...
-
+              %s              ...
             positional arguments:
-
-              %s
-            %soptional arguments:
-
-            """.formatted(joiner, joiner, commandDescriptions);
+              %s optional arguments:
+            """.formatted(joiner, commandDetails);
     }
 }
