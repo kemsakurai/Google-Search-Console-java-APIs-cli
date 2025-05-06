@@ -16,11 +16,16 @@ import org.slf4j.LoggerFactory;
 import xyz.monotalk.google.webmaster.cli.CommandLineInputOutputException;
 
 /**
- * API応答を処理するユーティリティクラス。 
- * Java 21の機能を活用して、Google APIからのレスポンスをApiResponseRecordに変換します。
+ * API応答を処理するユーティリティクラス。
+ *
+ * <p>このクラスは、Google APIからのレスポンスを
+ * ApiResponseRecordに変換するためのメソッドを提供します。</p>
  */
 public final class ApiResponseHandler {
 
+    /**
+     * ログ出力用のロガーインスタンス。
+     */
     private static final Logger LOGGER = LoggerFactory.getLogger(ApiResponseHandler.class);
 
     private ApiResponseHandler() {
@@ -30,11 +35,8 @@ public final class ApiResponseHandler {
     /**
      * HttpResponseをApiResponseRecordに変換します。
      *
-     * @param <T> 応答データの型。
-     * @param response 処理するHttpResponse。
-     * @param responseClass 応答データのクラス。
-     * @return 変換されたApiResponseRecord。
-     * @throws CommandLineInputOutputException APIレスポンスの処理中にエラーが発生した場合。
+     * <p>指定されたHttpResponseを処理し、
+     * ApiResponseRecordオブジェクトを生成します。</p>
      */
     public static <T> ApiResponseRecord<T> handleResponse(
             final HttpResponse response, final Class<T> responseClass) {
@@ -49,6 +51,9 @@ public final class ApiResponseHandler {
 
     /**
      * HttpResponseを指定された変換関数を使用してApiResponseRecordに変換します。
+     *
+     * <p>このメソッドは、HttpResponseを処理し、
+     * 指定された関数を使用してデータを変換します。</p>
      *
      * @param <T> 応答データの型。
      * @param response 処理するHttpResponse。
@@ -103,9 +108,8 @@ public final class ApiResponseHandler {
     /**
      * HttpResponseをGenericJsonとしてApiResponseRecordに変換します。
      *
-     * @param response 処理するHttpResponse。
-     * @return 変換されたApiResponseRecord。
-     * @throws CommandLineInputOutputException APIレスポンスの処理中にエラーが発生した場合。
+     * <p>このメソッドは、HttpResponseを処理し、
+     * GenericJson形式のデータを返します。</p>
      */
     public static ApiResponseRecord<GenericJson> handleJsonResponse(final HttpResponse response) {
         return handleResponse(response, r -> {
@@ -121,8 +125,8 @@ public final class ApiResponseHandler {
     /**
      * ヘッダーマップからヘッダー情報を抽出します。
      *
-     * @param headerMap 元のヘッダーマップ
-     * @return 処理済みのヘッダーマップ
+     * <p>このメソッドは、元のヘッダーマップを処理し、
+     * 必要な形式に変換します。</p>
      */
     private static Map<String, List<String>> extractHeaders(final Map<String, Object> headerMap) {
         final Map<String, List<String>> headers = new ConcurrentHashMap<>();
@@ -143,8 +147,8 @@ public final class ApiResponseHandler {
     /**
      * オブジェクト値を文字列リストに変換します。
      *
-     * @param values 変換するオブジェクト
-     * @return 文字列のリスト
+     * <p>このメソッドは、与えられたオブジェクトを
+     * 文字列のリストに変換します。</p>
      */
     private static List<String> convertToStringList(final Object values) {
         final List<String> stringValues = new ArrayList<>();
@@ -164,8 +168,8 @@ public final class ApiResponseHandler {
     /**
      * コレクションの各要素を文字列リストに追加します。
      *
-     * @param collection 処理するコレクション
-     * @param stringValues 文字列を追加するリスト
+     * <p>このメソッドは、コレクション内の各要素を
+     * 文字列リストに変換して追加します。</p>
      */
     private static void processCollection(
             final Collection<?> collection, final List<String> stringValues) {
@@ -179,8 +183,8 @@ public final class ApiResponseHandler {
     /**
      * 配列の各要素を文字列リストに追加します。
      *
-     * @param array 処理する配列。
-     * @param stringValues 文字列を追加するリスト。
+     * <p>このメソッドは、配列内の各要素を
+     * 文字列リストに変換して追加します。</p>
      */
     private static void processArray(final Object[] array, final List<String> stringValues) {
         for (final Object value : array) {
@@ -194,20 +198,20 @@ public final class ApiResponseHandler {
      * HttpResponseExceptionからエラー応答レコードを作成します。
      *
      * @param <T> 応答データの型
-     * @param e HttpResponseException
+     * @param exception HttpResponseException
      * @return エラー応答レコード
      */
-    private static <T> ApiResponseRecord<T> getErrorResponse(final HttpResponseException e) {
-        final ApiResponseRecord.ResponseStatus status = determineResponseStatus(e.getStatusCode());
-        final Map<String, List<String>> headers = extractHeaders(e.getHeaders());
+    private static <T> ApiResponseRecord<T> getErrorResponse(final HttpResponseException exception) {
+        final ApiResponseRecord.ResponseStatus status = determineResponseStatus(exception.getStatusCode());
+        final Map<String, List<String>> headers = extractHeaders(exception.getHeaders());
 
         // エラーレスポンスの作成
         return ApiResponseRecord.<T>builder()
                 .status(status)
-                .statusCode(e.getStatusCode())
+                .statusCode(exception.getStatusCode())
                 .timestamp(LocalDateTime.now())
                 .headers(headers)
-                .errorMessage(e.getMessage())
+                .errorMessage(exception.getMessage())
                 .build();
     }
 
@@ -236,20 +240,19 @@ public final class ApiResponseHandler {
      * @throws CommandLineInputOutputException エラー応答の場合
      */
     public static <T> T extractDataOrThrow(final ApiResponseRecord<T> response) {
-        // エラー応答の場合は例外をスロー
+        // フィールド名の変更に対応
         if (response.status() != ApiResponseRecord.ResponseStatus.SUCCESS) {
             throw new CommandLineInputOutputException(
-                    response.errorMessage() != null
-                            ? response.errorMessage()
-                            : "API error: " + response.status() + " (" + response.statusCode() + ")");
+                response.getErrorMessage().orElse(
+                    "API error: " + response.status() + " (" + response.code() + ")"
+                )
+            );
         }
 
-        // データがnullの場合は例外をスロー
         if (response.data() == null) {
             throw new CommandLineInputOutputException("API response contains no data");
         }
 
-        // 成功応答の場合はデータを返す
         return response.data();
     }
 }

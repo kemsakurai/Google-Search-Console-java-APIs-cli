@@ -6,7 +6,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.ComponentScan;
 
 /**
- * Google Search Console CLI アプリケーションのエントリーポイントクラスです。 このクラスはSpring Bootアプリケーションを起動し、コマンドライン引数を処理します。
+ * Google Search Console CLI アプリケーションのエントリーポイントクラスです。 
+ * このクラスはSpring Bootアプリケーションを起動し、コマンドライン引数を処理します。
  */
 @SpringBootApplication
 @ComponentScan(nameGenerator = FullyQualifiedClassNameBeanNameGenerator.class)

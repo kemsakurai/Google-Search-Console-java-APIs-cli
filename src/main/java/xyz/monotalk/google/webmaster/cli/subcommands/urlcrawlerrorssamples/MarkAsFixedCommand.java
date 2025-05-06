@@ -17,7 +17,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import xyz.monotalk.google.webmaster.cli.CmdLineArgmentException;
 import xyz.monotalk.google.webmaster.cli.Command;
-import xyz.monotalk.google.webmaster.cli.CommandLineInputOutputException;
 import xyz.monotalk.google.webmaster.cli.Format;
 import xyz.monotalk.google.webmaster.cli.ResponseWriter;
 
@@ -101,11 +100,7 @@ public class MarkAsFixedCommand implements Command {
               .append("Google Search Console ウェブインターフェースをご利用ください。\n")
               .append("https://search.google.com/search-console");
 
-        try {
-            ResponseWriter.writeJson(output.toString(), Format.CONSOLE, null);
-        } catch (Exception e) {
-            throw new CommandLineInputOutputException("レスポンス出力中にエラーが発生しました", e);
-        }
+        ResponseWriter.writeJson(output.toString(), Format.CONSOLE, null);
     }
 
     /**

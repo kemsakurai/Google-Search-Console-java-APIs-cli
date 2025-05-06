@@ -104,8 +104,10 @@ public class WebmastersCommandRunnerTest {
         // When
         try {
             commandRunner.run(args);
-        } catch (Exception e) {
-            fail("Exception should not occur: " + e.getMessage());
+        } catch (IOException e) {
+            fail("IOException should not occur: " + e.getMessage());
+        } catch (CommandLineInputOutputException e) {
+            fail("CommandLineInputOutputException should not occur: " + e.getMessage());
         }
 
         // Then
@@ -126,8 +128,10 @@ public class WebmastersCommandRunnerTest {
         // When
         try {
             commandRunner.run(args);
-        } catch (Exception e) {
-            fail("Exception should not occur: " + e.getMessage());
+        } catch (IOException e) {
+            fail("IOException should not occur: " + e.getMessage());
+        } catch (CommandLineInputOutputException e) {
+            fail("CommandLineInputOutputException should not occur: " + e.getMessage());
         }
 
         // Then
@@ -145,8 +149,10 @@ public class WebmastersCommandRunnerTest {
         // When
         try {
             commandRunner.run(args);
-        } catch (Exception e) {
-            fail("Exception should not occur: " + e.getMessage());
+        } catch (IOException e) {
+            fail("IOException should not occur: " + e.getMessage());
+        } catch (CommandLineInputOutputException e) {
+            fail("CommandLineInputOutputException should not occur: " + e.getMessage());
         }
 
         // Then
@@ -164,8 +170,10 @@ public class WebmastersCommandRunnerTest {
         // When
         try {
             commandRunner.run(args);
-        } catch (Exception e) {
-            fail("Exception should not occur: " + e.getMessage());
+        } catch (IOException e) {
+            fail("IOException should not occur: " + e.getMessage());
+        } catch (CommandLineInputOutputException e) {
+            fail("CommandLineInputOutputException should not occur: " + e.getMessage());
         }
 
         // Then
@@ -199,8 +207,10 @@ public class WebmastersCommandRunnerTest {
         // When
         try {
             commandRunner.run(args);
-        } catch (Exception e) {
-            fail("Exception should not occur: " + e.getMessage());
+        } catch (IOException e) {
+            fail("IOException should not occur: " + e.getMessage());
+        } catch (CommandLineInputOutputException e) {
+            fail("CommandLineInputOutputException should not occur: " + e.getMessage());
         }
 
         // Then
@@ -221,8 +231,10 @@ public class WebmastersCommandRunnerTest {
         // When
         try {
             commandRunner.run(args);
-        } catch (Exception e) {
-            fail("Exception should not occur: " + e.getMessage());
+        } catch (IOException e) {
+            fail("IOException should not occur: " + e.getMessage());
+        } catch (CommandLineInputOutputException e) {
+            fail("CommandLineInputOutputException should not occur: " + e.getMessage());
         }
 
         // Then
@@ -240,8 +252,10 @@ public class WebmastersCommandRunnerTest {
         // When
         try {
             commandRunner.run(args);
-        } catch (Exception e) {
-            fail("Exception should not occur: " + e.getMessage());
+        } catch (IOException e) {
+            fail("IOException should not occur: " + e.getMessage());
+        } catch (CommandLineInputOutputException e) {
+            fail("CommandLineInputOutputException should not occur: " + e.getMessage());
         }
 
         // Then

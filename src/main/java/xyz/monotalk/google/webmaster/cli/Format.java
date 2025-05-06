@@ -75,10 +75,7 @@ public enum Format {
      * @return JSONフォーマットの場合はtrue
      */
     public static boolean isJsonFormat(final Format format) {
-        return switch (format) {
-            case JSON -> true;
-            default -> false;
-        };
+        return format == JSON;
     }
 
     /**
@@ -88,10 +85,7 @@ public enum Format {
      * @return コンソール出力用の場合はtrue
      */
     public static boolean isConsoleOutput(final Format format) {
-        return switch (format) {
-            case CONSOLE -> true;
-            default -> false;
-        };
+        return format == CONSOLE;
     }
 
     /**

@@ -11,20 +11,41 @@ import java.util.Optional;
  * このレコードはAPI呼び出しのメタデータと結果を保持します。
  *
  * @param status       応答ステータス（成功、失敗など）
- * @param statusCode   HTTPステータスコード
- * @param timestamp    応答タイムスタンプ
+ * @param code   HTTPステータスコード
+ * @param time    応答タイムスタンプ
  * @param data         応答データ（存在する場合）
- * @param headers      レスポンスヘッダー
- * @param errorMessage エラーメッセージ（存在する場合）
+ * @param hdrs      レスポンスヘッダー
+ * @param err エラーメッセージ（存在する場合）
  * @param <T>          応答データの型
  */
 public record ApiResponseRecord<T>(
     ResponseStatus status,
-    int statusCode,
-    LocalDateTime timestamp,
+    int code,
+    LocalDateTime time,
     T data,
-    Map<String, List<String>> headers,
-    String errorMessage) {
+    Map<String, List<String>> hdrs,
+    String err) {
+
+    /**
+     * API応答レコードのコンストラクタ。
+     *
+     * @param status 応答ステータス
+     * @param code HTTPステータスコード
+     * @param time 応答タイムスタンプ
+     * @param data 応答データ
+     * @param hdrs レスポンスヘッダー
+     * @param err エラーメッセージ
+     */
+    public ApiResponseRecord(final ResponseStatus status, final int code, 
+                             final LocalDateTime time, final T data, 
+                             final Map<String, List<String>> hdrs, final String err) {
+        this.status = status;
+        this.code = code;
+        this.time = time;
+        this.data = data;
+        this.hdrs = hdrs;
+        this.err = err;
+    }
 
     /**
      * API応答のステータスを表す列挙型。
@@ -44,65 +65,88 @@ public record ApiResponseRecord<T>(
      * @param <T> 応答データの型
      */
     public static class Builder<T> {
-        private ResponseStatus status = ResponseStatus.SUCCESS;
-        private int statusCode = 200;
-        private LocalDateTime timestamp = LocalDateTime.now();
-        private T data = null;
-        private Map<String, List<String>> headers = Map.of();
-        private String errorMessage = null;
+        /**
+         * 応答ステータスを表します。
+         */
+        private ResponseStatus responseStatus;
+
+        /**
+         * HTTPステータスコードを表します。
+         */
+        private int httpStatusCode;
+
+        /**
+         * 応答のタイムスタンプを表します。
+         */
+        private LocalDateTime responseTimestamp;
+
+        /**
+         * 応答データを格納します。
+         */
+        private T responseData;
+
+        /**
+         * レスポンスヘッダーを格納します。
+         */
+        private Map<String, List<String>> responseHeaders;
+
+        /**
+         * エラーメッセージを格納します。
+         */
+        private String errorMsg;
 
         /**
          * ステータスを設定します。
          *
-         * @param status 応答ステータス
+         * @param responseStatus 応答ステータス
          * @return このビルダー
          */
-        public Builder<T> status(ResponseStatus status) {
-            this.status = status;
+        public Builder<T> status(final ResponseStatus responseStatus) {
+            this.responseStatus = responseStatus;
             return this;
         }
 
         /**
          * HTTPステータスコードを設定します。
          *
-         * @param statusCode HTTPステータスコード
+         * @param httpStatusCode HTTPステータスコード
          * @return このビルダー
          */
-        public Builder<T> statusCode(int statusCode) {
-            this.statusCode = statusCode;
+        public Builder<T> statusCode(final int httpStatusCode) {
+            this.httpStatusCode = httpStatusCode;
             return this;
         }
 
         /**
          * タイムスタンプを設定します。
          *
-         * @param timestamp 応答タイムスタンプ
+         * @param responseTimestamp 応答タイムスタンプ
          * @return このビルダー
          */
-        public Builder<T> timestamp(LocalDateTime timestamp) {
-            this.timestamp = timestamp;
+        public Builder<T> timestamp(final LocalDateTime responseTimestamp) {
+            this.responseTimestamp = responseTimestamp;
             return this;
         }
 
         /**
          * 応答データを設定します。
          *
-         * @param data 応答データ
+         * @param responseData 応答データ
          * @return このビルダー
          */
-        public Builder<T> data(T data) {
-            this.data = data;
+        public Builder<T> data(final T responseData) {
+            this.responseData = responseData;
             return this;
         }
 
         /**
          * レスポンスヘッダーを設定します。
          *
-         * @param headers レスポンスヘッダー
+         * @param responseHeaders レスポンスヘッダー
          * @return このビルダー
          */
-        public Builder<T> headers(Map<String, List<String>> headers) {
-            this.headers = headers;
+        public Builder<T> headers(final Map<String, List<String>> responseHeaders) {
+            this.responseHeaders = responseHeaders;
             return this;
         }
 
@@ -112,8 +156,8 @@ public record ApiResponseRecord<T>(
          * @param errorMessage エラーメッセージ
          * @return このビルダー
          */
-        public Builder<T> errorMessage(String errorMessage) {
-            this.errorMessage = errorMessage;
+        public Builder<T> errorMessage(final String errorMessage) {
+            this.errorMsg = errorMessage;
             return this;
         }
 
@@ -123,12 +167,71 @@ public record ApiResponseRecord<T>(
          * @return 構築されたApiResponseRecord
          */
         public ApiResponseRecord<T> build() {
-            return new ApiResponseRecord<>(status, statusCode, timestamp, data, headers, errorMessage);
+            return new ApiResponseRecord<>(
+                responseStatus, 
+                httpStatusCode, 
+                responseTimestamp, 
+                responseData, 
+                responseHeaders, 
+                errorMsg
+            );
+        }
+
+        /**
+         * 応答ステータスを設定します。
+         *
+         * @param responseStatus 応答ステータス
+         */
+        public void setResponseStatus(final ResponseStatus responseStatus) {
+            this.responseStatus = responseStatus;
+        }
+
+        /**
+         * HTTPステータスコードを設定します。
+         *
+         * @param httpStatusCode HTTPステータスコード
+         */
+        public void setHttpStatusCode(final int httpStatusCode) {
+            this.httpStatusCode = httpStatusCode;
+        }
+
+        /**
+         * 応答のタイムスタンプを設定します。
+         *
+         * @param responseTimestamp 応答のタイムスタンプ
+         */
+        public void setResponseTimestamp(final LocalDateTime responseTimestamp) {
+            this.responseTimestamp = responseTimestamp;
+        }
+
+        /**
+         * 応答データを設定します。
+         *
+         * @param responseData 応答データ
+         */
+        public void setResponseData(final T responseData) {
+            this.responseData = responseData;
+        }
+
+        /**
+         * レスポンスヘッダーを設定します。
+         *
+         * @param responseHeaders レスポンスヘッダー
+         */
+        public void setResponseHeaders(final Map<String, List<String>> responseHeaders) {
+            this.responseHeaders = responseHeaders;
+        }
+
+        /**
+         * エラーメッセージを設定します。
+         */
+        public void setErrorMessage(final String errorMessage) {
+            this.errorMsg = errorMessage;
         }
     }
 
     /**
-     * 新しいビルダーインスタンスを作成します。
+     * API応答レコードのビルダーを作成します。
      *
      * @param <T> 応答データの型
      * @return 新しいビルダーインスタンス
@@ -138,13 +241,13 @@ public record ApiResponseRecord<T>(
     }
 
     /**
-     * 成功応答を作成するための簡易ファクトリメソッド。
+     * 成功応答を作成します。
      *
      * @param data 応答データ
-     * @param <T>  データの型
+     * @param <T> データの型
      * @return 成功応答
      */
-    public static <T> ApiResponseRecord<T> success(T data) {
+    public static <T> ApiResponseRecord<T> success(final T data) {
         return new Builder<T>()
             .status(ResponseStatus.SUCCESS)
             .statusCode(200)
@@ -153,18 +256,18 @@ public record ApiResponseRecord<T>(
     }
 
     /**
-     * エラー応答を作成するための簡易ファクトリメソッド。
+     * エラー応答を作成します。
      *
-     * @param errorMessage エラーメッセージ
-     * @param statusCode   HTTPステータスコード
-     * @param <T>          データの型
+     * @param err エラーメッセージ
+     * @param code HTTPステータスコード
+     * @param <T> データの型
      * @return エラー応答
      */
-    public static <T> ApiResponseRecord<T> error(String errorMessage, int statusCode) {
+    public static <T> ApiResponseRecord<T> error(final String err, final int code) {
         return new Builder<T>()
             .status(ResponseStatus.ERROR)
-            .statusCode(statusCode)
-            .errorMessage(errorMessage)
+            .statusCode(code)
+            .errorMessage(err)
             .build();
     }
 
@@ -174,7 +277,7 @@ public record ApiResponseRecord<T>(
      * @return 成功の場合はtrue
      */
     public boolean isSuccess() {
-        return status == ResponseStatus.SUCCESS && statusCode >= 200 && statusCode < 300;
+        return status == ResponseStatus.SUCCESS && code >= 200 && code < 300;
     }
 
     /**
@@ -183,7 +286,7 @@ public record ApiResponseRecord<T>(
      * @return エラーメッセージを含むOptional
      */
     public Optional<String> getErrorMessage() {
-        return Optional.ofNullable(errorMessage);
+        return Optional.ofNullable(err);
     }
 
     /**
@@ -193,5 +296,50 @@ public record ApiResponseRecord<T>(
      */
     public Optional<T> getData() {
         return Optional.ofNullable(data);
+    }
+
+    /**
+     * レスポンスヘッダーを取得します。
+     *
+     * @return レスポンスヘッダーのマップ
+     */
+    public Map<String, List<String>> getHeaders() {
+        return hdrs;
+    }
+
+    /**
+     * HTTPステータスコードを取得します。
+     *
+     * @return HTTPステータスコード
+     */
+    public int getStatusCode() {
+        return code;
+    }
+
+    /**
+     * 応答のタイムスタンプを取得します。
+     *
+     * @return 応答のタイムスタンプ
+     */
+    public LocalDateTime getTimestamp() {
+        return time;
+    }
+
+    /**
+     * 応答ステータスを取得します。
+     *
+     * @return 応答ステータス
+     */
+    public ResponseStatus getStatus() {
+        return status;
+    }
+
+    /**
+     * API応答レコードの詳細を取得します。
+     *
+     * @return 応答の詳細情報
+     */
+    public String getDetails() {
+        return "Status: " + status + ", Code: " + code + ", Time: " + time;
     }
 }

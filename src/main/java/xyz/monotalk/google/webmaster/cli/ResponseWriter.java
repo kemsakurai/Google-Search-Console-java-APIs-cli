@@ -114,7 +114,7 @@ public final class ResponseWriter {
             }
             case Format.CONSOLE -> LOGGER.info(jsonString);
             case Format.CSV -> LOGGER.warn("CSV format is not yet implemented");
-            default -> LOGGER.warn("Unsupported format: {}", format);
+            default -> LOGGER.error("Unsupported format: " + format);
         }
     }
 

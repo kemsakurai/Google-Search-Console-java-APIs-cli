@@ -38,34 +38,34 @@ public class WebmastersCommandRunner implements CommandLineRunner {
      */
     @Argument(handler = SubCommandHandler.class, metaVar = "subCommands")
     @SubCommands({
-        @SubCommand(name = "webmasters.searchanalytics.query", 
-                   impl = xyz.monotalk.google.webmaster.cli.subcommands.searchanalytics.QueryCommand.class),
-        @SubCommand(name = "webmasters.sitemaps.list", 
-                   impl = xyz.monotalk.google.webmaster.cli.subcommands.sitemaps.ListCommand.class),
-        @SubCommand(name = "webmasters.sitemaps.delete", 
-                   impl = xyz.monotalk.google.webmaster.cli.subcommands.sitemaps.DeleteCommand.class),
-        @SubCommand(name = "webmasters.sitemaps.get", 
-                   impl = xyz.monotalk.google.webmaster.cli.subcommands.sitemaps.GetCommand.class),
-        @SubCommand(name = "webmasters.sitemaps.submit", 
-                   impl = xyz.monotalk.google.webmaster.cli.subcommands.sitemaps.SubmitCommand.class),
-        @SubCommand(name = "webmasters.sites.add", 
-                   impl = xyz.monotalk.google.webmaster.cli.subcommands.sites.AddCommand.class),
-        @SubCommand(name = "webmasters.sites.delete", 
-                   impl = xyz.monotalk.google.webmaster.cli.subcommands.sites.DeleteCommand.class),
-        @SubCommand(name = "webmasters.sites.get", 
-                   impl = xyz.monotalk.google.webmaster.cli.subcommands.sites.GetCommand.class),
-        @SubCommand(name = "webmasters.sites.list", 
-                   impl = xyz.monotalk.google.webmaster.cli.subcommands.sites.ListCommand.class),
-        @SubCommand(name = "webmasters.urlcrawlerrorscounts.query", 
-                   impl = xyz.monotalk.google.webmaster.cli.subcommands.urlcrawlerrorscounts.QueryCommand.class),
-        @SubCommand(name = "webmasters.urlcrawlerrorssamples.get", 
-                   impl = xyz.monotalk.google.webmaster.cli.subcommands.urlcrawlerrorssamples.GetCommand.class),
-        @SubCommand(name = "webmasters.urlcrawlerrorssamples.list", 
-                   impl = xyz.monotalk.google.webmaster.cli.subcommands.urlcrawlerrorssamples.ListCommand.class),
-        @SubCommand(name = "webmasters.urlcrawlerrorssamples.markAsFixed", 
-                   impl = xyz.monotalk.google.webmaster.cli.subcommands.urlcrawlerrorssamples.MarkAsFixedCommand.class),
-        @SubCommand(name = "webmasters.api.info", 
-                   impl = xyz.monotalk.google.webmaster.cli.subcommands.apiinfo.ApiInfoCommand.class)
+        @SubCommand(name = "webmasters.searchanalytics.query",
+                impl = xyz.monotalk.google.webmaster.cli.subcommands.searchanalytics.QueryCommand.class),
+        @SubCommand(name = "webmasters.sitemaps.list",
+                impl = xyz.monotalk.google.webmaster.cli.subcommands.sitemaps.ListCommand.class),
+        @SubCommand(name = "webmasters.sitemaps.delete",
+                impl = xyz.monotalk.google.webmaster.cli.subcommands.sitemaps.DeleteCommand.class),
+        @SubCommand(name = "webmasters.sitemaps.get",
+                impl = xyz.monotalk.google.webmaster.cli.subcommands.sitemaps.GetCommand.class),
+        @SubCommand(name = "webmasters.sitemaps.submit",
+                impl = xyz.monotalk.google.webmaster.cli.subcommands.sitemaps.SubmitCommand.class),
+        @SubCommand(name = "webmasters.sites.add",
+                impl = xyz.monotalk.google.webmaster.cli.subcommands.sites.AddCommand.class),
+        @SubCommand(name = "webmasters.sites.delete",
+                impl = xyz.monotalk.google.webmaster.cli.subcommands.sites.DeleteCommand.class),
+        @SubCommand(name = "webmasters.sites.get",
+                impl = xyz.monotalk.google.webmaster.cli.subcommands.sites.GetCommand.class),
+        @SubCommand(name = "webmasters.sites.list",
+                impl = xyz.monotalk.google.webmaster.cli.subcommands.sites.ListCommand.class),
+        @SubCommand(name = "webmasters.urlcrawlerrorscounts.query",
+                impl = xyz.monotalk.google.webmaster.cli.subcommands.urlcrawlerrorscounts.QueryCommand.class),
+        @SubCommand(name = "webmasters.urlcrawlerrorssamples.get",
+                impl = xyz.monotalk.google.webmaster.cli.subcommands.urlcrawlerrorssamples.GetCommand.class),
+        @SubCommand(name = "webmasters.urlcrawlerrorssamples.list",
+                impl = xyz.monotalk.google.webmaster.cli.subcommands.urlcrawlerrorssamples.ListCommand.class),
+        @SubCommand(name = "webmasters.urlcrawlerrorssamples.markAsFixed",
+                impl = xyz.monotalk.google.webmaster.cli.subcommands.urlcrawlerrorssamples.MarkAsFixedCommand.class),
+        @SubCommand(name = "webmasters.api.info",
+                impl = xyz.monotalk.google.webmaster.cli.subcommands.apiinfo.ApiInfoCommand.class)
     })
     private Command command;
 
@@ -138,25 +138,35 @@ public class WebmastersCommandRunner implements CommandLineRunner {
      */
     private void executeCommand(final CmdLineParser parser) throws CmdLineException {
         context.getAutowireCapableBeanFactory().autowireBean(this.command);
+
+        // nullチェックを追加
+        if (this.command == null) {
+            throw new CmdLineException(parser, "Command is not initialized.");
+        }
+
         try {
             this.command.execute();
-        } catch (Exception e) {
-            switch (e) {
-                case CommandLineInputOutputException ioe -> {
-                    if (LOGGER.isErrorEnabled()) {
-                        LOGGER.error("Command execution failed due to I/O error: {}", ioe.getMessage());
-                    }
-                    throw new CmdLineException(parser, ioe.getMessage(), ioe);
-                }
-                case CmdLineArgmentException ae -> {
-                    if (LOGGER.isErrorEnabled()) {
-                        LOGGER.error("Command execution failed due to invalid argument: {}", ae.getMessage());
-                    }
-                    throw new CmdLineException(parser, ae.getMessage(), ae);
-                }
-                default -> throw e;
-            }
+        } catch (CommandLineInputOutputException ioEx) {
+            handleCommandException(parser, ioEx, "I/O error");
+        } catch (CmdLineArgmentException argEx) {
+            handleCommandException(parser, argEx, "Invalid argument");
         }
+    }
+
+    /**
+     * コマンド実行中の例外を処理します。
+     *
+     * @param parser コマンドラインパーサー
+     * @param exception 発生した例外
+     * @param message エラーメッセージ
+     * @throws CmdLineException ラップされた例外
+     */
+    private void handleCommandException(
+            final CmdLineParser parser, final Exception exception, final String message) throws CmdLineException {
+        if (LOGGER.isErrorEnabled()) {
+            LOGGER.error("Command execution failed due to {}: {}", message, exception.getMessage(), exception);
+        }
+        throw new CmdLineException(parser, message, exception);
     }
 
     /**
@@ -166,9 +176,12 @@ public class WebmastersCommandRunner implements CommandLineRunner {
      */
     private void displayHelp(final CmdLineParser parser) {
         if (LOGGER.isErrorEnabled()) {
-            LOGGER.error("""
-                    --------------------------------------------------------------------------
-                    %s""".formatted(usage()));
+            LOGGER.error(
+                """
+                --------------------------------------------------------------------------
+                %s
+                """.formatted(usage())
+            );
             parser.printUsage(System.err);
             LOGGER.error("---------------------------");
         }
@@ -206,33 +219,40 @@ public class WebmastersCommandRunner implements CommandLineRunner {
 
         final SubCommands subCommands = field.getAnnotation(SubCommands.class);
         final StringJoiner joiner = new StringJoiner(",", "{", "}");
-        Arrays.stream(subCommands.value()).forEach(e -> joiner.add(e.name()));
-
-        var commandDescriptions = new StringBuilder();
         Arrays.stream(subCommands.value())
-                .map(e -> {
-                    try {
-                        return Pair.of(e.name(), (Command) e.impl().getDeclaredConstructor().newInstance());
-                    } catch (InstantiationException | IllegalAccessException | InvocationTargetException
-                            | NoSuchMethodException ex) {
-                        throw new IllegalStateException(ex);
-                    }
-                })
-                .forEach(e -> commandDescriptions.append("""
-                        %s  |  %s
-                    """.formatted("    " + e.getLeft(), e.getRight().usage())));
+              .forEach(e -> joiner.add(e.name()));
 
-        return """
-                usage: xyz.monotalk.google.webmaster.cli.CliApplication
+        final StringBuilder commandDetails = new StringBuilder();
+        Arrays.stream(subCommands.value())
+              .map(e -> {
+                  try {
+                      return Pair.of(
+                          e.name(),
+                          (Command) e.impl().getDeclaredConstructor().newInstance()
+                      );
+                  } catch (InstantiationException | IllegalAccessException 
+                           | InvocationTargetException | NoSuchMethodException ex) {
+                      throw new IllegalStateException(ex);
+                  }
+              })
+              .forEach(e -> commandDetails.append(
+                  String.format("    %s  |  %s%n", e.getLeft(), e.getRight().usage())
+              ));
 
-                  %s
-                  ...
+        return String.format(
+            """
+            usage: xyz.monotalk.google.webmaster.cli.CliApplication
 
-                positional arguments:
+              %s
+              ...
 
-                  %s
-                %soptional arguments:
+            positional arguments:
 
-                """.formatted(joiner, joiner, commandDescriptions);
+              %s
+            %soptional arguments:
+
+            """,
+            joiner, joiner, commandDetails
+        );
     }
 }

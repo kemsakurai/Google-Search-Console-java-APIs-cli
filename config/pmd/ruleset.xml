@@ -10,7 +10,9 @@
     </description>
 
     <!-- 推奨カテゴリのルールを読み込む -->
-    <rule ref="category/java/bestpractices.xml" />
+    <rule ref="category/java/bestpractices.xml">
+        <exclude name="ExhaustiveSwitchHasDefault"/>
+    </rule>
     <rule ref="category/java/bestpractices.xml/LooseCoupling">
         <properties>
             <property name="allowedTypes" 
@@ -29,10 +31,17 @@
                     com.google.api.services.webmasters.Webmasters.Sitemaps.Submit,
                     com.google.api.services.webmasters.Webmasters.Sites.Add,
                     com.google.api.services.webmasters.model.SitesListResponse,
-                    com.google.api.services.webmasters.Webmasters.Sites.List" />
+                    com.google.api.services.webmasters.Webmasters.Sites.List,
+                    com.google.api.client.json.GenericJson" />
         </properties>
     </rule>
     <rule ref="category/java/documentation.xml"/>
+    <rule ref="category/java/documentation.xml/CommentSize">
+        <properties>
+            <property name="maxLines" value="15" />
+            <property name="maxLineLength" value="80" />
+        </properties>
+    </rule>
     <rule ref="category/java/codestyle.xml" >
         <exclude name="UnnecessaryConstructor" />
         <exclude name="OnlyOneReturn" />

@@ -6,7 +6,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import xyz.monotalk.google.webmaster.cli.Command;
-import xyz.monotalk.google.webmaster.cli.CommandLineInputOutputException;
 import xyz.monotalk.google.webmaster.cli.Format;
 import xyz.monotalk.google.webmaster.cli.ResponseWriter;
 import xyz.monotalk.google.webmaster.cli.WebmastersFactory;
@@ -59,17 +58,10 @@ public class QueryCommand implements Command {
               .append("Google Search Console ウェブインターフェースをご利用ください。\n")
               .append("https://search.google.com/search-console");
 
-        try {
-            ResponseWriter.writeJson(output.toString(), format, filePath);
+        ResponseWriter.writeJson(output.toString(), format, filePath);
 
-            if (LOGGER.isInfoEnabled()) {
-                LOGGER.info("URLクロールエラー数API非対応メッセージを出力しました");
-            }
-        } catch (Exception e) {
-            if (LOGGER.isErrorEnabled()) {
-                LOGGER.error("レスポンス出力中にエラーが発生しました", e);
-            }
-            throw new CommandLineInputOutputException("レスポンス出力中にエラーが発生しました", e);
+        if (LOGGER.isInfoEnabled()) {
+            LOGGER.info("URLクロールエラー数API非対応メッセージを出力しました");
         }
     }
 

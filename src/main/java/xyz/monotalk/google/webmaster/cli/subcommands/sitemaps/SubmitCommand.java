@@ -15,19 +15,25 @@ import xyz.monotalk.google.webmaster.cli.CommandLineInputOutputException;
 import xyz.monotalk.google.webmaster.cli.WebmastersFactory;
 
 /**
- * SubmitCommandクラス - サイトマップ送信コマンド。
- *
- * <p>このクラスは、Google Search Console APIを使用して、
- * 指定されたサイトのサイトマップを送信します。</p>
+ * サイトマップを送信するコマンドクラス。
  */
 @Component
 public class SubmitCommand implements Command {
-
+    /**
+     * ロガーインスタンス。
+     */
     private static final Logger LOGGER = LoggerFactory.getLogger(SubmitCommand.class);
 
+    /**
+     * Webmasters APIクライアント生成ファクトリ。
+     */
     @Autowired
     private WebmastersFactory factory;
 
+    /**
+     * サイトURLを指定します。
+     * このURLはGoogle Search Consoleで管理されているサイトのURLである必要があります。
+     */
     @Option(
             name = "-siteUrl",
             usage = "Site URL",
@@ -36,6 +42,10 @@ public class SubmitCommand implements Command {
             handler = URLOptionHandler.class)
     protected URL siteUrl;
 
+    /**
+     * サイトマップのフィードパス。
+     * サイトマップの相対パスまたは完全なURLを指定します。
+     */
     @Option(name = "-feedpath", usage = "Feed path", required = true)
     protected String feedpath;
 

@@ -15,11 +15,12 @@ import xyz.monotalk.google.webmaster.cli.Format;
 import xyz.monotalk.google.webmaster.cli.ResponseWriter;
 import xyz.monotalk.google.webmaster.cli.WebmastersFactory;
 
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
+import java.io.IOException;
 
 /**
  * URLクロールエラーサンプルを修正済みとしてマークするコマンドのテストクラス
@@ -87,7 +88,7 @@ public class MarkAsFixedCommandTest {
         // ResponseWriter.writeJsonをモック化してエラーをスロー
         try (MockedStatic<ResponseWriter> mockedStatic = Mockito.mockStatic(ResponseWriter.class)) {
             mockedStatic.when(() -> ResponseWriter.writeJson(anyString(), eq(Format.CONSOLE), eq(null)))
-                .thenThrow(new RuntimeException("テスト例外"));
+                .thenThrow(new CommandLineInputOutputException("テスト例外"));
 
             // When
             command.execute();
