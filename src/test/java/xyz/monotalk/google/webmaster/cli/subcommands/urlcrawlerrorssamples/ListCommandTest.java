@@ -4,7 +4,8 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mockStatic;
+import static org.mockito.ArgumentMatchers.argThat;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -12,7 +13,6 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockedStatic;
-import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.slf4j.Logger;
 import xyz.monotalk.google.webmaster.cli.CommandLineInputOutputException;
@@ -49,9 +49,10 @@ public class ListCommandTest {
      * 警告メッセージが正しく表示されることを検証。
      */
     @Test
-    public void testExecute_WithDeprecatedApi_ShouldShowWarningMessage() throws CommandLineInputOutputException {
+    public void testExecute_WithDeprecatedApi_ShouldShowWarningMessage() 
+            throws CommandLineInputOutputException {
         // ResponseWriter.writeJsonをモック化
-        try (MockedStatic<ResponseWriter> mockedStatic = Mockito.mockStatic(ResponseWriter.class)) {
+        try (MockedStatic<ResponseWriter> mockedStatic = mockStatic(ResponseWriter.class)) {
             // When
             command.execute();
 
@@ -70,9 +71,10 @@ public class ListCommandTest {
      * CommandLineInputOutputExceptionがスローされることを確認。
      */
     @Test(expected = CommandLineInputOutputException.class)
-    public void testExecute_WhenResponseWriterThrowsException_ShouldThrowCommandLineInputOutputException() throws CommandLineInputOutputException {
+    public void testExecute_WhenResponseWriterThrowsException_ShouldThrowCommandLineInputOutputException() 
+            throws CommandLineInputOutputException {
         // ResponseWriter.writeJsonをモック化してエラーをスロー
-        try (MockedStatic<ResponseWriter> mockedStatic = Mockito.mockStatic(ResponseWriter.class)) {
+        try (MockedStatic<ResponseWriter> mockedStatic = mockStatic(ResponseWriter.class)) {
             mockedStatic.when(() -> ResponseWriter.writeJson(anyString(), eq(Format.CONSOLE), eq(null)))
                 .thenThrow(new CommandLineInputOutputException("テスト例外"));
 

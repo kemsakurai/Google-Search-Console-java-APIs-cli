@@ -1,17 +1,17 @@
 package xyz.monotalk.google.webmaster.cli;
 
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.mock;
+
 import org.junit.Test;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.beans.factory.support.GenericBeanDefinition;
 
-import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.mock;
-
 /**
  * {@summary FullyQualifiedClassNameBeanNameGeneratorのテストクラス。}
  */
-public class FQCNBeanNameGeneratorTest {
+public class FullyQualifiedClassNameBeanNameGeneratorTest {
 
     /**
      * {@summary 完全修飾クラス名がbean名として正しく生成されることをテスト。}

@@ -1,10 +1,13 @@
 package xyz.monotalk.google.webmaster.cli;
 
+import static org.junit.Assert.assertNotNull;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 import com.google.api.client.http.HttpTransport;
 import com.google.api.client.http.javanet.NetHttpTransport;
-import com.google.api.client.json.jackson2.JacksonFactory;
+import com.google.api.client.json.gson.GsonFactory;
 import com.google.api.services.webmasters.Webmasters;
-import com.google.auth.http.HttpCredentialsAdapter;
 import com.google.auth.oauth2.GoogleCredentials;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
@@ -14,10 +17,6 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.test.util.ReflectionTestUtils;
-
-import static org.junit.Assert.assertNotNull;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 /**
  * {@summary WebmastersFactoryのテストクラス。}
@@ -48,8 +47,8 @@ public class WebmastersFactoryTest {
         }
 
         @Override
-        protected JacksonFactory getJsonFactory() {
-            return jsonFactoryProvider.getJsonFactory();
+        protected GsonFactory getJsonFactory() {
+            return (GsonFactory) jsonFactoryProvider.getJsonFactory();
         }
 
         @Override
@@ -66,10 +65,10 @@ public class WebmastersFactoryTest {
     }
 
     /**
-     * {@summary JacksonFactoryを提供するインターフェース。}
+     * {@summary GsonFactoryを提供するインターフェース。}
      */
     interface JsonFactoryProvider {
-        JacksonFactory getJsonFactory();
+        GsonFactory getJsonFactory();
     }
 
     /**
@@ -95,7 +94,7 @@ public class WebmastersFactoryTest {
     private GoogleCredentials mockCredential;
 
     @Mock
-    private JacksonFactory mockJsonFactory;
+    private GsonFactory mockJsonFactory;
 
     private WebmastersFactory factory;
 
