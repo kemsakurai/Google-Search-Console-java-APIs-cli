@@ -1,5 +1,10 @@
 package xyz.monotalk.google.webmaster.cli.subcommands.searchanalytics;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.PrintStream;
+import java.util.Arrays;
+
 import com.google.api.services.webmasters.Webmasters;
 import com.google.api.services.webmasters.model.ApiDataRow;
 import com.google.api.services.webmasters.model.SearchAnalyticsQueryRequest;
@@ -15,16 +20,14 @@ import org.mockito.junit.MockitoJUnitRunner;
 import xyz.monotalk.google.webmaster.cli.ResponseWriter;
 import xyz.monotalk.google.webmaster.cli.WebmastersFactory;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.PrintStream;
-import java.util.Arrays;
-
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
+/**
+ * QueryCommandクラスのテストクラス。
+ */
 @RunWith(MockitoJUnitRunner.class)
 public class QueryCommandTest {
 
@@ -48,6 +51,10 @@ public class QueryCommandTest {
 
     private final ByteArrayOutputStream outContent = new ByteArrayOutputStream();
 
+    /**
+     * テスト前のセットアップ処理。
+     * @throws IOException 入出力例外が発生した場合
+     */
     @Before
     public void setUp() throws IOException {
         MockitoAnnotations.openMocks(this);
@@ -55,11 +62,14 @@ public class QueryCommandTest {
         when(factory.create()).thenReturn(webmasters);
         when(webmasters.searchanalytics()).thenReturn(searchanalytics);
         when(searchanalytics.query(eq("https://www.monotalk.xyz"), any(SearchAnalyticsQueryRequest.class))).thenReturn(query);
-
     }
 
+    /**
+     * 検索結果がある場合の正常系テスト。
+     * @throws IOException 入出力例外が発生した場合
+     */
     @Test
-    public void testExecute_正常系_検索結果がある場合() throws IOException {
+    public void testExecute正常系検索結果あり() throws IOException {
         // Given
         ApiDataRow row = Mockito.spy(new ApiDataRow());
         row.setClicks(100.0);
@@ -87,8 +97,12 @@ public class QueryCommandTest {
         assertTrue("Row should be printed", output.contains(rowJson));
     }
 
+    /**
+     * 検索結果が空の場合の正常系テスト。
+     * @throws IOException 入出力例外が発生した場合
+     */
     @Test
-    public void testExecute_正常系_検索結果が空の場合() throws IOException {
+    public void testExecute正常系検索結果空() throws IOException {
         // Given
         SearchAnalyticsQueryResponse response = Mockito.spy(new SearchAnalyticsQueryResponse());
         when(query.execute()).thenReturn(response);
@@ -102,8 +116,12 @@ public class QueryCommandTest {
         assertTrue(output.contains("{}"));
     }
 
+    /**
+     * toPrettyString実行時に例外が発生する異常系テスト。
+     * @throws IOException 入出力例外が発生した場合
+     */
     @Test
-    public void testExecute_異常系_toPrettyString実行時に例外が発生() throws IOException {
+    public void testExecute異常系ToPrettyString例外発生() throws IOException {
         // Given
         SearchAnalyticsQueryResponse response = Mockito.spy(new SearchAnalyticsQueryResponse());
         when(query.execute()).thenReturn(response);
@@ -117,8 +135,11 @@ public class QueryCommandTest {
         assertTrue("出力にPretty print errorが含まれていること", output.contains("Pretty print error"));
     }
 
+    /**
+     * usageメソッドの正常系テスト。
+     */
     @Test
-    public void testUsage_正常系_説明文字列が返却される() {
+    public void testUsage正常系説明文字列返却() {
         // When
         String usage = command.usage();
 

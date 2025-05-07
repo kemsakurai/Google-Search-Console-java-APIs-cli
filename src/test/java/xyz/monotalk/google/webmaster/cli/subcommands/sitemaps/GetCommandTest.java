@@ -1,5 +1,8 @@
 package xyz.monotalk.google.webmaster.cli.subcommands.sitemaps;
 
+import java.io.IOException;
+import java.net.URL;
+
 import com.google.api.services.webmasters.Webmasters;
 import org.junit.Before;
 import org.junit.Test;
@@ -10,11 +13,12 @@ import xyz.monotalk.google.webmaster.cli.CmdLineArgmentException;
 import xyz.monotalk.google.webmaster.cli.CommandLineInputOutputException;
 import xyz.monotalk.google.webmaster.cli.WebmastersFactory;
 
-import java.io.IOException;
-import java.net.URL;
+import static org.mockito.Mockito.anyString;
+import static org.mockito.Mockito.when;
 
-import static org.mockito.Mockito.*;
-
+/**
+ * GetCommandクラスのテストクラス。
+ */
 @RunWith(MockitoJUnitRunner.class)
 public class GetCommandTest {
 
@@ -44,20 +48,32 @@ public class GetCommandTest {
         when(sitemaps.get(anyString(), anyString())).thenReturn(getRequest);
     }
 
+    /**
+     * サイトURLが未指定の場合の異常系テスト。
+     * @throws Exception 例外が発生した場合
+     */
     @Test(expected = CmdLineArgmentException.class)
-    public void testExecute_サイトURL未指定でエラー() throws Exception {
+    public void testExecute異常系サイトURL未指定() throws Exception {
         command.siteUrl = null;
         command.execute();
     }
 
+    /**
+     * フィードパスが未指定の場合の異常系テスト。
+     * @throws Exception 例外が発生した場合
+     */
     @Test(expected = CmdLineArgmentException.class)
-    public void testExecute_フィードパス未指定でエラー() throws Exception {
+    public void testExecute異常系フィードパス未指定() throws Exception {
         command.feedpath = null;
         command.execute();
     }
 
+    /**
+     * API呼び出しでIOExceptionが発生する異常系テスト。
+     * @throws Exception 例外が発生した場合
+     */
     @Test(expected = CommandLineInputOutputException.class)
-    public void testExecute_API呼び出しでIOException() throws Exception {
+    public void testExecute異常系API呼び出しIOException() throws Exception {
         when(getRequest.execute()).thenThrow(new IOException("API Error"));
         command.execute();
     }

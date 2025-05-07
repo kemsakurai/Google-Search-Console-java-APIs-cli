@@ -14,10 +14,11 @@ import xyz.monotalk.google.webmaster.cli.WebmastersFactory;
 import java.io.IOException;
 
 import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 /**
- * AddCommandのテストクラス
+ * AddCommandのテストクラス。
  */
 @RunWith(MockitoJUnitRunner.class)
 public class AddCommandTest {
@@ -48,7 +49,7 @@ public class AddCommandTest {
     }
 
     @Test
-    public void testExecute_正常系_サイトが追加される() throws IOException {
+    public void testExecute正常系サイト追加成功() throws IOException {
         // When
         command.execute();
 
@@ -60,7 +61,7 @@ public class AddCommandTest {
     }
 
     @Test(expected = CommandLineInputOutputException.class)
-    public void testExecute_異常系_API実行時に例外発生() throws IOException {
+    public void testExecute異常系Api実行例外発生() throws IOException {
         // Given
         when(add.execute()).thenThrow(new IOException("API Error"));
 
@@ -69,7 +70,7 @@ public class AddCommandTest {
     }
 
     @Test
-    public void testExecute_正常系_JSONフォーマットで出力() throws IOException {
+    public void testExecute正常系Jsonフォーマット出力() throws IOException {
         // Given
         command.setFormat(Format.JSON);
 
@@ -84,7 +85,7 @@ public class AddCommandTest {
     }
 
     @Test
-    public void testUsage_正常系_説明文字列が返却される() {
+    public void testUsage正常系説明文字列返却() {
         // Given
         String expected = "Adds a site to Google Search Console.";
 

@@ -44,10 +44,10 @@ public class MarkAsFixedCommandTest {
 
     /**
      * URLがnullの場合のテスト。
-     * CmdLineArgmentExceptionがスローされることを確認。
+     * CmdLineArgmentExceptionがスローされることを確認します。
      */
     @Test(expected = CmdLineArgmentException.class)
-    public void testExecuteUrlNullShouldThrowCmdLineArgmentException() {
+    public void testExecuteUrlNull例外スロー() {
         // Given
         command.setUrl(null);
 
@@ -57,10 +57,12 @@ public class MarkAsFixedCommandTest {
 
     /**
      * 非推奨API対応コマンドのテスト。
-     * 警告メッセージが正しく表示されることを検証。
+     * 警告メッセージが正しく表示されることを検証します。
+     *
+     * @throws CommandLineInputOutputException コマンドライン入出力例外が発生した場合
      */
     @Test
-    public void testExecuteWithValidUrlShouldShowDeprecationMessage() throws CommandLineInputOutputException {
+    public void testExecute有効なUrl警告メッセージ表示() throws CommandLineInputOutputException {
         // ResponseWriter.writeJsonをモック化。
         try (MockedStatic<ResponseWriter> mockedStatic = mockStatic(ResponseWriter.class)) {
             // When
@@ -79,10 +81,12 @@ public class MarkAsFixedCommandTest {
 
     /**
      * ResponseWriterでエラーが発生した場合のテスト。
-     * CommandLineInputOutputExceptionがスローされることを確認。
+     * CommandLineInputOutputExceptionがスローされることを確認します。
+     *
+     * @throws CommandLineInputOutputException コマンドライン入出力例外が発生した場合
      */
     @Test(expected = CommandLineInputOutputException.class)
-    public void testExecuteWhenResponseWriterThrowsExceptionShouldThrowCommandLineInputOutputException() throws CommandLineInputOutputException {
+    public void testExecuteResponseWriter例外スロー() throws CommandLineInputOutputException {
         // ResponseWriter.writeJsonをモック化してエラーをスロー。
         try (MockedStatic<ResponseWriter> mockedStatic = mockStatic(ResponseWriter.class)) {
             mockedStatic.when(() -> ResponseWriter.writeJson(anyString(), eq(Format.CONSOLE), eq(null)))
@@ -95,10 +99,10 @@ public class MarkAsFixedCommandTest {
 
     /**
      * usage()メソッドのテスト。
-     * 説明文に「非推奨」が含まれることを検証。
+     * 説明文に「非推奨」が含まれることを検証します。
      */
     @Test
-    public void testUsageShouldIncludeDeprecatedNotice() {
+    public void testUsage説明文非推奨含む() {
         // When
         String usage = command.usage();
 

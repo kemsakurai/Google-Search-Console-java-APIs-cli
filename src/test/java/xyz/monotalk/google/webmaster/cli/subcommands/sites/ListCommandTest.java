@@ -1,9 +1,5 @@
 package xyz.monotalk.google.webmaster.cli.subcommands.sites;
 
-import static org.junit.Assert.assertEquals;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.*;
-
 import com.google.api.services.webmasters.Webmasters;
 import com.google.api.services.webmasters.model.SitesListResponse;
 import org.junit.Before;
@@ -20,6 +16,11 @@ import xyz.monotalk.google.webmaster.cli.ResponseWriter;
 import xyz.monotalk.google.webmaster.cli.WebmastersFactory;
 
 import java.io.IOException;
+
+import static org.junit.Assert.assertEquals;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 /**
  * サイト一覧取得コマンドのテストクラス。
@@ -54,11 +55,13 @@ public class ListCommandTest {
     }
 
     /**
-     * 正常系のテスト。
-     * サイト一覧が正常に取得されることを検証。
+     * 正常系: サイト一覧が正常に取得されることを検証します。
+     *
+     * @throws IOException 入出力例外が発生した場合
+     * @throws CommandLineInputOutputException コマンドライン入出力例外が発生した場合
      */
     @Test
-    public void testExecute_WithValidParameters_ShouldReturnSitesList() throws IOException, CommandLineInputOutputException {
+    public void testExecute正常系サイト一覧取得成功() throws IOException, CommandLineInputOutputException {
         // ResponseWriterの静的メソッドをモック化
         try (MockedStatic<ResponseWriter> mockedStatic = Mockito.mockStatic(ResponseWriter.class)) {
             // 実行
@@ -76,11 +79,14 @@ public class ListCommandTest {
     }
 
     /**
-     * API呼び出しでエラーが発生した場合のテスト。
-     * IOExceptionがCommandLineInputOutputExceptionとしてスローされることを確認。
+     * 異常系: API呼び出しでエラーが発生する場合を検証します。
+     * IOExceptionがCommandLineInputOutputExceptionとしてスローされることを確認します。
+     *
+     * @throws IOException 入出力例外が発生した場合
+     * @throws CommandLineInputOutputException コマンドライン入出力例外が発生した場合
      */
     @Test(expected = CommandLineInputOutputException.class)
-    public void testExecute_WhenApiCallFails_ShouldThrowCmdLineIOException() throws IOException, CommandLineInputOutputException {
+    public void testExecute異常系Api呼び出し例外発生() throws IOException, CommandLineInputOutputException {
         // 準備
         when(request.execute()).thenThrow(new IOException("API Error"));
 
@@ -89,11 +95,10 @@ public class ListCommandTest {
     }
 
     /**
-     * usage()メソッドのテスト。
-     * 説明文が正しく返されることを検証。
+     * usageメソッドの説明文字列が正しく返されることを検証します。
      */
     @Test
-    public void testUsage_ShouldReturnCorrectDescription() {
+    public void testUsage正常系説明文字列返却() {
         // 実行
         String usage = command.usage();
         // 検証

@@ -13,8 +13,13 @@ import xyz.monotalk.google.webmaster.cli.WebmastersFactory;
 import java.io.IOException;
 
 import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.anyString;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
+/**
+ * DeleteCommandのテストクラス。
+ */
 @RunWith(MockitoJUnitRunner.class)
 public class DeleteCommandTest {
 
@@ -33,6 +38,11 @@ public class DeleteCommandTest {
     @InjectMocks
     private DeleteCommand command;
 
+    /**
+     * テスト前の準備を行います。
+     *
+     * @throws IOException 入出力例外が発生した場合
+     */
     @Before
     public void setup() throws IOException {
         when(factory.create()).thenReturn(webmasters);
@@ -40,8 +50,14 @@ public class DeleteCommandTest {
         when(sitemaps.delete(anyString(), anyString())).thenReturn(delete);
     }
 
+    /**
+     * 正常系: サイトマップが削除されるケースをテストします。
+     *
+     * @throws CommandLineInputOutputException コマンドライン入出力例外が発生した場合
+     * @throws IOException 入出力例外が発生した場合
+     */
     @Test
-    public void testExecute_正常系_サイトマップが削除される() throws CommandLineInputOutputException, IOException {
+    public void testExecute正常系サイトマップ削除成功() throws CommandLineInputOutputException, IOException {
         // Given
         command.setSiteUrl("https://example.com");
         command.setFeedPath("sitemap.xml");
@@ -56,8 +72,14 @@ public class DeleteCommandTest {
         verify(delete).execute();
     }
 
+    /**
+     * 異常系: API呼び出しで例外が発生するケースをテストします。
+     *
+     * @throws IOException 入出力例外が発生した場合
+     * @throws CommandLineInputOutputException コマンドライン入出力例外が発生した場合
+     */
     @Test(expected = CommandLineInputOutputException.class)
-    public void testExecute_異常系_API呼び出しで例外が発生() throws IOException, CommandLineInputOutputException {
+    public void testExecute異常系Api呼び出し例外発生() throws IOException, CommandLineInputOutputException {
         // Given
         command.setSiteUrl("https://example.com");
         command.setFeedPath("sitemap.xml");
@@ -67,8 +89,11 @@ public class DeleteCommandTest {
         command.execute();
     }
 
+    /**
+     * usageメソッドの説明文字列が正しく返却されることをテストします。
+     */
     @Test
-    public void testUsage_正常系_説明文字列が返却される() {
+    public void testUsage正常系説明文字列返却() {
         // When
         String usage = command.usage();
 
