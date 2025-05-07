@@ -149,6 +149,9 @@ checkstyle {
     toolVersion = '10.23.1'
     configFile = file("${rootDir}/config/checkstyle/checkstyle.xml")
     maxWarnings = 1000 // 0から1000に変更して一時的に警告を許容する
+    configProperties = [
+        'org.checkstyle.google.suppressionfilter.config': "${project.rootDir}/config/checkstyle/checkstyle-suppressions.xml"
+    ]
 }
 
 // PMDの設定

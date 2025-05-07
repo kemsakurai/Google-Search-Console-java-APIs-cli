@@ -20,7 +20,7 @@ import xyz.monotalk.google.webmaster.cli.WebmastersFactory;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URL;
+import java.net.URI;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -29,7 +29,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 /**
- * サイトマップ一覧取得コマンドのテストクラス
+ * サイトマップ一覧取得コマンドのテストクラス。
  */
 @RunWith(MockitoJUnitRunner.class)
 public class ListCommandTest {
@@ -59,7 +59,7 @@ public class ListCommandTest {
     private ListCommand command;
 
     /**
-     * テスト前の準備
+     * テスト前の準備。
      */
     @Before
     public void setup() throws IOException, CommandLineInputOutputException, CmdLineArgmentException {
@@ -70,13 +70,13 @@ public class ListCommandTest {
     }
 
     /**
-     * コンソール出力モードでの正常系テスト
-     * サイトマップ一覧が正常に取得されコンソールに出力されることを検証
+     * コンソール出力モードでの正常系テスト。
+     * サイトマップ一覧が正常に取得されコンソールに出力されることを検証。
      */
     @Test
-    public void testExecute_WithConsoleFormat_ShouldSucceed() throws Exception {
+    public void testExecuteWithConsoleFormatShouldSucceed() throws Exception {
         // Given
-        command.siteUrl = new URL("https://example.com").toString();
+        command.siteUrl = URI.create("https://example.com").toString();
         command.format = Format.CONSOLE;
 
         // ResponseWriterの静的メソッドをモック化
@@ -89,21 +89,21 @@ public class ListCommandTest {
             verify(webmasters).sitemaps();
             verify(sitemaps).list("https://example.com");
             verify(list).execute();
-            
+
             // 静的メソッドの呼び出しを検証
             mockedStatic.verify(() -> ResponseWriter.writeJson(eq(response), eq(Format.CONSOLE), anyString()));
         }
     }
 
     /**
-     * JSONファイル出力モードでの正常系テスト
-     * サイトマップ一覧が正常に取得されJSONファイルに出力されることを検証
+     * JSONファイル出力モードでの正常系テスト。
+     * サイトマップ一覧が正常に取得されJSONファイルに出力されることを検証。
      */
     @Test
-    public void testExecute_WithJsonFormat_ShouldOutputToFile() throws Exception {
+    public void testExecuteWithJsonFormatShouldOutputToFile() throws Exception {
         // Given
         File tempFile = temporaryFolder.newFile("output.json");
-        command.siteUrl = new URL("https://example.com").toString();
+        command.siteUrl = URI.create("https://example.com").toString();
         command.format = Format.JSON;
         command.filePath = tempFile.getAbsolutePath();
 
@@ -117,20 +117,20 @@ public class ListCommandTest {
             verify(webmasters).sitemaps();
             verify(sitemaps).list("https://example.com");
             verify(list).execute();
-            
+
             // 静的メソッドの呼び出しを検証
             mockedStatic.verify(() -> ResponseWriter.writeJson(eq(response), eq(Format.JSON), eq(tempFile.getAbsolutePath())));
         }
     }
 
     /**
-     * API呼び出しで例外が発生した場合のテスト
-     * IOExceptionがCmdLineIOExceptionに変換されることを検証
+     * API呼び出しで例外が発生した場合のテスト。
+     * IOExceptionがCmdLineIOExceptionに変換されることを検証。
      */
     @Test(expected = CommandLineInputOutputException.class)
-    public void testExecute_WhenApiCallFails_ShouldThrowCmdLineIOException() throws Exception {
+    public void testExecuteWhenApiCallFailsShouldThrowCmdLineIOException() throws Exception {
         // Given
-        command.siteUrl = new URL("https://example.com").toString();
+        command.siteUrl = URI.create("https://example.com").toString();
         command.format = Format.CONSOLE;
         when(list.execute()).thenThrow(new IOException("API Error"));
 
@@ -139,13 +139,13 @@ public class ListCommandTest {
     }
 
     /**
-     * JSONフォーマット指定時にファイルパスが未指定の場合のテスト
-     * CmdLineArgmentExceptionが発生することを検証
+     * JSONフォーマット指定時にファイルパスが未指定の場合のテスト。
+     * CmdLineArgmentExceptionが発生することを検証。
      */
     @Test(expected = CmdLineArgmentException.class)
-    public void testExecute_WithJsonFormatWithoutFilePath_ShouldThrowException() throws Exception {
+    public void testExecuteWithJsonFormatWithoutFilePathShouldThrowException() throws Exception {
         // Given
-        command.siteUrl = new URL("https://example.com").toString();
+        command.siteUrl = URI.create("https://example.com").toString();
         command.format = Format.JSON;
         command.filePath = null;
 
@@ -154,11 +154,11 @@ public class ListCommandTest {
     }
 
     /**
-     * usageメソッドのテスト
-     * 適切な説明文字列が返されることを検証
+     * usageメソッドのテスト。
+     * 適切な説明文字列が返されることを検証。
      */
     @Test
-    public void testUsage_ShouldReturnCorrectDescription() {
+    public void testUsageShouldReturnCorrectDescription() {
         // When
         String usage = command.usage();
 

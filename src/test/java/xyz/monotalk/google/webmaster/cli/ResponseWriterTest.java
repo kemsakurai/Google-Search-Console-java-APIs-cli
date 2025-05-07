@@ -4,6 +4,18 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+
+import com.google.api.client.json.GenericJson;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
+import org.slf4j.Logger;
+
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
@@ -14,16 +26,6 @@ import java.nio.file.attribute.FileAttribute;
 import java.nio.file.attribute.PosixFilePermission;
 import java.nio.file.attribute.PosixFilePermissions;
 import java.util.Set;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
-import org.slf4j.Logger;
-import com.google.api.client.json.GenericJson;
 
 /**
  * {@summary ResponseWriterクラスのテストクラス。}
@@ -130,7 +132,7 @@ public class ResponseWriterTest {
         FileAttribute<Set<PosixFilePermission>> attr = PosixFilePermissions.asFileAttribute(perms);
         Path readOnlyDir = Files.createTempDirectory("readonly", attr);
         File outputFile = new File(readOnlyDir.toFile(), "test.json");
-        
+
         try {
             ResponseWriter.writeJson(mockResponse, Format.JSON, outputFile.getAbsolutePath());
         } finally {
@@ -154,7 +156,7 @@ public class ResponseWriterTest {
             largeValue.append("value").append(i);
         }
         TestJson largeJson = new TestJson(largeValue.toString());
-        
+
         ResponseWriter.writeJson(largeJson, Format.CONSOLE, null);
         String output = outContent.toString();
         assertTrue(output.contains("value0"));

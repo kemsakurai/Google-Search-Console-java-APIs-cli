@@ -13,54 +13,58 @@ import xyz.monotalk.google.webmaster.cli.CommandLineInputOutputException;
 import xyz.monotalk.google.webmaster.cli.WebmastersFactory;
 
 import java.io.IOException;
-import java.net.URL;
+import java.net.MalformedURLException;
+import java.net.URI;
 
 import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.anyString;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 /**
- * サイトマップ送信コマンドのテストクラス
+ * サイトマップ送信コマンドのテストクラス。
  */
 @RunWith(MockitoJUnitRunner.class)
 public class SubmitCommandTest {
 
     /**
-     * WebmastersFactoryのモック
+     * WebmastersFactoryのモック。
      */
     @Mock
     private WebmastersFactory factory;
 
     /**
-     * Webmastersのモック
+     * Webmastersのモック。
      */
     @Mock
     private Webmasters webmasters;
 
     /**
-     * Sitemapsのモック
+     * Sitemapsのモック。
      */
     @Mock
     private Webmasters.Sitemaps sitemaps;
 
     /**
-     * Submit requestのモック
+     * Submit requestのモック。
      */
     @Mock
     private Webmasters.Sitemaps.Submit submitRequest;
 
     /**
-     * テスト対象のコマンド
+     * テスト対象のコマンド。
      */
     @InjectMocks
     private SubmitCommand command;
 
     /**
-     * テスト前の準備
+     * テスト前の準備。
      */
     @Before
-    public void setUp() throws Exception {
+    public void setUp() throws MalformedURLException, IOException {
         command = new SubmitCommand();
-        command.siteUrl = new URL("http://example.com");
+        command.siteUrl = URI.create("http://example.com").toURL();
         command.feedpath = "sitemap.xml";
         ReflectionTestUtils.setField(command, "factory", factory);
 
@@ -70,7 +74,7 @@ public class SubmitCommandTest {
     }
 
     /**
-     * 正常系: サイトマップの送信が成功するケース
+     * 正常系: サイトマップの送信が成功するケース。
      */
     @Test
     public void testExecuteSuccess() throws Exception {
@@ -80,7 +84,7 @@ public class SubmitCommandTest {
     }
 
     /**
-     * 異常系: サイトURLがnullのケース
+     * 異常系: サイトURLがnullのケース。
      */
     @Test(expected = CmdLineArgmentException.class)
     public void testExecuteFailureWithNullSiteUrl() throws Exception {
@@ -89,7 +93,7 @@ public class SubmitCommandTest {
     }
 
     /**
-     * 異常系: feedpathがnullのケース
+     * 異常系: feedpathがnullのケース。
      */
     @Test(expected = CmdLineArgmentException.class)
     public void testExecuteFailureWithNullFeedpath() throws Exception {
@@ -98,7 +102,7 @@ public class SubmitCommandTest {
     }
 
     /**
-     * 異常系: API呼び出しでIOExceptionが発生するケース
+     * 異常系: API呼び出しでIOExceptionが発生するケース。
      */
     @Test(expected = CommandLineInputOutputException.class)
     public void testExecuteFailureWithIOException() throws Exception {
@@ -107,7 +111,7 @@ public class SubmitCommandTest {
     }
 
     /**
-     * 正常系: usageメソッドが正しい説明文を返すこと
+     * 正常系: usageメソッドが正しい説明文を返すこと。
      */
     @Test
     public void testUsageReturnsCorrectDescription() {

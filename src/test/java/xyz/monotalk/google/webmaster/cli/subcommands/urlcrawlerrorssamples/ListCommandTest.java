@@ -1,5 +1,11 @@
 package xyz.monotalk.google.webmaster.cli.subcommands.urlcrawlerrorssamples;
 
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.*;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -14,22 +20,16 @@ import xyz.monotalk.google.webmaster.cli.Format;
 import xyz.monotalk.google.webmaster.cli.ResponseWriter;
 import xyz.monotalk.google.webmaster.cli.WebmastersFactory;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.*;
-
 /**
- * URLクロールエラーサンプル一覧取得コマンドのテストクラス
- * （非推奨API対応バージョン）
+ * URLクロールエラーサンプル一覧取得コマンドのテストクラス。
+ * （非推奨API対応バージョン）。
  */
 @RunWith(MockitoJUnitRunner.class)
 public class ListCommandTest {
 
     @Mock
     private WebmastersFactory factory;
-    
+
     @Mock
     private Logger logger;
 
@@ -45,8 +45,8 @@ public class ListCommandTest {
     }
 
     /**
-     * 非推奨API対応コマンドのテスト
-     * 警告メッセージが正しく表示されることを検証
+     * 非推奨API対応コマンドのテスト。
+     * 警告メッセージが正しく表示されることを検証。
      */
     @Test
     public void testExecute_WithDeprecatedApi_ShouldShowWarningMessage() throws CommandLineInputOutputException {
@@ -57,18 +57,17 @@ public class ListCommandTest {
 
             // Then
             // 静的メソッドの呼び出しを検証（警告メッセージが表示されること）
-            mockedStatic.verify(() -> 
-                ResponseWriter.writeJson(argThat(message -> 
-                    message.toString().contains("URLクロールエラーサンプル API は現在利用できません")), 
-                    eq(Format.CONSOLE), 
-                    eq(null))
+            mockedStatic.verify(() -> ResponseWriter.writeJson(argThat(message -> 
+                message.toString().contains("URLクロールエラーサンプル API は現在利用できません")), 
+                eq(Format.CONSOLE), 
+                eq(null))
             );
         }
     }
 
     /**
-     * ResponseWriterでエラーが発生した場合のテスト
-     * CommandLineInputOutputExceptionがスローされることを確認
+     * ResponseWriterでエラーが発生した場合のテスト。
+     * CommandLineInputOutputExceptionがスローされることを確認。
      */
     @Test(expected = CommandLineInputOutputException.class)
     public void testExecute_WhenResponseWriterThrowsException_ShouldThrowCommandLineInputOutputException() throws CommandLineInputOutputException {
@@ -83,8 +82,8 @@ public class ListCommandTest {
     }
 
     /**
-     * usage()メソッドのテスト
-     * 説明文が正しく返されることを検証
+     * usage()メソッドのテスト。
+     * 説明文が正しく返されることを検証。
      */
     @Test
     public void testUsage_ShouldReturnValidDescription() {
