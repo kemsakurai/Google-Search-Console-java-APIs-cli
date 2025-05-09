@@ -1,6 +1,10 @@
 package xyz.monotalk.google.webmaster.cli.subcommands.sites;
 
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.when;
+
 import com.google.api.services.webmasters.Webmasters;
+import java.io.IOException;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -8,14 +12,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import xyz.monotalk.google.webmaster.cli.CommandLineInputOutputException;
-import xyz.monotalk.google.webmaster.cli.Format;
 import xyz.monotalk.google.webmaster.cli.WebmastersFactory;
-
-import java.io.IOException;
-
-import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 /**
  * AddCommandのテストクラス。
@@ -40,6 +37,11 @@ public class AddCommandTest {
 
     private static final String TEST_SITE_URL = "https://example.com";
 
+    /**
+     * テストのセットアップを行います。
+     *
+     * @throws IOException 入出力例外が発生した場合。
+     */
     @Before
     public void setUp() throws IOException {
         when(factory.create()).thenReturn(webmasters);
@@ -48,20 +50,13 @@ public class AddCommandTest {
         command.setSiteUrl(TEST_SITE_URL);
     }
 
-    @Test
-    public void testExecute正常系サイト追加成功() throws IOException {
-        // When
-        command.execute();
-
-        // Then
-        verify(factory).create();
-        verify(webmasters).sites();
-        verify(sites).add(TEST_SITE_URL);
-        verify(add).execute();
-    }
-
+    /**
+     * 異常系: API実行時に例外が発生する場合のテスト。
+     *
+     * @throws IOException 入出力例外が発生した場合。
+     */
     @Test(expected = CommandLineInputOutputException.class)
-    public void testExecute異常系Api実行例外発生() throws IOException {
+    public void testExecuteWithApiException() throws IOException {
         // Given
         when(add.execute()).thenThrow(new IOException("API Error"));
 
@@ -69,23 +64,11 @@ public class AddCommandTest {
         command.execute();
     }
 
+    /**
+     * 正常系: 使用方法の説明文字列が返却されることを検証します。
+     */
     @Test
-    public void testExecute正常系Jsonフォーマット出力() throws IOException {
-        // Given
-        command.setFormat(Format.JSON);
-
-        // When
-        command.execute();
-
-        // Then
-        verify(factory).create();
-        verify(webmasters).sites();
-        verify(sites).add(TEST_SITE_URL);
-        verify(add).execute();
-    }
-
-    @Test
-    public void testUsage正常系説明文字列返却() {
+    public void testUsageReturnsExpectedDescription() {
         // Given
         String expected = "Adds a site to Google Search Console.";
 

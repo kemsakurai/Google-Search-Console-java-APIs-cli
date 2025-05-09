@@ -1,32 +1,32 @@
 package xyz.monotalk.google.webmaster.cli.subcommands.searchanalytics;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.PrintStream;
-import java.util.Arrays;
+// インポート文を辞書順に並べ替え、STATICグループを正しい位置に移動
+import static org.junit.Assert.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.when;
 
 import com.google.api.services.webmasters.Webmasters;
 import com.google.api.services.webmasters.model.ApiDataRow;
 import com.google.api.services.webmasters.model.SearchAnalyticsQueryRequest;
 import com.google.api.services.webmasters.model.SearchAnalyticsQueryResponse;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.PrintStream;
+import java.util.Arrays;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.MockitoAnnotations;
 import org.mockito.junit.MockitoJUnitRunner;
 import xyz.monotalk.google.webmaster.cli.ResponseWriter;
 import xyz.monotalk.google.webmaster.cli.WebmastersFactory;
 
-import static org.junit.Assert.assertTrue;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.when;
-
+// JavaDocコメントの句点を日本語の句点に修正
 /**
- * QueryCommandクラスのテストクラス。
+ * QueryCommandのテストクラス。
  */
 @RunWith(MockitoJUnitRunner.class)
 public class QueryCommandTest {
@@ -49,15 +49,16 @@ public class QueryCommandTest {
     @Mock
     private ResponseWriter responseWriter;
 
-    private final ByteArrayOutputStream outContent = new ByteArrayOutputStream();
+    private ByteArrayOutputStream outContent;
 
     /**
      * テスト前のセットアップ処理。
-     * @throws IOException 入出力例外が発生した場合
+     *
+     * @throws IOException 入出力例外が発生した場合。
      */
     @Before
     public void setUp() throws IOException {
-        MockitoAnnotations.openMocks(this);
+        outContent = new ByteArrayOutputStream();
         System.setOut(new PrintStream(outContent));
         when(factory.create()).thenReturn(webmasters);
         when(webmasters.searchanalytics()).thenReturn(searchanalytics);
@@ -66,7 +67,8 @@ public class QueryCommandTest {
 
     /**
      * 検索結果がある場合の正常系テスト。
-     * @throws IOException 入出力例外が発生した場合
+     *
+     * @throws IOException 入出力例外が発生した場合。
      */
     @Test
     public void testExecute正常系検索結果あり() throws IOException {
@@ -99,7 +101,8 @@ public class QueryCommandTest {
 
     /**
      * 検索結果が空の場合の正常系テスト。
-     * @throws IOException 入出力例外が発生した場合
+     *
+     * @throws IOException 入出力例外が発生した場合。
      */
     @Test
     public void testExecute正常系検索結果空() throws IOException {
@@ -118,7 +121,8 @@ public class QueryCommandTest {
 
     /**
      * toPrettyString実行時に例外が発生する異常系テスト。
-     * @throws IOException 入出力例外が発生した場合
+     *
+     * @throws IOException 入出力例外が発生した場合。
      */
     @Test
     public void testExecute異常系ToPrettyString例外発生() throws IOException {

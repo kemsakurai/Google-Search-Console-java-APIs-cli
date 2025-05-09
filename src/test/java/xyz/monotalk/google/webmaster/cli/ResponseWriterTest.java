@@ -1,5 +1,11 @@
 package xyz.monotalk.google.webmaster.cli;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+import com.google.api.client.json.GenericJson;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
@@ -10,8 +16,6 @@ import java.nio.file.attribute.FileAttribute;
 import java.nio.file.attribute.PosixFilePermission;
 import java.nio.file.attribute.PosixFilePermissions;
 import java.util.Set;
-
-import com.google.api.client.json.GenericJson;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -22,13 +26,8 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.slf4j.Logger;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
 /**
- * {@summary ResponseWriterクラスのテストクラス。}
+ * ResponseWriterTestクラスは、ResponseWriterのテストを行います。
  */
 @RunWith(MockitoJUnitRunner.class)
 public class ResponseWriterTest {
@@ -46,7 +45,9 @@ public class ResponseWriterTest {
     private final PrintStream originalOut = System.out;
 
     /**
-     * {@summary テスト前のセットアップ処理。}
+     * テスト前のセットアップを行います。
+     *
+     * @throws IOException 入出力例外が発生した場合。
      */
     @Before
     public void setUpStreams() throws IOException {
@@ -55,7 +56,7 @@ public class ResponseWriterTest {
     }
 
     /**
-     * {@summary テスト後の後処理。}
+     * テスト後の後処理を行います。
      */
     @After
     public void restoreStreams() {
@@ -63,7 +64,7 @@ public class ResponseWriterTest {
     }
 
     /**
-     * {@summary テスト用のJSON拡張クラス。}
+     * テスト用のJSON拡張クラス。
      */
     private static class TestJson extends GenericJson {
         @com.google.api.client.util.Key
@@ -104,8 +105,10 @@ public class ResponseWriterTest {
     @Test(expected = CommandLineInputOutputException.class)
     public void testWriteJson異常系Jsonファイル書き込みエラー() throws Exception {
         // 読み取り専用の一時ディレクトリを作成
-        Set<PosixFilePermission> readOnlyPerms = PosixFilePermissions.fromString("r-xr-xr-x");
-        FileAttribute<Set<PosixFilePermission>> attrs = PosixFilePermissions.asFileAttribute(readOnlyPerms);
+        Set<PosixFilePermission> readOnlyPerms =
+            PosixFilePermissions.fromString("r-xr-xr-x");
+        FileAttribute<Set<PosixFilePermission>> attrs =
+            PosixFilePermissions.asFileAttribute(readOnlyPerms);
         Path readOnlyDir = Files.createTempDirectory("readonly", attrs);
 
         // 一時ディレクトリ内のファイルパスを生成
@@ -128,13 +131,16 @@ public class ResponseWriterTest {
 
     @Test(expected = CommandLineInputOutputException.class)
     public void testWriteJson異常系権限なしディレクトリへの書き込み() throws Exception {
-        Set<PosixFilePermission> perms = PosixFilePermissions.fromString("r--r--r--");
-        FileAttribute<Set<PosixFilePermission>> attr = PosixFilePermissions.asFileAttribute(perms);
+        Set<PosixFilePermission> perms =
+            PosixFilePermissions.fromString("r--r--r--");
+        FileAttribute<Set<PosixFilePermission>> attr =
+            PosixFilePermissions.asFileAttribute(perms);
         Path readOnlyDir = Files.createTempDirectory("readonly", attr);
         File outputFile = new File(readOnlyDir.toFile(), "test.json");
 
         try {
-            ResponseWriter.writeJson(mockResponse, Format.JSON, outputFile.getAbsolutePath());
+            ResponseWriter.writeJson(mockResponse, Format.JSON,
+                outputFile.getAbsolutePath());
         } finally {
             Files.walk(readOnlyDir)
                 .sorted((a, b) -> b.compareTo(a))
@@ -164,7 +170,8 @@ public class ResponseWriterTest {
     }
 
     @Test(expected = CommandLineInputOutputException.class)
-    public void testWriteJsonIoエラー発生時に例外スロー() throws CmdLineArgmentException, CommandLineInputOutputException, IOException {
+    public void testWriteJsonIoエラー発生時に例外スロー() throws CmdLineArgmentException, 
+        CommandLineInputOutputException, IOException {
         // Given
         GenericJson mockResponse = mock(GenericJson.class);
         when(mockResponse.toPrettyString()).thenThrow(new IOException("IO Error"));
@@ -174,7 +181,8 @@ public class ResponseWriterTest {
     }
 
     @Test(expected = CmdLineArgmentException.class)
-    public void testWriteJson異常系ファイルパスがJsonフォーマット時に未指定() throws CmdLineArgmentException, CommandLineInputOutputException, IOException {
+    public void testWriteJson異常系ファイルパスがJsonフォーマット時に未指定() throws CmdLineArgmentException, 
+        CommandLineInputOutputException, IOException {
         // Given
         GenericJson mockResponse = mock(GenericJson.class);
         when(mockResponse.toPrettyString()).thenReturn("test data");

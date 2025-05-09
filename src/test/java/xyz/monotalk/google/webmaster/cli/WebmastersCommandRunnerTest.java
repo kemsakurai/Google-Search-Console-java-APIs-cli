@@ -1,5 +1,12 @@
 package xyz.monotalk.google.webmaster.cli;
 
+import static org.junit.Assert.fail;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.when;
+
 import com.google.api.services.webmasters.Webmasters;
 import com.google.api.services.webmasters.model.SitesListResponse;
 import java.io.IOException;
@@ -13,13 +20,6 @@ import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.test.util.ReflectionTestUtils;
 import xyz.monotalk.google.webmaster.cli.subcommands.sites.ListCommand;
-
-import static org.junit.Assert.fail;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doAnswer;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoInteractions;
-import static org.mockito.Mockito.when;
 
 /**
  * {@summary WebmastersCommandRunnerのテストクラス。}
@@ -79,6 +79,9 @@ public class WebmastersCommandRunnerTest {
 
     /**
      * {@summary コマンド実行が正常に成功するケースのテスト。}
+     *
+     * @throws IOException 入出力例外が発生した場合
+     * @throws CommandLineInputOutputException コマンドライン入出力例外が発生した場合
      */
     @Test
     public void testRunWithCommandSuccessful() throws Exception {
@@ -119,6 +122,9 @@ public class WebmastersCommandRunnerTest {
 
     /**
      * {@summary ヘルプを表示するケースのテスト。}
+     *
+     * @throws IOException 入出力例外が発生した場合
+     * @throws CommandLineInputOutputException コマンドライン入出力例外が発生した場合
      */
     @Test
     public void testRunWithHelpOption() throws Exception {
@@ -140,6 +146,9 @@ public class WebmastersCommandRunnerTest {
 
     /**
      * {@summary 引数なしでヘルプが表示されるケースのテスト。}
+     *
+     * @throws IOException 入出力例外が発生した場合
+     * @throws CommandLineInputOutputException コマンドライン入出力例外が発生した場合
      */
     @Test
     public void testRunWithNoArgumentsShowsHelp() throws Exception {
@@ -161,6 +170,9 @@ public class WebmastersCommandRunnerTest {
 
     /**
      * {@summary 不正な引数が渡された場合のテスト。}
+     *
+     * @throws IOException 入出力例外が発生した場合
+     * @throws CommandLineInputOutputException コマンドライン入出力例外が発生した場合
      */
     @Test
     public void testRunWithInvalidArgument() throws Exception {
@@ -182,6 +194,9 @@ public class WebmastersCommandRunnerTest {
 
     /**
      * {@summary アプリケーション引数を除外するケースのテスト。}
+     *
+     * @throws IOException 入出力例外が発生した場合
+     * @throws CommandLineInputOutputException コマンドライン入出力例外が発生した場合
      */
     @Test
     public void testRunExcludingApplicationArguments() throws Exception {
@@ -222,6 +237,9 @@ public class WebmastersCommandRunnerTest {
 
     /**
      * {@summary 不正なアプリケーション引数が渡された場合のテスト。}
+     *
+     * @throws IOException 入出力例外が発生した場合
+     * @throws CommandLineInputOutputException コマンドライン入出力例外が発生した場合
      */
     @Test
     public void testRunWithInvalidApplicationArgument() throws Exception {
@@ -243,6 +261,9 @@ public class WebmastersCommandRunnerTest {
 
     /**
      * {@summary 引数解析でエラーが発生した場合のテスト。}
+     *
+     * @throws IOException 入出力例外が発生した場合
+     * @throws CommandLineInputOutputException コマンドライン入出力例外が発生した場合
      */
     @Test
     public void testRunWithArgumentParsingError() throws Exception {

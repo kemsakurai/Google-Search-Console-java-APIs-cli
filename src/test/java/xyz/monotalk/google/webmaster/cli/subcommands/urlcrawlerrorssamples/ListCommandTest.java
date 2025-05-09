@@ -3,9 +3,9 @@ package xyz.monotalk.google.webmaster.cli.subcommands.urlcrawlerrorssamples;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mockStatic;
-import static org.mockito.ArgumentMatchers.argThat;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -36,6 +36,9 @@ public class ListCommandTest {
     @InjectMocks
     private ListCommand command;
 
+    /**
+     * テストのセットアップを行います。
+     */
     @Before
     public void setUp() {
         // テスト対象コマンドの初期設定
@@ -46,7 +49,9 @@ public class ListCommandTest {
 
     /**
      * 非推奨API対応コマンドのテスト。
-     * 警告メッセージが正しく表示されることを検証。
+     * 警告メッセージが正しく表示されることを検証します。
+     *
+     * @throws CommandLineInputOutputException 入出力例外が発生した場合。
      */
     @Test
     public void testExecute_WithDeprecatedApi_ShouldShowWarningMessage() 
@@ -61,14 +66,16 @@ public class ListCommandTest {
             mockedStatic.verify(() -> ResponseWriter.writeJson(argThat(message -> 
                 message.toString().contains("URLクロールエラーサンプル API は現在利用できません")), 
                 eq(Format.CONSOLE), 
-                eq(null))
-            );
+                eq(null)
+            ));
         }
     }
 
     /**
      * ResponseWriterでエラーが発生した場合のテスト。
-     * CommandLineInputOutputExceptionがスローされることを確認。
+     * CommandLineInputOutputExceptionがスローされることを確認します。
+     *
+     * @throws CommandLineInputOutputException 入出力例外が発生した場合。
      */
     @Test(expected = CommandLineInputOutputException.class)
     public void testExecute_WhenResponseWriterThrowsException_ShouldThrowCommandLineInputOutputException() 
@@ -85,7 +92,7 @@ public class ListCommandTest {
 
     /**
      * usage()メソッドのテスト。
-     * 説明文が正しく返されることを検証。
+     * 説明文が正しく返されることを検証します。
      */
     @Test
     public void testUsage_ShouldReturnValidDescription() {

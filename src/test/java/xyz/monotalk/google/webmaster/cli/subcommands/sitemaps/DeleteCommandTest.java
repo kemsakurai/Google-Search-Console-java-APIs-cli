@@ -1,6 +1,12 @@
 package xyz.monotalk.google.webmaster.cli.subcommands.sitemaps;
 
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.anyString;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 import com.google.api.services.webmasters.Webmasters;
+import java.io.IOException;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -9,13 +15,6 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import xyz.monotalk.google.webmaster.cli.CommandLineInputOutputException;
 import xyz.monotalk.google.webmaster.cli.WebmastersFactory;
-
-import java.io.IOException;
-
-import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.anyString;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 /**
  * DeleteCommandのテストクラス。
@@ -41,7 +40,7 @@ public class DeleteCommandTest {
     /**
      * テスト前の準備を行います。
      *
-     * @throws IOException 入出力例外が発生した場合
+     * @throws IOException 入出力例外が発生した場合。
      */
     @Before
     public void setup() throws IOException {
@@ -53,11 +52,11 @@ public class DeleteCommandTest {
     /**
      * 正常系: サイトマップが削除されるケースをテストします。
      *
-     * @throws CommandLineInputOutputException コマンドライン入出力例外が発生した場合
-     * @throws IOException 入出力例外が発生した場合
+     * @throws CommandLineInputOutputException コマンドライン入出力例外が発生した場合。
+     * @throws IOException 入出力例外が発生した場合。
      */
     @Test
-    public void testExecute正常系サイトマップ削除成功() throws CommandLineInputOutputException, IOException {
+    public void testExecuteSuccess() throws CommandLineInputOutputException, IOException {
         // Given
         command.setSiteUrl("https://example.com");
         command.setFeedPath("sitemap.xml");
@@ -75,11 +74,11 @@ public class DeleteCommandTest {
     /**
      * 異常系: API呼び出しで例外が発生するケースをテストします。
      *
-     * @throws IOException 入出力例外が発生した場合
-     * @throws CommandLineInputOutputException コマンドライン入出力例外が発生した場合
+     * @throws IOException 入出力例外が発生した場合。
+     * @throws CommandLineInputOutputException コマンドライン入出力例外が発生した場合。
      */
     @Test(expected = CommandLineInputOutputException.class)
-    public void testExecute異常系Api呼び出し例外発生() throws IOException, CommandLineInputOutputException {
+    public void testExecuteErrorApiCallException() throws IOException, CommandLineInputOutputException {
         // Given
         command.setSiteUrl("https://example.com");
         command.setFeedPath("sitemap.xml");
@@ -93,7 +92,7 @@ public class DeleteCommandTest {
      * usageメソッドの説明文字列が正しく返却されることをテストします。
      */
     @Test
-    public void testUsage正常系説明文字列返却() {
+    public void testUsageReturnsCorrectDescription() {
         // When
         String usage = command.usage();
 

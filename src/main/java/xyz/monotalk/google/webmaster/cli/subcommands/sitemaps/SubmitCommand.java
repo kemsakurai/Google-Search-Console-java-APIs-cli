@@ -96,6 +96,22 @@ public class SubmitCommand implements Command {
      *
      * @param siteUrl サイトのURL。
      */
+    public void setSiteUrl(URL siteUrl) {
+        this.siteUrl = siteUrl;
+    }
+
+    /**
+     * WebmastersFactoryを設定します。
+     *
+     * @param factory WebmastersFactoryのインスタンス
+     */
+    public void setFactory(WebmastersFactory factory) {
+        this.factory = factory;
+    }
+
+    /**
+     * サイトURLを設定します。
+     */
     private void logSubmissionStart() {
         if (LOGGER.isInfoEnabled()) {
             LOGGER.info("Submitting sitemap {} for site {}", feedpath, siteUrl);
@@ -116,7 +132,9 @@ public class SubmitCommand implements Command {
     }
 
     private void submitSitemap(final Webmasters webmasters) throws IOException {
-        final Webmasters.Sitemaps.Submit request = webmasters.sitemaps().submit(siteUrl.toString(), feedpath);
+        // 修正: siteUrlとfeedpathを結合して完全なURLを生成
+        final String sitemapUrl = siteUrl.toString() + "/" + feedpath;
+        final Webmasters.Sitemaps.Submit request = webmasters.sitemaps().submit(siteUrl.toString(), sitemapUrl);
         request.execute();
     }
 

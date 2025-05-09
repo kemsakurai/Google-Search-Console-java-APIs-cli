@@ -1,7 +1,13 @@
 package xyz.monotalk.google.webmaster.cli.subcommands.sites;
 
+import static org.junit.Assert.assertEquals;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 import com.google.api.services.webmasters.Webmasters;
 import com.google.api.services.webmasters.model.SitesListResponse;
+import java.io.IOException;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -14,13 +20,6 @@ import xyz.monotalk.google.webmaster.cli.CommandLineInputOutputException;
 import xyz.monotalk.google.webmaster.cli.Format;
 import xyz.monotalk.google.webmaster.cli.ResponseWriter;
 import xyz.monotalk.google.webmaster.cli.WebmastersFactory;
-
-import java.io.IOException;
-
-import static org.junit.Assert.assertEquals;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 /**
  * サイト一覧取得コマンドのテストクラス。
@@ -46,6 +45,11 @@ public class ListCommandTest {
     @InjectMocks
     private ListCommand command;
 
+    /**
+     * テスト前のセットアップ処理。
+     *
+     * @throws IOException 入出力例外が発生した場合。
+     */
     @Before
     public void setUp() throws IOException {
         when(factory.create()).thenReturn(webmasters);
@@ -57,8 +61,8 @@ public class ListCommandTest {
     /**
      * 正常系: サイト一覧が正常に取得されることを検証します。
      *
-     * @throws IOException 入出力例外が発生した場合
-     * @throws CommandLineInputOutputException コマンドライン入出力例外が発生した場合
+     * @throws IOException 入出力例外が発生した場合。
+     * @throws CommandLineInputOutputException コマンドライン入出力例外が発生した場合。
      */
     @Test
     public void testExecute正常系サイト一覧取得成功() throws IOException, CommandLineInputOutputException {
@@ -82,8 +86,8 @@ public class ListCommandTest {
      * 異常系: API呼び出しでエラーが発生する場合を検証します。
      * IOExceptionがCommandLineInputOutputExceptionとしてスローされることを確認します。
      *
-     * @throws IOException 入出力例外が発生した場合
-     * @throws CommandLineInputOutputException コマンドライン入出力例外が発生した場合
+     * @throws IOException 入出力例外が発生した場合。
+     * @throws CommandLineInputOutputException コマンドライン入出力例外が発生した場合。
      */
     @Test(expected = CommandLineInputOutputException.class)
     public void testExecute異常系Api呼び出し例外発生() throws IOException, CommandLineInputOutputException {

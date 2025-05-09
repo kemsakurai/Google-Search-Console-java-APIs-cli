@@ -7,6 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import xyz.monotalk.google.webmaster.cli.CmdLineArgmentException;
 import xyz.monotalk.google.webmaster.cli.Command;
 import xyz.monotalk.google.webmaster.cli.CommandLineInputOutputException;
 import xyz.monotalk.google.webmaster.cli.Format;
@@ -41,18 +42,38 @@ public class AddCommand implements Command {
     @Override
     public void execute() {
         try {
+            if (siteUrl == null || siteUrl.isEmpty()) {
+                throw new CmdLineArgmentException("Site URL is required.");
+            }
+
             final Webmasters webmasters = factory.create();
-            final Webmasters.Sites.Add add = webmasters.sites().add(siteUrl);
+            final Webmasters.Sites sites = webmasters.sites(); // キャッシュ
+            if (sites == null) {
+                throw new CommandLineInputOutputException("Webmasters API 'sites' service is unavailable.");
+            }
+
+            final Webmasters.Sites.Add add = sites.add(siteUrl);
             add.execute();
 
-            if (format == Format.CONSOLE && LOGGER.isInfoEnabled()) {
-                LOGGER.info("Successfully added site: {}", siteUrl);
+            // サイトマップ送信ロジックを追加
+            final Webmasters.Sitemaps sitemaps = webmasters.sitemaps();
+            if (sitemaps == null) {
+                throw new CommandLineInputOutputException("Webmasters API 'sitemaps' service is unavailable.");
             }
+
+            final Webmasters.Sitemaps.Submit submit = sitemaps.submit(siteUrl, siteUrl + "/sitemap.xml");
+            submit.execute();
+
+            if (format == Format.CONSOLE && LOGGER.isInfoEnabled()) {
+                LOGGER.info("Successfully added site and submitted sitemap: {}", siteUrl);
+            }
+        } catch (CmdLineArgmentException e) {
+            throw e; // 再スロー
         } catch (IOException e) {
             if (LOGGER.isErrorEnabled()) {
-                LOGGER.error("Failed to add site: {}", siteUrl, e);
+                LOGGER.error("Failed to add site or submit sitemap: {}", siteUrl, e);
             }
-            throw new CommandLineInputOutputException("Failed to add site: " + siteUrl, e);
+            throw new CommandLineInputOutputException("Failed to add site or submit sitemap: " + siteUrl, e);
         }
     }
 

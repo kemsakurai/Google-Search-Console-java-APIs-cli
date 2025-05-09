@@ -91,22 +91,12 @@ public void downCastPrimitiveType() {
 
 **まとめ**
 
-「汎用的な例外（Exception/RuntimeException/NullPointerExceptionなど）をcatchしない。catchする場合は、発生しうる具体的な例外型を明示する」ことが、このルールの修正方針です[2][1]。
-
----[1]: https://pmd.github.io/pmd/pmd_rules_java_design.html[2]: https://pmd.github.io/pmd/pmd_rules_java_design.html#avoidcatchinggenericexception
-
-Citations:
-[1] https://pmd.github.io/pmd/pmd_rules_java_design.html
-[2] https://pmd.github.io/pmd/pmd_rules_java_design.html#avoidcatchinggenericexception
-[3] https://pmd.github.io/pmd/pmd_rules_java_design.html
-
----
-Perplexity の Eliot より: pplx.ai/share
+「汎用的な例外（Exception/RuntimeException/NullPointerExceptionなど）をcatchしない。catchする場合は、発生しうる具体的な例外型を明示する」ことが、このルールの修正方針です。
 
 ## PMD警告「CommentRequired: Public method and constructor comments are required」の修正方法
 
 **概要**  
-この警告は、PMDの`CommentRequired`ルールにより、**publicなメソッドやコンストラクタにJavadocコメントが必要**であることを示しています。Javadocコメントが不足している場合、この警告が表示されます[5][9][10]。
+この警告は、PMDの`CommentRequired`ルールにより、**publicなメソッドやコンストラクタにJavadocコメントが必要**であることを示しています。Javadocコメントが不足している場合、この警告が表示されます。
 
 ---
 
@@ -138,8 +128,66 @@ Perplexity の Eliot より: pplx.ai/share
 
 - **3. コメントの内容**  
   - メソッドの場合：処理内容や戻り値、引数の説明を記述します。
-  - コンストラクタの場合：用途や特記事項があれば記載します。特に理由がなければ「デフォルトコンストラクタ」など簡単な説明でもOKです[3][5]。
+  - コンストラクタの場合：用途や特記事項があれば記載します。特に理由がなければ「デフォルトコンストラクタ」など簡単な説明でもOKです。
 
 - **4. 再チェック**  
   コメント追加後、再度PMDを実行し、警告が消えていることを確認します。
 
+## CheckStyle「JavadocParagraph」警告への対応方法
+
+「`<p> タグの次の行には空行を入れてください。 [JavadocParagraph]`」というCheckStyleの警告は、**Javadoc内で段落（`<p>`タグ）を使う際に、適切な空行（空白行）が入っていない**ことが原因です。この警告を解消するには、**各段落の直前に必ず1行の空行を入れる**必要があります。
+
+---
+
+### 正しいJavadocの書き方例
+
+#### NG例（警告が出る）
+
+```java
+/**
+ * 説明文
+ * <p>詳細説明
+ */
+```
+
+#### OK例（警告が出ない）
+
+```java
+/**
+ * 説明文
+ *
+ * <p>詳細説明
+ */
+```
+- `<p>`タグの前に**空行**（`*` のみの行）が必要です。
+
+---
+
+### ポイントまとめ
+
+- **1つ目の段落**の後に `<p>` タグで新しい段落を始める場合、**その直前に必ず空行を入れる**[1][5]。
+- `<p>` タグの直後には**空行は不要**。すぐに本文を書き始めてOKです。
+- すべての段落間に**空行1行**を入れることで、CheckStyleの警告が消えます。
+
+---
+
+### 参考（公式ドキュメントより）
+
+> There is one blank line between each of two paragraphs. Each paragraph but the first has `<p>` immediately before the first word, with no space ...  
+> By default, the check will report a violation if there is no empty line before or whitespace after the `<p>` tag[1][5]。
+
+---
+
+### まとめ
+
+- **`<p>`タグの前に空行を入れる**ことで警告は解消します。
+- 例：
+    ```java
+    /**
+     * 概要
+     *
+     * <p>詳細
+     */
+    ```
+
+このルールを守ってJavadocを書き直してください。

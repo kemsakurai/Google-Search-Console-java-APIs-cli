@@ -1,5 +1,12 @@
 package xyz.monotalk.google.webmaster.cli.subcommands.urlcrawlerrorssamples;
 
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.argThat;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.mockStatic;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -7,22 +14,14 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockedStatic;
 import org.mockito.junit.MockitoJUnitRunner;
-import org.slf4j.Logger;
 import xyz.monotalk.google.webmaster.cli.CmdLineArgmentException;
 import xyz.monotalk.google.webmaster.cli.CommandLineInputOutputException;
 import xyz.monotalk.google.webmaster.cli.Format;
 import xyz.monotalk.google.webmaster.cli.ResponseWriter;
 import xyz.monotalk.google.webmaster.cli.WebmastersFactory;
 
-import static org.junit.Assert.assertTrue;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.argThat;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.mockStatic;
-
 /**
- * URLクロールエラーサンプルを修正済みとしてマークするコマンドのテストクラス。
- * （非推奨API対応バージョン）。
+ * URLクロールエラーを修正済みとしてマークするコマンドのテストクラス。
  */
 @RunWith(MockitoJUnitRunner.class)
 public class MarkAsFixedCommandTest {
@@ -30,16 +29,18 @@ public class MarkAsFixedCommandTest {
     @Mock
     private WebmastersFactory factory;
 
-    @Mock
-    private Logger logger;
-
     @InjectMocks
     private MarkAsFixedCommand command;
 
+    /**
+     * テストのセットアップを行います。
+     */
     @Before
     public void setUp() {
-        // URLを設定。
-        command.setUrl("https://example.com/404");
+        // テスト対象コマンドの初期設定
+        command.setUrl("https://www.monotalk.xyz");
+        command.setCategory("notFound");
+        command.setPlatform("web");
     }
 
     /**
@@ -99,14 +100,16 @@ public class MarkAsFixedCommandTest {
 
     /**
      * usage()メソッドのテスト。
-     * 説明文に「非推奨」が含まれることを検証します。
+     * 説明文が正しく返されることを検証します。
      */
     @Test
-    public void testUsage説明文非推奨含む() {
+    public void testUsage_ShouldReturnValidDescription() {
         // When
         String usage = command.usage();
 
         // Then
+        assertNotNull("説明文がnullであってはならない", usage);
+        assertTrue("説明文は空であってはならない", !usage.isEmpty());
         assertTrue("説明文に「非推奨」が含まれること", usage.contains("非推奨"));
     }
 }

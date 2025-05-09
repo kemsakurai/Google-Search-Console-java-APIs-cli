@@ -1,8 +1,8 @@
 package xyz.monotalk.google.webmaster.cli;
 
-import org.junit.Test;
-
 import static org.junit.Assert.assertEquals;
+
+import org.junit.Test;
 
 /**
  * {@summary Formatクラスのテスト。}
