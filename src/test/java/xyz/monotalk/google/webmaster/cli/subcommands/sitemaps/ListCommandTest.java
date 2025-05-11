@@ -1,10 +1,10 @@
 package xyz.monotalk.google.webmaster.cli.subcommands.sitemaps;
 
 import static org.junit.Assert.assertEquals;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.anyString;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.mockito.ArgumentMatchers.eq;
 
 import com.google.api.services.webmasters.Webmasters;
 import com.google.api.services.webmasters.model.SitemapsListResponse;

@@ -31,6 +31,7 @@
                     com.google.api.services.webmasters.Webmasters.Sitemaps.Submit,
                     com.google.api.services.webmasters.Webmasters.Sites.Add,
                     com.google.api.services.webmasters.model.SitesListResponse,
+                    com.google.api.services.webmasters.Webmasters.Searchanalytics.Query,
                     com.google.api.services.webmasters.Webmasters.Sites.List,
                     com.google.api.client.json.GenericJson" />
         </properties>

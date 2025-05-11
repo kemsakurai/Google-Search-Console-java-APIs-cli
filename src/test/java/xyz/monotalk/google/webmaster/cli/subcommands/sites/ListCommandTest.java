@@ -107,7 +107,7 @@ public class ListCommandTest {
      * @throws IOException 入出力例外が発生した場合。
      */
     @Test(expected = CommandLineInputOutputException.class)
-    public void testExecute_IOException_ThrowsException() throws IOException {
+    public void testExecute入出力エラー時に例外スロー() throws IOException {
         // Arrange
         when(request.execute()).thenThrow(new IOException("Test IOException"));
 

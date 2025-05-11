@@ -1,7 +1,7 @@
 package xyz.monotalk.google.webmaster.cli;
 
-import static org.junit.Assert.fail;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
@@ -68,9 +68,11 @@ public class WebmastersCommandRunnerTest {
 
     /**
      * テスト前のセットアップ処理。
+     *
+     * @throws IOException セットアップ中に発生する可能性のある例外
      */
     @Before
-    public void setUp() {
+    public void setUp() throws IOException {
         try {
             setupMockBehavior();
         } catch (final IOException ex) {
@@ -143,12 +145,6 @@ public class WebmastersCommandRunnerTest {
         when(sites.list()).thenReturn(sitesList);
         when(sitesList.execute()).thenReturn(response);
     }
-
-    /**
-     * サイトリストAPIの呼び出しを検証します。
-     *
-     * @throws IOException 検証中に発生する可能性のある例外
-     */
 
     /**
      * サイトリストAPIの呼び出しを検証します。

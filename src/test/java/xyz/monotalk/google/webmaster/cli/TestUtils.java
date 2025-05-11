@@ -1,7 +1,9 @@
 package xyz.monotalk.google.webmaster.cli;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+
 import org.junit.Test;
-import static org.junit.Assert.*;
 
 /**
  * テスト専用のユーティリティクラス。
@@ -14,15 +16,18 @@ public final class TestUtils {
 
     /**
      * ResponseWriterのprivateメソッドconvertToJsonStringを呼び出すためのユーティリティメソッド。
+     * リフレクションを使用してprivateメソッドにアクセスし、テスト可能にします。
      *
      * @param response JSONに変換するオブジェクト
      * @return JSON形式の文字列
      */
     public static String invokeConvertToJsonString(final Object response) {
         try {
-            final java.lang.reflect.Method method = ResponseWriter.class.getDeclaredMethod("convertToJsonString", Object.class);
+            final java.lang.reflect.Method method = 
+                ResponseWriter.class.getDeclaredMethod("convertToJsonString", Object.class);
             return (String) method.invoke(null, response);
-        } catch (final NoSuchMethodException | IllegalAccessException | java.lang.reflect.InvocationTargetException e) {
+        } catch (final NoSuchMethodException | IllegalAccessException 
+                | java.lang.reflect.InvocationTargetException e) {
             throw new IllegalStateException("Failed to invoke convertToJsonString", e);
         }
     }

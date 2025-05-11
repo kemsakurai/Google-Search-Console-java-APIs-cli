@@ -2,7 +2,9 @@ package xyz.monotalk.google.webmaster.cli.subcommands.sitemaps;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
-import static org.mockito.Mockito.*;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import com.google.api.services.webmasters.Webmasters;
 import java.io.IOException;
