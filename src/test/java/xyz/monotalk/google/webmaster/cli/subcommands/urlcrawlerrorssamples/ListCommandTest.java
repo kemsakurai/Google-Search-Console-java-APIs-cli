@@ -1,6 +1,7 @@
 package xyz.monotalk.google.webmaster.cli.subcommands.urlcrawlerrorssamples;
 
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.argThat;
@@ -27,12 +28,21 @@ import xyz.monotalk.google.webmaster.cli.WebmastersFactory;
 @RunWith(MockitoJUnitRunner.class)
 public class ListCommandTest {
 
+    /**
+     * WebmastersFactoryのモックインスタンス。
+     */
     @Mock
     private WebmastersFactory factory;
 
+    /**
+     * Loggerのモックインスタンス。
+     */
     @Mock
     private Logger logger;
 
+    /**
+     * テスト対象のコマンドインスタンス。
+     */
     @InjectMocks
     private ListCommand command;
 
@@ -50,12 +60,9 @@ public class ListCommandTest {
     /**
      * 非推奨API対応コマンドのテスト。
      * 警告メッセージが正しく表示されることを検証します。
-     *
-     * @throws CommandLineInputOutputException 入出力例外が発生した場合。
      */
     @Test
-    public void testExecute_WithDeprecatedApi_ShouldShowWarningMessage() 
-            throws CommandLineInputOutputException {
+    public void testExecute_WithDeprecatedApi_ShouldShowWarningMessage() {
         // ResponseWriter.writeJsonをモック化
         try (MockedStatic<ResponseWriter> mockedStatic = mockStatic(ResponseWriter.class)) {
             // When
@@ -74,12 +81,9 @@ public class ListCommandTest {
     /**
      * ResponseWriterでエラーが発生した場合のテスト。
      * CommandLineInputOutputExceptionがスローされることを確認します。
-     *
-     * @throws CommandLineInputOutputException 入出力例外が発生した場合。
      */
     @Test(expected = CommandLineInputOutputException.class)
-    public void testExecute_WhenResponseWriterThrowsException_ShouldThrowCommandLineInputOutputException() 
-            throws CommandLineInputOutputException {
+    public void testExecute_WhenResponseWriterThrowsException_ShouldThrowCommandLineInputOutputException() {
         // ResponseWriter.writeJsonをモック化してエラーをスロー
         try (MockedStatic<ResponseWriter> mockedStatic = mockStatic(ResponseWriter.class)) {
             mockedStatic.when(() -> ResponseWriter.writeJson(anyString(), eq(Format.CONSOLE), eq(null)))
@@ -97,11 +101,11 @@ public class ListCommandTest {
     @Test
     public void testUsage_ShouldReturnValidDescription() {
         // When
-        String usage = command.usage();
+        final String usage = command.usage();
 
         // Then
         assertNotNull("説明文がnullであってはならない", usage);
-        assertTrue("説明文は空であってはならない", !usage.isEmpty());
+        assertFalse("説明文は空であってはならない", usage.isEmpty());
         assertTrue("説明文に「非推奨」が含まれること", usage.contains("非推奨"));
     }
 }

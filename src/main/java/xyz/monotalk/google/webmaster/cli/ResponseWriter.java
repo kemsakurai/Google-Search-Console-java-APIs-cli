@@ -19,8 +19,11 @@ public final class ResponseWriter {
      */
     private static final Logger LOGGER = LoggerFactory.getLogger(ResponseWriter.class);
 
-    private ResponseWriter() {
-        // インスタンス化を防止するためのプライベートコンストラクタ
+    /**
+     * テスト用にデフォルトコンストラクタのアクセス修飾子を変更。
+     */
+    public ResponseWriter() {
+        // デフォルトコンストラクタ
     }
 
     /**
@@ -57,19 +60,21 @@ public final class ResponseWriter {
     }
 
     /**
-     * レスポンスオブジェクトをJSON文字列に変換します。
+     * JSON形式のレスポンスを文字列に変換します。
      *
      * @param response 変換対象のレスポンスオブジェクト。
      * @return JSON形式の文字列。
      * @throws IOException JSON変換中にエラーが発生した場合。
+     * @throws IllegalArgumentException サポートされていないレスポンス型の場合。
      */
-    private static String convertToJsonString(final Object response) throws IOException {
-        // Java 21のパターンマッチング構文を使用して型チェックとキャストを一度に行う
-        return switch (response) {
-            case null -> "{}";
-            case GenericJson json -> json.toPrettyString();
-            default -> response.toString();
-        };
+    protected static String convertToJsonString(final Object response) throws IOException {
+        if (response == null) {
+            return "{}";
+        } else if (response instanceof GenericJson) {
+            return ((GenericJson) response).toPrettyString();
+        } else {
+            throw new IllegalArgumentException("Unsupported response type: " + response.getClass().getName());
+        }
     }
 
     /**
@@ -90,10 +95,7 @@ public final class ResponseWriter {
             FileUtils.write(file, content, StandardCharsets.UTF_8);
         } catch (IOException e) {
             throw new CommandLineInputOutputException(
-                """
-                Failed to write to file: %s
-                Cause: %s
-                """.formatted(path, e.getMessage()), e);
+                String.format("Failed to write to file: %s\nCause: %s", path, e.getMessage()), e);
         }
     }
 

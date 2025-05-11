@@ -57,7 +57,7 @@ public class DeleteCommand implements Command {
         if (LOGGER.isInfoEnabled()) {
             LOGGER.info("START Delete.");
         }
-        final Webmasters webmasters = factory.create();
+        final Webmasters webmasters = factory.createClient();
         try {
             final Webmasters.Sitemaps.Delete delete = webmasters.sitemaps().delete(siteUrl, feedPath);
             delete.execute();

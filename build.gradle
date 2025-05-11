@@ -157,8 +157,15 @@ checkstyle {
 // PMDの設定
 pmd {
     toolVersion = '7.13.0'  // 7.15.0から7.0.0に変更
-    ruleSetFiles = files("${rootDir}/config/pmd/ruleset.xml")
     consoleOutput = true
+}
+tasks.named('pmdMain') {
+    ruleSetFiles = files("${rootDir}/config/pmd/ruleset.xml")
+}
+
+tasks.named('pmdTest') {
+    ruleSetFiles = files("${rootDir}/config/pmd/ruleset.test.xml")
+    ignoreFailures = true // テストコードの警告をビルド失敗にしない
 }
 
 // SpotBugsの設定

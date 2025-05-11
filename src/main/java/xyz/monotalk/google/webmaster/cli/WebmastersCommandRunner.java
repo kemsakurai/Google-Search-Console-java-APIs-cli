@@ -81,6 +81,15 @@ public class WebmastersCommandRunner implements CommandLineRunner {
     }
 
     /**
+     * コマンドを設定します。
+     *
+     * @param command 実行するコマンド
+     */
+    public void setCommand(Command command) {
+        this.command = command;
+    }
+
+    /**
      * コマンドライン引数に基づいてコマンドを実行します。
      *
      * @param args コマンドライン引数
@@ -116,6 +125,11 @@ public class WebmastersCommandRunner implements CommandLineRunner {
             executeCommand(parser);
         } catch (CmdLineArgmentException | CmdLineException e) {
             displayError(parser, e);
+        } catch (Exception e) {
+            if (LOGGER.isErrorEnabled()) {
+                LOGGER.error("Unexpected error occurred: {}", e.getMessage(), e);
+            }
+            throw e;
         }
     }
 
@@ -137,12 +151,13 @@ public class WebmastersCommandRunner implements CommandLineRunner {
      * @throws CmdLineException コマンドライン処理中にエラーが発生した場合
      */
     private void executeCommand(final CmdLineParser parser) throws CmdLineException {
-        context.getAutowireCapableBeanFactory().autowireBean(this.command);
-
-        // nullチェックを追加
+        // コマンドがnullの場合のエラーハンドリングを強化
         if (this.command == null) {
-            throw new CmdLineException(parser, "Command is not initialized.", null);
+            throw new IllegalStateException("Command is not initialized. Please specify a valid command.");
         }
+
+        // コマンドの依存性注入
+        context.getAutowireCapableBeanFactory().autowireBean(this.command);
 
         try {
             this.command.execute();
@@ -150,6 +165,8 @@ public class WebmastersCommandRunner implements CommandLineRunner {
             handleCommandException(parser, ioEx, "I/O error");
         } catch (CmdLineArgmentException argEx) {
             handleCommandException(parser, argEx, "Invalid argument");
+        } catch (Exception ex) {
+            handleCommandException(parser, ex, "Unexpected error");
         }
     }
 
@@ -247,5 +264,50 @@ public class WebmastersCommandRunner implements CommandLineRunner {
             positional arguments:
               %s optional arguments:
             """.formatted(joiner, commandDetails);
+    }
+
+    /**
+     * テスト専用のヘルパーメソッド。
+     * executeCommand メソッドを間接的に呼び出します。
+     *
+     * @param args コマンド引数
+     * @throws CmdLineException コマンドライン処理中にエラーが発生した場合
+     */
+    public void testExecuteCommand(String[] args) throws CmdLineException {
+        CmdLineParser parser = new CmdLineParser(this);
+        parser.parseArgument(args);
+        executeCommand(parser);
+    }
+
+    /**
+     * Webmasters APIのコマンドを実行するためのヘルパークラスです。
+     */
+    public class WebmastersCommandHelper {
+
+        /**
+         * コマンドを実行します。
+         *
+         * @param command 実行するコマンド。
+         * @throws CmdLineArgmentException コマンド引数が無効な場合。
+         * @throws CommandLineInputOutputException 入出力エラーが発生した場合。
+         */
+        public void runCommand(Command command) {
+            try {
+                command.execute();
+            } catch (CmdLineArgmentException | CommandLineInputOutputException e) {
+                throw e; // 再スロー
+            } catch (Exception e) {
+                throw new CommandLineInputOutputException("Unexpected error occurred: " + e.getMessage(), e);
+            }
+        }
+
+        /**
+         * コマンドの使用方法を表示します。
+         *
+         * @param command 使用方法を表示するコマンド。
+         */
+        public void showUsage(Command command) {
+            System.out.println(command.usage());
+        }
     }
 }

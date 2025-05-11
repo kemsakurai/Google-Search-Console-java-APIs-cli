@@ -20,22 +20,47 @@ import xyz.monotalk.google.webmaster.cli.WebmastersFactory;
 @RunWith(MockitoJUnitRunner.class)
 public class AddCommandTest {
 
+    /**
+     * WebmastersFactoryのモック。
+     */
     @Mock
     private WebmastersFactory factory;
 
+    /**
+     * Webmastersクライアントのモック。
+     */
     @Mock
     private Webmasters webmasters;
 
+    /**
+     * Webmasters.Sitesのモック。
+     */
     @Mock
     private Webmasters.Sites sites;
 
+    /**
+     * Webmasters.Sites.Addのモック。
+     */
     @Mock
     private Webmasters.Sites.Add add;
 
+    /**
+     * AddCommandのインスタンス。
+     */
     @InjectMocks
     private AddCommand command;
 
+    /**
+     * テスト用のサイトURL。
+     */
     private static final String TEST_SITE_URL = "https://example.com";
+
+    /**
+     * デフォルトコンストラクタ。
+     */
+    public AddCommandTest() {
+        // デフォルトの初期化処理
+    }
 
     /**
      * テストのセットアップを行います。
@@ -44,7 +69,7 @@ public class AddCommandTest {
      */
     @Before
     public void setUp() throws IOException {
-        when(factory.create()).thenReturn(webmasters);
+        when(factory.createClient()).thenReturn(webmasters);
         when(webmasters.sites()).thenReturn(sites);
         when(sites.add(TEST_SITE_URL)).thenReturn(add);
         command.setSiteUrl(TEST_SITE_URL);
@@ -70,12 +95,12 @@ public class AddCommandTest {
     @Test
     public void testUsageReturnsExpectedDescription() {
         // Given
-        String expected = "Adds a site to Google Search Console.";
+        final String expected = "Adds a site to Google Search Console.";
 
         // When
-        String actual = command.usage();
+        final String actual = command.usage();
 
         // Then
-        assertEquals(expected, actual);
+        assertEquals("使用方法の説明が正しくありません", expected, actual);
     }
 }

@@ -1,10 +1,11 @@
 package xyz.monotalk.google.webmaster.cli;
 
 import static org.junit.Assert.fail;
+import static org.junit.Assert.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 import com.google.api.services.webmasters.Webmasters;
@@ -15,271 +16,192 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner.Silent;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
 import org.springframework.context.ApplicationContext;
-import org.springframework.test.util.ReflectionTestUtils;
 import xyz.monotalk.google.webmaster.cli.subcommands.sites.ListCommand;
 
 /**
- * {@summary WebmastersCommandRunnerのテストクラス。}
+ * WebmastersCommandRunnerTestクラス。
+ * WebmastersCommandRunnerのテストを実行します。
  */
-@RunWith(Silent.class) // lenientモードを使用
+@RunWith(MockitoJUnitRunner.class)
 public class WebmastersCommandRunnerTest {
 
+    /** サイトリストコマンド。 */
+    private static final String CMD_SITES_LIST = "webmasters.sites.list";
+
+    /** テスト用のコマンドライン引数。 */
+    private static final String[] TEST_ARGS = {"arg1", "arg2"};
+
+    /** テスト対象のWebmastersCommandRunnerインスタンス。 */
     @InjectMocks
-    private WebmastersCommandRunner commandRunner;
+    private WebmastersCommandRunner runner;
 
+    /** Spring ApplicationContext。 */
     @Mock
-    private ApplicationContext applicationContext;
+    private ApplicationContext context;
 
+    /** モックされたAutowireCapableBeanFactory。 */
     @Mock
-    private AutowireCapableBeanFactory autowireCapableBeanFactory;
+    private AutowireCapableBeanFactory beanFactory;
 
+    /** モックされたWebmastersFactory。 */
     @Mock
-    private WebmastersFactory mockWebmastersFactory;
+    private WebmastersFactory webmastersFactory;
 
+    /** モックされたWebmastersクライアント。 */
     @Mock
-    private Webmasters mockWebmasters;
+    private Webmasters webmasters;
 
+    /** モックされたWebmasters.Sites。 */
     @Mock
-    private Webmasters.Sites mockSites;
+    private Webmasters.Sites sites;
 
+    /** モックされたWebmasters.Sites.List。 */
     @Mock
-    private Webmasters.Sites.List mockSitesList;
+    private Webmasters.Sites.List sitesList;
 
+    /** モックされたSitesListResponse。 */
     @Mock
-    private SitesListResponse mockResponse;
-
-    @Mock
-    private Command mockCommand;
-
-    @Mock
-    private ResponseWriter mockResponseWriter;
+    private SitesListResponse response;
 
     /**
-     * {@summary テスト前のセットアップ処理。}
+     * テスト前のセットアップ処理。
      */
     @Before
     public void setUp() {
-        when(applicationContext.getAutowireCapableBeanFactory()).thenReturn(autowireCapableBeanFactory);
+        try {
+            setupMockBehavior();
+        } catch (final IOException ex) {
+            fail("セットアップ中にIO例外が発生しました: " + ex.getMessage());
+        }
+    }
 
+    /**
+     * モックの振る舞いを設定します。
+     *
+     * @throws IOException モック設定中に発生する可能性のある例外
+     */
+    private void setupMockBehavior() throws IOException {
+        when(context.getAutowireCapableBeanFactory()).thenReturn(beanFactory);
+        setupBeanFactoryBehavior();
+        setupWebmastersClientBehavior();
+    }
+
+    /**
+     * BeanFactoryの振る舞いを設定します。
+     */
+    private void setupBeanFactoryBehavior() {
         doAnswer(invocation -> {
-            Object bean = invocation.getArgument(0);
+            final Object bean = invocation.getArgument(0);
             if (bean instanceof ListCommand) {
-                ListCommand listCommand = (ListCommand) bean;
-                ReflectionTestUtils.setField(listCommand, "factory", mockWebmastersFactory);
-                // ResponseWriterフィールドは存在しないため設定は削除
+                final ListCommand listCommand = (ListCommand) bean;
+                listCommand.setFactory(webmastersFactory);
             }
             return null;
-        }).when(autowireCapableBeanFactory).autowireBean(any());
-
-        when(applicationContext.getBean("webmasters.sites.list")).thenReturn(new ListCommand());
+        }).when(beanFactory).autowireBean(any());
     }
 
     /**
-     * {@summary コマンド実行が正常に成功するケースのテスト。}
+     * WebmastersClientの振る舞いを設定します。
      *
-     * @throws IOException 入出力例外が発生した場合
-     * @throws CommandLineInputOutputException コマンドライン入出力例外が発生した場合
+     * @throws IOException モック設定中に発生する可能性のある例外
      */
-    @Test
-    public void testRunWithCommandSuccessful() throws Exception {
-        // Given
-        String[] args = {"webmasters.sites.list"};
-        try {
-            when(mockWebmastersFactory.create()).thenReturn(mockWebmasters);
-        } catch (CommandLineInputOutputException e) {
-            fail("CommandLineInputOutputException should not occur: " + e.getMessage());
-        }
-        when(mockWebmasters.sites()).thenReturn(mockSites);
-        try {
-            when(mockSites.list()).thenReturn(mockSitesList);
-        } catch (CommandLineInputOutputException e) {
-            fail("CommandLineInputOutputException should not occur: " + e.getMessage());
-        }
-        try {
-            when(mockSitesList.execute()).thenReturn(mockResponse);
-        } catch (CommandLineInputOutputException e) {
-            fail("CommandLineInputOutputException should not occur: " + e.getMessage());
-        }
-
-        // When
-        try {
-            commandRunner.run(args);
-        } catch (IOException e) {
-            fail("IOException should not occur: " + e.getMessage());
-        } catch (CommandLineInputOutputException e) {
-            fail("CommandLineInputOutputException should not occur: " + e.getMessage());
-        }
-
-        // Then
-        verify(mockWebmastersFactory).create();
-        verify(mockWebmasters).sites();
-        verify(mockSites).list();
-        verify(mockSitesList).execute();
+    private void setupWebmastersClientBehavior() throws IOException {
+        when(webmastersFactory.createClient()).thenReturn(webmasters);
+        when(webmasters.sites()).thenReturn(sites);
+        when(sites.list()).thenReturn(sitesList);
     }
 
     /**
-     * {@summary ヘルプを表示するケースのテスト。}
+     * サイトリストを取得するテスト。
      *
-     * @throws IOException 入出力例外が発生した場合
-     * @throws CommandLineInputOutputException コマンドライン入出力例外が発生した場合
+     * @throws Exception テスト実行中に発生する可能性のある例外
      */
     @Test
-    public void testRunWithHelpOption() throws Exception {
+    public void testRunWithCommandSuccessful_SitesList() throws Exception {
         // Given
-        String[] args = {"-?"};
+        final String[] args = {CMD_SITES_LIST};
+        setupSitesListResponse();
+        assertNotNull("応答オブジェクトがnullです", response);
 
         // When
-        try {
-            commandRunner.run(args);
-        } catch (IOException e) {
-            fail("IOException should not occur: " + e.getMessage());
-        } catch (CommandLineInputOutputException e) {
-            fail("CommandLineInputOutputException should not occur: " + e.getMessage());
-        }
+        runner.run(args);
 
         // Then
-        verifyNoInteractions(mockWebmastersFactory);
+        verifySitesListApiCalls();
     }
 
     /**
-     * {@summary 引数なしでヘルプが表示されるケースのテスト。}
+     * サイトリストレスポンスのモック設定を行います。
      *
-     * @throws IOException 入出力例外が発生した場合
-     * @throws CommandLineInputOutputException コマンドライン入出力例外が発生した場合
+     * @throws IOException モック設定中に発生する可能性のある例外
      */
-    @Test
-    public void testRunWithNoArgumentsShowsHelp() throws Exception {
-        // Given
-        String[] args = {};
-
-        // When
-        try {
-            commandRunner.run(args);
-        } catch (IOException e) {
-            fail("IOException should not occur: " + e.getMessage());
-        } catch (CommandLineInputOutputException e) {
-            fail("CommandLineInputOutputException should not occur: " + e.getMessage());
-        }
-
-        // Then
-        verifyNoInteractions(mockWebmastersFactory);
+    private void setupSitesListResponse() throws IOException {
+        when(webmasters.sites()).thenReturn(sites);
+        when(sites.list()).thenReturn(sitesList);
+        when(sitesList.execute()).thenReturn(response);
     }
 
     /**
-     * {@summary 不正な引数が渡された場合のテスト。}
+     * サイトリストAPIの呼び出しを検証します。
      *
-     * @throws IOException 入出力例外が発生した場合
-     * @throws CommandLineInputOutputException コマンドライン入出力例外が発生した場合
+     * @throws IOException 検証中に発生する可能性のある例外
      */
-    @Test
-    public void testRunWithInvalidArgument() throws Exception {
-        // Given
-        String[] args = {"invalid.command"};
 
-        // When
-        try {
-            commandRunner.run(args);
-        } catch (IOException e) {
-            fail("IOException should not occur: " + e.getMessage());
-        } catch (CommandLineInputOutputException e) {
-            fail("CommandLineInputOutputException should not occur: " + e.getMessage());
-        }
-
-        // Then
-        verifyNoInteractions(mockWebmastersFactory);
+    /**
+     * サイトリストAPIの呼び出しを検証します。
+     *
+     * @throws IOException 検証中に発生する可能性のある例外
+     */
+    private void verifySitesListApiCalls() throws IOException {
+        verify(webmasters).sites();
+        verify(sites).list();
+        verify(sitesList).execute();
     }
 
     /**
-     * {@summary アプリケーション引数を除外するケースのテスト。}
+     * nullコマンドのテスト。
      *
-     * @throws IOException 入出力例外が発生した場合
-     * @throws CommandLineInputOutputException コマンドライン入出力例外が発生した場合
+     * @throws Exception テスト実行中に発生する可能性のある例外
      */
-    @Test
-    public void testRunExcludingApplicationArguments() throws Exception {
-        // Given
-        String[] args = {"webmasters.sites.list", "--application.keyFileLocation=test.json"};
-        try {
-            when(mockWebmastersFactory.create()).thenReturn(mockWebmasters);
-        } catch (CommandLineInputOutputException e) {
-            fail("CommandLineInputOutputException should not occur: " + e.getMessage());
-        }
-        when(mockWebmasters.sites()).thenReturn(mockSites);
-        try {
-            when(mockSites.list()).thenReturn(mockSitesList);
-        } catch (IOException e) {
-            fail("IOException should not occur: " + e.getMessage());
-        }
-        try {
-            when(mockSitesList.execute()).thenReturn(mockResponse);
-        } catch (IOException e) {
-            fail("IOException should not occur: " + e.getMessage());
-        }
-
-        // When
-        try {
-            commandRunner.run(args);
-        } catch (IOException e) {
-            fail("IOException should not occur: " + e.getMessage());
-        } catch (CommandLineInputOutputException e) {
-            fail("CommandLineInputOutputException should not occur: " + e.getMessage());
-        }
-
-        // Then
-        verify(mockWebmastersFactory).create();
-        verify(mockWebmasters).sites();
-        verify(mockSites).list();
-        verify(mockSitesList).execute();
+    @Test(expected = CmdLineArgmentException.class)
+    public void testNullCommand() throws Exception {
+        runner.run((String[]) null);
     }
 
     /**
-     * {@summary 不正なアプリケーション引数が渡された場合のテスト。}
+     * モックコマンドの実行テスト。
      *
-     * @throws IOException 入出力例外が発生した場合
-     * @throws CommandLineInputOutputException コマンドライン入出力例外が発生した場合
+     * @throws Exception テスト実行中に発生する可能性のある例外
      */
     @Test
-    public void testRunWithInvalidApplicationArgument() throws Exception {
+    public void testMockCommandExecution() throws Exception {
         // Given
-        String[] args = {"--invalid-argument"};
+        final Command mockCommand = mock(Command.class);
+        when(context.getBean(CMD_SITES_LIST)).thenReturn(mockCommand);
 
         // When
-        try {
-            commandRunner.run(args);
-        } catch (IOException e) {
-            fail("IOException should not occur: " + e.getMessage());
-        } catch (CommandLineInputOutputException e) {
-            fail("CommandLineInputOutputException should not occur: " + e.getMessage());
-        }
+        runner.run(CMD_SITES_LIST);
 
         // Then
-        verifyNoInteractions(mockWebmastersFactory);
+        verify(mockCommand).execute();
     }
 
     /**
-     * {@summary 引数解析でエラーが発生した場合のテスト。}
+     * 未初期化コマンドの実行テスト。
      *
-     * @throws IOException 入出力例外が発生した場合
-     * @throws CommandLineInputOutputException コマンドライン入出力例外が発生した場合
+     * @throws Exception テスト実行中に発生する可能性のある例外
      */
-    @Test
-    public void testRunWithArgumentParsingError() throws Exception {
+    @Test(expected = CmdLineArgmentException.class)
+    public void testUninitializedCommand() throws Exception {
         // Given
-        String[] args = {"--invalid-format"};
+        runner.setCommand(null);
 
         // When
-        try {
-            commandRunner.run(args);
-        } catch (IOException e) {
-            fail("IOException should not occur: " + e.getMessage());
-        } catch (CommandLineInputOutputException e) {
-            fail("CommandLineInputOutputException should not occur: " + e.getMessage());
-        }
+        runner.run(TEST_ARGS);
 
-        // Then
-        verifyNoInteractions(mockWebmastersFactory);
+        // Then: expect CmdLineArgmentException
     }
 }

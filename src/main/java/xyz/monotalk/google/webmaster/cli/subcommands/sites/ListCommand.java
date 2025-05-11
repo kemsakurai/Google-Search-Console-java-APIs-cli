@@ -3,6 +3,7 @@ package xyz.monotalk.google.webmaster.cli.subcommands.sites;
 import com.google.api.services.webmasters.Webmasters;
 import com.google.api.services.webmasters.model.SitesListResponse;
 import java.io.IOException;
+import java.security.GeneralSecurityException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,7 +23,9 @@ public class ListCommand implements Command {
     /** ロガーインスタンス。 */
     private static final Logger LOGGER = LoggerFactory.getLogger(ListCommand.class);
 
-    /** WebmastersファクトリーインスタンスDI用。 */
+    /**
+     * Webmasters APIクライアントを生成するファクトリー。
+     */
     @Autowired private WebmastersFactory factory;
 
     /** デフォルトコンストラクタ。 */
@@ -31,7 +34,21 @@ public class ListCommand implements Command {
     }
 
     /**
+     * WebmastersFactory インスタンスを設定します。
+     *
+     * @param factory WebmastersFactory インスタンス
+     */
+    public void setFactory(WebmastersFactory factory) {
+        this.factory = factory;
+    }
+
+    /**
      * サイト一覧を取得し、指定された形式で出力します。
+     *
+     * <p>このメソッドは、Google Search Console APIを使用して、
+     * ユーザーが所有するサイトのリストを取得し、指定されたフォーマットで出力します。
+     *
+     * @throws CommandLineInputOutputException サイト一覧の取得に失敗した場合
      */
     @Override
     public void execute() {
@@ -48,7 +65,7 @@ public class ListCommand implements Command {
             if (LOGGER.isInfoEnabled()) {
                 LOGGER.info("Site list retrieved successfully");
             }
-        } catch (IOException e) {
+        } catch (IOException | GeneralSecurityException e) {
             if (LOGGER.isErrorEnabled()) {
                 LOGGER.error("Failed to list sites", e);
             }

@@ -22,7 +22,9 @@ public class AddCommand implements Command {
     /** ロガーインスタンス。 */
     private static final Logger LOGGER = LoggerFactory.getLogger(AddCommand.class);
 
-    /** WebmastersファクトリーインスタンスDI用。 */
+    /**
+     * Webmasters APIクライアントを生成するファクトリー。
+     */
     @Autowired private WebmastersFactory factory;
 
     /** サイトURL。 */
@@ -38,7 +40,14 @@ public class AddCommand implements Command {
         // デフォルトコンストラクタ
     }
 
-    /** サイトをGoogle Search Consoleに追加します。 */
+    /**
+     * サイトを追加します。
+     *
+     * <p>このメソッドは、Google Search Console APIを使用して、
+     * 指定されたサイトをユーザーのプロパティに追加します。
+     *
+     * @throws CommandLineInputOutputException サイトの追加に失敗した場合
+     */
     @Override
     public void execute() {
         try {
@@ -46,7 +55,7 @@ public class AddCommand implements Command {
                 throw new CmdLineArgmentException("Site URL is required.");
             }
 
-            final Webmasters webmasters = factory.create();
+            final Webmasters webmasters = factory.createClient();
             final Webmasters.Sites sites = webmasters.sites(); // キャッシュ
             if (sites == null) {
                 throw new CommandLineInputOutputException("Webmasters API 'sites' service is unavailable.");
@@ -84,7 +93,7 @@ public class AddCommand implements Command {
      */
     @Override
     public String usage() {
-        return "Adds a site to Google Search Console.";
+        return "Adds a site to the user's Search Console properties.";
     }
 
     /**

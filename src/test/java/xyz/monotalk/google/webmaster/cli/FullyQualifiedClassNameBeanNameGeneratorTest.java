@@ -9,24 +9,34 @@ import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.beans.factory.support.GenericBeanDefinition;
 
 /**
- * {@summary FullyQualifiedClassNameBeanNameGeneratorのテストクラス。}
+ * FullyQualifiedClassNameBeanNameGeneratorのテストクラス。
  */
 public class FullyQualifiedClassNameBeanNameGeneratorTest {
 
     /**
-     * {@summary 完全修飾クラス名がbean名として正しく生成されることをテスト。}
+     * デフォルトコンストラクタ。
+     */
+    public FullyQualifiedClassNameBeanNameGeneratorTest() {
+        // 初期化処理
+    }
+
+    /**
+     * Bean名が正しく生成されることをテストします。
      */
     @Test
-    public void testGenerateBeanName_shouldReturnFullyQualifiedClassName() {
+    public void testGenerateBeanName_正常系_正しいBean名が生成される() {
         // Given
-        FullyQualifiedClassNameBeanNameGenerator generator = new FullyQualifiedClassNameBeanNameGenerator();
-        String className = "xyz.monotalk.google.webmaster.cli.TestClass";
-        GenericBeanDefinition definition = (GenericBeanDefinition) BeanDefinitionBuilder
+        final FullyQualifiedClassNameBeanNameGenerator generator = new FullyQualifiedClassNameBeanNameGenerator();
+        final String className = "xyz.monotalk.google.webmaster.cli.TestClass";
+        final GenericBeanDefinition definition = (GenericBeanDefinition) BeanDefinitionBuilder
                 .genericBeanDefinition(className)
                 .getBeanDefinition();
-        BeanDefinitionRegistry registry = mock(BeanDefinitionRegistry.class);
-        String beanName = generator.generateBeanName(definition, registry);
+        final BeanDefinitionRegistry registry = mock(BeanDefinitionRegistry.class);
+
+        // When
+        final String beanName = generator.generateBeanName(definition, registry);
+
         // Then
-        assertEquals(className, beanName);
+        assertEquals("Bean名が正しく生成されていません", className, beanName);
     }
 }

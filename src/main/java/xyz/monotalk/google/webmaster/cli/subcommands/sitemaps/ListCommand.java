@@ -3,6 +3,7 @@ package xyz.monotalk.google.webmaster.cli.subcommands.sitemaps;
 import com.google.api.services.webmasters.Webmasters;
 import com.google.api.services.webmasters.model.SitemapsListResponse;
 import java.io.IOException;
+import java.security.GeneralSecurityException;
 import org.kohsuke.args4j.Option;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -83,7 +84,7 @@ public class ListCommand implements Command {
             if (LOGGER.isInfoEnabled()) {
                 LOGGER.info("Command completed successfully.");
             }
-        } catch (IOException e) {
+        } catch (IOException | GeneralSecurityException e) {
             if (LOGGER.isErrorEnabled()) {
                 LOGGER.error("API execution failed", e);
             }

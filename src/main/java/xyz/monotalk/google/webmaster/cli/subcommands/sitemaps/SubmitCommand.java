@@ -124,7 +124,7 @@ public class SubmitCommand implements Command {
      * @param sitemapUrl サイトマップのURL。
      */
     private Webmasters createWebmastersClient() {
-        final Webmasters webmasters = factory.create();
+        final Webmasters webmasters = factory.createClient();
         if (webmasters == null) {
             throw new CommandLineInputOutputException(new IOException("Failed to create Webmasters client"));
         }

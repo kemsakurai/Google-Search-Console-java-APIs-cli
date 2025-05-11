@@ -4,7 +4,6 @@ import static org.junit.Assert.assertNotNull;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.google.api.client.http.HttpTransport;
 import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.gson.GsonFactory;
 import com.google.api.services.webmasters.Webmasters;
@@ -17,136 +16,132 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.test.util.ReflectionTestUtils;
+import xyz.monotalk.google.webmaster.cli.test.CredentialFactory;
+import xyz.monotalk.google.webmaster.cli.test.JsonFactoryProvider;
+import xyz.monotalk.google.webmaster.cli.test.TransportFactory;
 
 /**
- * {@summary WebmastersFactoryのテストクラス。}
+ * WebmastersFactoryのユニットテストクラス。
  */
 @RunWith(MockitoJUnitRunner.class)
 public class WebmastersFactoryTest {
 
+    /** テスト用のキーファイルパス。 */
+    private static final String TEST_KEY_FILE = "test-key.json";
+
+    /** モックされたTransportFactory。 */
+    @Mock
+    private TransportFactory transportFactory;
+
+    /** モックされたJsonFactoryProvider。 */
+    @Mock
+    private JsonFactoryProvider jsonFactory;
+
+    /** モックされたCredentialFactory。 */
+    @Mock
+    private CredentialFactory credentialFactory;
+
+    /** モックされたNetHttpTransport。 */
+    @Mock
+    private NetHttpTransport httpTransport;
+
+    /** モックされたGoogleCredentials。 */
+    @Mock
+    private GoogleCredentials credentials;
+
+    /** モックされたGsonFactory。 */
+    @Mock
+    private GsonFactory gsonFactory;
+
+    /** テスト対象のWebmastersFactory。 */
+    private WebmastersFactory factory;
+
     /**
-     * {@summary テスト用のWebmastersFactoryサブクラス。}
+     * テストの前準備。
+     *
+     * @throws Exception セットアップ中の例外
      */
-    private static class TestWebmastersFactory extends WebmastersFactory {
-        private final TransportFactory transportFactory;
-        private final JsonFactoryProvider jsonFactoryProvider;
-        private final CredentialFactory credentialFactory;
+    @Before
+    public void setUp() throws Exception {
+        when(transportFactory.createTransport()).thenReturn(httpTransport);
+        when(jsonFactory.get()).thenReturn(gsonFactory);
+        when(credentialFactory.create()).thenReturn(credentials);
 
-        public TestWebmastersFactory(
-                TransportFactory transportFactory,
-                JsonFactoryProvider jsonFactoryProvider,
-                CredentialFactory credentialFactory) {
-            this.transportFactory = transportFactory;
-            this.jsonFactoryProvider = jsonFactoryProvider;
-            this.credentialFactory = credentialFactory;
-        }
+        factory = new TestWebmastersFactory();
+        ReflectionTestUtils.setField(factory, "keyFileLocation", TEST_KEY_FILE);
+    }
 
+    /**
+     * Webmastersインスタンスの正常生成テスト。
+     *
+     * @throws Exception テスト実行中の例外
+     */
+    @Test
+    public void testCreateWebmastersInstance() throws Exception {
+        // When
+        final Webmasters result = factory.createClient();
+
+        // Then
+        assertNotNull("Webmastersインスタンスが生成されること", result);
+        verify(transportFactory).createTransport();
+        verify(jsonFactory).get();
+        verify(credentialFactory).create();
+    }
+
+    /**
+     * HttpTransport生成時の例外ハンドリングテスト。
+     *
+     * @throws Exception テスト実行中の例外
+     */
+    @Test(expected = IllegalStateException.class)
+    public void testHttpTransportException() throws Exception {
+        // Given
+        when(transportFactory.createTransport()).thenThrow(new IOException("Transport error"));
+
+        // When
+        factory.createClient();
+    }
+
+    /**
+     * 認証情報生成時の例外ハンドリングテスト。
+     *
+     * @throws Exception テスト実行中の例外
+     */
+    @Test(expected = IllegalStateException.class)
+    public void testCredentialException() throws Exception {
+        // Given
+        when(credentialFactory.create()).thenThrow(new IOException("Credential error"));
+
+        // When
+        factory.createClient();
+    }
+
+    /**
+     * Factoryインスタンス生成テスト。
+     */
+    @Test
+    public void testCreateInstance() {
+        assertNotNull("Factoryインスタンスが生成されること", factory);
+    }
+
+    /**
+     * テスト用のWebmastersFactoryサブクラス。
+     */
+    @SuppressWarnings("PMD.TestClassWithoutTestCases")
+    private final class TestWebmastersFactory extends WebmastersFactory {
         @Override
         protected NetHttpTransport createHttpTransport() throws GeneralSecurityException, IOException {
-            return (NetHttpTransport) transportFactory.createTransport();
+            return transportFactory.createTransport();
         }
 
         @Override
         protected GsonFactory getJsonFactory() {
-            return (GsonFactory) jsonFactoryProvider.getJsonFactory();
+            return jsonFactory.get();
         }
 
         @Override
         protected GoogleCredentials createCredential() throws IOException {
-            return credentialFactory.createCredential();
+            return credentialFactory.create();
         }
-    }
-
-    /**
-     * {@summary HttpTransportを生成するファクトリインターフェース。}
-     */
-    interface TransportFactory {
-        HttpTransport createTransport() throws GeneralSecurityException, IOException;
-    }
-
-    /**
-     * {@summary GsonFactoryを提供するインターフェース。}
-     */
-    interface JsonFactoryProvider {
-        GsonFactory getJsonFactory();
-    }
-
-    /**
-     * {@summary GoogleCredentialsを生成するファクトリインターフェース。}
-     */
-    interface CredentialFactory {
-        GoogleCredentials createCredential() throws IOException;
-    }
-
-    @Mock
-    private TransportFactory mockTransportFactory;
-
-    @Mock
-    private JsonFactoryProvider mockJsonFactoryProvider;
-
-    @Mock
-    private CredentialFactory mockCredentialFactory;
-
-    @Mock
-    private NetHttpTransport mockHttpTransport;
-
-    @Mock
-    private GoogleCredentials mockCredential;
-
-    @Mock
-    private GsonFactory mockJsonFactory;
-
-    private WebmastersFactory factory;
-
-    /**
-     * {@summary テストの前準備。}
-     */
-    @Before
-    public void setUp() throws Exception {
-        when(mockTransportFactory.createTransport()).thenReturn(mockHttpTransport);
-        when(mockJsonFactoryProvider.getJsonFactory()).thenReturn(mockJsonFactory);
-        when(mockCredentialFactory.createCredential()).thenReturn(mockCredential);
-
-        factory = new TestWebmastersFactory(mockTransportFactory, mockJsonFactoryProvider, mockCredentialFactory);
-        ReflectionTestUtils.setField(factory, "keyFileLocation", "test-key.json");
-    }
-
-    /**
-     * {@summary Webmastersインスタンスが正常に生成されることをテスト。}
-     */
-    @Test
-    public void testCreate_shouldCreateWebmastersInstance() throws Exception {
-        // When
-        Webmasters result = factory.create();
-
-        // Then
-        assertNotNull("Webmastersインスタンスが生成されること", result);
-        verify(mockTransportFactory).createTransport();
-        verify(mockJsonFactoryProvider).getJsonFactory();
-        verify(mockCredentialFactory).createCredential();
-    }
-
-    /**
-     * {@summary HttpTransport生成時に例外が発生した場合のテスト。}
-     */
-    @Test(expected = IllegalStateException.class)
-    public void testCreate_shouldThrowExceptionWhenTransportFails() throws Exception {
-        // Given
-        when(mockTransportFactory.createTransport()).thenThrow(new IOException("Transport error"));
-
-        // When
-        factory.create();
-    }
-
-    /**
-     * {@summary 認証情報読み込み時に例外が発生した場合のテスト。}
-     */
-    @Test(expected = IllegalStateException.class)
-    public void testCreate_shouldThrowExceptionWhenCredentialFails() throws Exception {
-        // Given
-        when(mockCredentialFactory.createCredential()).thenThrow(new IOException("Credential error"));
-
-        // When
-        factory.create();
     }
 }
