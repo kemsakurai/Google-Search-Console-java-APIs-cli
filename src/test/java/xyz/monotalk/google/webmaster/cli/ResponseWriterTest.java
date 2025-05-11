@@ -10,6 +10,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.attribute.FileAttribute;
@@ -102,7 +103,7 @@ public class ResponseWriterTest {
      */
     @Before
     public void setUpStreams() throws IOException {
-        System.setOut(new PrintStream(OUT_CONTENT));
+        System.setOut(new PrintStream(OUT_CONTENT, false, StandardCharsets.UTF_8));
         when(mockResponse.toPrettyString()).thenReturn(TEST_JSON);
     }
 
@@ -161,11 +162,11 @@ public class ResponseWriterTest {
             final String filePath, final String expectedContent) {
         ResponseWriter.writeJson(response, format, filePath);
         if (format == Format.CONSOLE) {
-            final String output = OUT_CONTENT.toString();
+            final String output = OUT_CONTENT.toString(StandardCharsets.UTF_8);
             assertTrue("コンソール出力が正しくありません", output.contains(expectedContent));
         } else if (format == Format.JSON) {
             try {
-                final String content = new String(Files.readAllBytes(new File(filePath).toPath()));
+                final String content = Files.readString(new File(filePath).toPath(), StandardCharsets.UTF_8);
                 assertEquals("JSONファイル出力が正しくありません", expectedContent, content);
             } catch (IOException e) {
                 throw new CommandLineInputOutputException("ファイル読み込み中にエラーが発生しました", e);
@@ -305,7 +306,8 @@ public class ResponseWriterTest {
         final TestJson largeJson = new TestJson(largeValue.toString());
 
         assertJsonResponse(largeJson, Format.CONSOLE, null, "value0");
-        assertTrue("大きなJsonオブジェクト出力が正しくありません", OUT_CONTENT.toString().contains("value999"));
+        assertTrue("大きなJsonオブジェクト出力が正しくありません", 
+            OUT_CONTENT.toString(StandardCharsets.UTF_8).contains("value999"));
     }
 
     /**

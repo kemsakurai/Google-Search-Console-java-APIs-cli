@@ -1,16 +1,10 @@
 package xyz.monotalk.google.webmaster.cli.subcommands.searchanalytics;
 
-import static java.lang.System.out;
-
 import com.google.api.services.webmasters.Webmasters;
-import com.google.api.services.webmasters.model.ApiDataRow;
-import com.google.api.services.webmasters.model.ApiDimensionFilter;
-import com.google.api.services.webmasters.model.ApiDimensionFilterGroup;
 import com.google.api.services.webmasters.model.SearchAnalyticsQueryRequest;
 import com.google.api.services.webmasters.model.SearchAnalyticsQueryResponse;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
+import java.security.GeneralSecurityException;
 import org.kohsuke.args4j.Option;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -56,10 +50,73 @@ public class QueryCommand implements Command {
     protected String filePath;
 
     /**
-     * デフォルトコンストラクタ。
+     * コンストラクタ。
      */
     public QueryCommand() {
         // デフォルトコンストラクタ
+    }
+
+    /**
+     * パラメータを検証します。
+     */
+    private void validateParameters() {
+        if (!isValidDateFormat(startDate)) {
+            throw new CommandLineInputOutputException("開始日のフォーマットが不正です (YYYY-MM-DD形式で指定してください)");
+        }
+        if (!isValidDateFormat(endDate)) {
+            throw new CommandLineInputOutputException("終了日のフォーマットが不正です (YYYY-MM-DD形式で指定してください)");
+        }
+        if (siteUrl == null || siteUrl.isEmpty()) {
+            throw new CommandLineInputOutputException("サイトURLが指定されていません");
+        }
+    }
+
+    /**
+     * 日付形式が正しいかチェックします。
+     *
+     * @param date チェックする日付文字列
+     * @return 日付形式が正しい場合はtrue
+     */
+    private boolean isValidDateFormat(final String date) {
+        return date != null && date.matches("\\d{4}-\\d{2}-\\d{2}");
+    }
+
+    /**
+     * 検索アナリティクスデータのリクエストを作成します。
+     *
+     * @return 検索アナリティクスクエリリクエスト
+     */
+    private SearchAnalyticsQueryRequest createSearchRequest() {
+        return new SearchAnalyticsQueryRequest()
+            .setStartDate(startDate)
+            .setEndDate(endDate);
+    }
+
+    /**
+     * Webmastersクライアントを取得します。
+     *
+     * @return Webmastersクライアントインスタンス
+     */
+    private Webmasters getWebmastersClient() {
+        try {
+            final Webmasters webmasters = factory.create();
+            if (webmasters == null) {
+                throw new CommandLineInputOutputException("Webmastersクライアントの生成に失敗しました");
+            }
+            return webmasters;
+        } catch (IOException | GeneralSecurityException e) {
+            throw new CommandLineInputOutputException("Webmastersクライアントの生成に失敗しました: " + e.getMessage(), e);
+        }
+    }
+
+    /**
+     * 出力パスを決定します。
+     *
+     * @return 出力パス（コンソール出力の場合は空文字列）
+     */
+    private String determineOutputPath() {
+        return (format == Format.CONSOLE && (filePath == null || filePath.isEmpty())) 
+            ? "" : filePath;
     }
 
     /**
@@ -74,29 +131,17 @@ public class QueryCommand implements Command {
         }
 
         try {
-            final Webmasters webmasters = factory.createClient();
-            if (webmasters == null) {
-                throw new CommandLineInputOutputException(new IOException("Webmastersクライアントの生成に失敗しました"));
-            }
-
-            final SearchAnalyticsQueryRequest request = new SearchAnalyticsQueryRequest()
-                .setStartDate(startDate)
-                .setEndDate(endDate);
-
+            validateParameters();
+            final Webmasters webmasters = getWebmastersClient();
+            final SearchAnalyticsQueryRequest request = createSearchRequest();
             final Webmasters.Searchanalytics.Query query = webmasters.searchanalytics().query(siteUrl, request);
             final SearchAnalyticsQueryResponse response = query.execute();
-
-            // コンソール出力の場合、空の文字列をfilePathとして渡す
-            final String outputPath = (format == Format.CONSOLE && (filePath == null || filePath.isEmpty())) 
-                ? "" : filePath;
             
-            // レスポンスの出力
-            ResponseWriter.writeJson(response, format, outputPath);
+            ResponseWriter.writeJson(response, format, determineOutputPath());
 
             if (LOGGER.isInfoEnabled()) {
                 LOGGER.info("検索アナリティクスデータの取得が完了しました");
             }
-
         } catch (IOException e) {
             if (LOGGER.isErrorEnabled()) {
                 LOGGER.error("APIの実行に失敗しました", e);

@@ -5,14 +5,10 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
-
-import com.google.api.services.webmasters.Webmasters;
-import com.google.api.services.webmasters.model.ApiDataRow;
-import com.google.api.services.webmasters.model.SearchAnalyticsQueryRequest;
-import com.google.api.services.webmasters.model.SearchAnalyticsQueryResponse;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.nio.charset.StandardCharsets;
 import java.security.GeneralSecurityException;
 import java.util.Arrays;
 import java.util.Collections;
@@ -23,6 +19,10 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+import com.google.api.services.webmasters.Webmasters;
+import com.google.api.services.webmasters.model.ApiDataRow;
+import com.google.api.services.webmasters.model.SearchAnalyticsQueryRequest;
+import com.google.api.services.webmasters.model.SearchAnalyticsQueryResponse;
 import xyz.monotalk.google.webmaster.cli.ResponseWriter;
 import xyz.monotalk.google.webmaster.cli.WebmastersFactory;
 
@@ -83,7 +83,7 @@ public class QueryCommandTest {
      */
     private void initializeOutputStream() {
         outputContent = new ByteArrayOutputStream();
-        final PrintStream printStream = new PrintStream(outputContent);
+        final PrintStream printStream = new PrintStream(outputContent, false, StandardCharsets.UTF_8);
         System.setOut(printStream);
     }
 
@@ -132,7 +132,7 @@ public class QueryCommandTest {
         queryCommand.execute();
 
         assertTrue("空のレスポンスが期待通り出力されていません", 
-            outputContent.toString().contains(RESPONSE_EMPTY));
+            outputContent.toString(StandardCharsets.UTF_8).contains(RESPONSE_EMPTY));
     }
 
     /**
@@ -154,6 +154,6 @@ public class QueryCommandTest {
         queryCommand.execute();
 
         assertTrue("検索結果が期待通り出力されていません",
-            outputContent.toString().length() > 0);
+            outputContent.toString(StandardCharsets.UTF_8).length() > 0);
     }
 }

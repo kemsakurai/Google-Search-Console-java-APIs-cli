@@ -45,10 +45,13 @@ public class WebmastersFactory {
     public Webmasters createClient() {
         try {
             // クライアント生成ロジック
-            return new Webmasters.Builder(createHttpTransport(), getJsonFactory(), new HttpCredentialsAdapter(createCredential()))
+            return new Webmasters.Builder(
+                createHttpTransport(), 
+                getJsonFactory(), 
+                new HttpCredentialsAdapter(createCredential()))
                     .setApplicationName("Search Console Cli")
                     .build();
-        } catch (Exception e) {
+        } catch (GeneralSecurityException | IOException e) {
             throw new IllegalStateException("Failed to create Webmasters client", e);
         }
     }
@@ -61,11 +64,12 @@ public class WebmastersFactory {
      * @throws IOException 入出力例外が発生した場合
      */
     public Webmasters create() throws GeneralSecurityException, IOException {
-        NetHttpTransport httpTransport = GoogleNetHttpTransport.newTrustedTransport();
-        JsonFactory jsonFactory = GsonFactory.getDefaultInstance();
+        final NetHttpTransport httpTransport = GoogleNetHttpTransport.newTrustedTransport();
+        final JsonFactory jsonFactory = GsonFactory.getDefaultInstance();
 
-        GoogleCredentials credentials = GoogleCredentials.fromStream(Files.newInputStream(Paths.get("credentials.json")))
-                .createScoped(Collections.singleton(WebmastersScopes.WEBMASTERS_READONLY));
+        final GoogleCredentials credentials = GoogleCredentials
+            .fromStream(Files.newInputStream(Paths.get("credentials.json")))
+            .createScoped(Collections.singleton(WebmastersScopes.WEBMASTERS_READONLY));
 
         return new Webmasters.Builder(httpTransport, jsonFactory, new HttpCredentialsAdapter(credentials))
                 .setApplicationName("Google-Search-Console-CLI")

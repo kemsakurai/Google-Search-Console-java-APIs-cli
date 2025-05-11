@@ -67,7 +67,7 @@ public final class ResponseWriter {
      * @throws IOException JSON変換中にエラーが発生した場合。
      * @throws IllegalArgumentException サポートされていないレスポンス型の場合。
      */
-    protected static String convertToJsonString(final Object response) throws IOException {
+    private static String convertToJsonString(final Object response) throws IOException {
         if (response == null) {
             return "{}";
         } else if (response instanceof GenericJson) {
@@ -95,7 +95,7 @@ public final class ResponseWriter {
             FileUtils.write(file, content, StandardCharsets.UTF_8);
         } catch (IOException e) {
             throw new CommandLineInputOutputException(
-                String.format("Failed to write to file: %s\nCause: %s", path, e.getMessage()), e);
+                String.format("Failed to write to file: %s%nCause: %s", path, e.getMessage()), e);
         }
     }
 
@@ -110,12 +110,12 @@ public final class ResponseWriter {
     private static void routeOutput(final String jsonString, final Format format, final String path) {
         // Java 21の拡張されたswitch式を使用
         switch (format) {
-            case Format.JSON -> {
+            case JSON -> {
                 validateJsonPath(path);
                 writeToFile(path, jsonString);
             }
-            case Format.CONSOLE -> LOGGER.info(jsonString);
-            case Format.CSV -> LOGGER.warn("CSV format is not yet implemented");
+            case CONSOLE -> LOGGER.info(jsonString);
+            case CSV -> LOGGER.warn("CSV format is not yet implemented");
             default -> LOGGER.error("Unsupported format: " + format);
         }
     }

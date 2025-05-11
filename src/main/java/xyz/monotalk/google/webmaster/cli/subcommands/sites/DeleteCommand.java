@@ -1,13 +1,12 @@
 package xyz.monotalk.google.webmaster.cli.subcommands.sites;
 
+import com.google.api.services.webmasters.Webmasters;
+import java.io.IOException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import xyz.monotalk.google.webmaster.cli.Command;
-import xyz.monotalk.google.webmaster.cli.WebmastersFactory;
 import xyz.monotalk.google.webmaster.cli.CommandLineInputOutputException;
-import com.google.api.services.webmasters.Webmasters;
-
-import java.io.IOException;
+import xyz.monotalk.google.webmaster.cli.WebmastersFactory;
 
 /**
  * DeleteCommandクラス - サイトをGoogle Search Consoleから削除するコマンド。

@@ -2,33 +2,40 @@ package xyz.monotalk.google.webmaster.cli;
 
 import javax.annotation.Nullable;
 import org.springframework.beans.factory.config.BeanDefinition;
-import org.springframework.context.annotation.AnnotationBeanNameGenerator;
+import org.springframework.beans.factory.support.BeanDefinitionRegistry;
+import org.springframework.beans.factory.support.BeanNameGenerator;
+import org.springframework.stereotype.Component;
 
 /**
- * 完全修飾クラス名をBean名として使用するBeanNameGeneratorです。
+ * FullyQualifiedClassNameBeanNameGeneratorクラス - 完全修飾クラス名を使用したBean名生成。
+ *
+ * <p>このクラスは、Spring FrameworkのBean名生成において、
+ * 完全修飾クラス名を使用します。</p>
  */
-public class FullyQualifiedClassNameBeanNameGenerator extends AnnotationBeanNameGenerator {
+@Component
+public class FullyQualifiedClassNameBeanNameGenerator implements BeanNameGenerator {
 
     /**
      * デフォルトコンストラクタ。
      */
     public FullyQualifiedClassNameBeanNameGenerator() {
-        super();
+        // デフォルトの初期化処理
     }
 
     /**
-     * Bean名を生成します。
+     * 指定されたBeanDefinitionから完全修飾クラス名をBean名として返します。
      *
      * @param definition Bean定義。
-     * 
-     * @return 完全修飾クラス名をBean名として返します。
+     * @param registry Beanレジストリ。
+     * @return 完全修飾クラス名、Bean定義がnullの場合は空文字列。
      */
     @Override
-    @Nullable
-    protected String buildDefaultBeanName(final BeanDefinition definition) {
+    public String generateBeanName(final BeanDefinition definition,
+            @Nullable final BeanDefinitionRegistry registry) {
         if (definition == null) {
-            throw new IllegalArgumentException("BeanDefinition must not be null");
+            return "";
         }
-        return definition.getBeanClassName();
+        final String beanClassName = definition.getBeanClassName();
+        return beanClassName != null ? beanClassName : definition.toString();
     }
 }

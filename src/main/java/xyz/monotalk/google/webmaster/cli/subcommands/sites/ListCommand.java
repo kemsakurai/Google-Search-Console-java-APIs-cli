@@ -6,7 +6,6 @@ import java.io.IOException;
 import java.security.GeneralSecurityException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import xyz.monotalk.google.webmaster.cli.Command;
 import xyz.monotalk.google.webmaster.cli.CommandLineInputOutputException;
@@ -26,19 +25,14 @@ public class ListCommand implements Command {
     /**
      * Webmasters APIクライアントを生成するファクトリー。
      */
-    @Autowired private WebmastersFactory factory;
-
-    /** デフォルトコンストラクタ。 */
-    public ListCommand() {
-        // デフォルトコンストラクタ
-    }
+    private final WebmastersFactory factory;
 
     /**
-     * WebmastersFactory インスタンスを設定します。
+     * コンストラクタ。
      *
-     * @param factory WebmastersFactory インスタンス
+     * @param factory WebmastersFactoryインスタンス
      */
-    public void setFactory(WebmastersFactory factory) {
+    public ListCommand(final WebmastersFactory factory) {
         this.factory = factory;
     }
 

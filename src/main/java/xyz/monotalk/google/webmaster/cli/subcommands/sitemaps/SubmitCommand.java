@@ -96,7 +96,7 @@ public class SubmitCommand implements Command {
      *
      * @param siteUrl サイトのURL。
      */
-    public void setSiteUrl(URL siteUrl) {
+    public void setSiteUrl(final URL siteUrl) {
         this.siteUrl = siteUrl;
     }
 
@@ -105,7 +105,7 @@ public class SubmitCommand implements Command {
      *
      * @param factory WebmastersFactoryのインスタンス
      */
-    public void setFactory(WebmastersFactory factory) {
+    public void setFactory(final WebmastersFactory factory) {
         this.factory = factory;
     }
 
