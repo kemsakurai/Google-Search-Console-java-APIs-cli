@@ -25,9 +25,9 @@ public class FullyQualifiedClassNameBeanNameGenerator implements BeanNameGenerat
     /**
      * 指定されたBeanDefinitionから完全修飾クラス名をBean名として返します。
      *
-     * @param definition Bean定義。
+     * @param definition Bean定義。nullの場合は空文字列を返します。
      * @param registry Beanレジストリ。
-     * @return 完全修飾クラス名、Bean定義がnullの場合は空文字列。
+     * @return Bean定義のクラス名。Bean定義がnullまたはクラス名が取得できない場合は空文字列。
      */
     @Override
     public String generateBeanName(final BeanDefinition definition,
@@ -36,6 +36,6 @@ public class FullyQualifiedClassNameBeanNameGenerator implements BeanNameGenerat
             return "";
         }
         final String beanClassName = definition.getBeanClassName();
-        return beanClassName != null ? beanClassName : definition.toString();
+        return beanClassName != null ? beanClassName : "";
     }
 }

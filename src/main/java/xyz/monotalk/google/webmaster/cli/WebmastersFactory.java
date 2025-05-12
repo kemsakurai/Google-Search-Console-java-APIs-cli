@@ -2,7 +2,6 @@ package xyz.monotalk.google.webmaster.cli;
 
 import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
 import com.google.api.client.http.javanet.NetHttpTransport;
-import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.gson.GsonFactory;
 import com.google.api.services.webmasters.Webmasters;
 import com.google.api.services.webmasters.WebmastersScopes;
@@ -18,7 +17,6 @@ import org.springframework.stereotype.Component;
 
 /**
  * Google Webmasters APIクライアントを生成するファクトリクラスです。
- * Java 21の機能を活用して最適化されています。
  */
 @Component
 public class WebmastersFactory {
@@ -57,26 +55,6 @@ public class WebmastersFactory {
     }
 
     /**
-     * Google Webmasters APIクライアントを生成します。
-     *
-     * @return Webmasters APIクライアント
-     * @throws GeneralSecurityException セキュリティ例外が発生した場合
-     * @throws IOException 入出力例外が発生した場合
-     */
-    public Webmasters create() throws GeneralSecurityException, IOException {
-        final NetHttpTransport httpTransport = GoogleNetHttpTransport.newTrustedTransport();
-        final JsonFactory jsonFactory = GsonFactory.getDefaultInstance();
-
-        final GoogleCredentials credentials = GoogleCredentials
-            .fromStream(Files.newInputStream(Paths.get("credentials.json")))
-            .createScoped(Collections.singleton(WebmastersScopes.WEBMASTERS_READONLY));
-
-        return new Webmasters.Builder(httpTransport, jsonFactory, new HttpCredentialsAdapter(credentials))
-                .setApplicationName("Google-Search-Console-CLI")
-                .build();
-    }
-
-    /**
      * HTTPトランスポートを作成します。
      *
      * @return 作成されたNetHttpTransportインスタンス
@@ -92,7 +70,7 @@ public class WebmastersFactory {
      *
      * @return JsonFactoryインスタンス
      */
-    protected JsonFactory getJsonFactory() {
+    protected GsonFactory getJsonFactory() {
         return GsonFactory.getDefaultInstance();
     }
 

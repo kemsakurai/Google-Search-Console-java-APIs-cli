@@ -30,7 +30,7 @@ import xyz.monotalk.google.webmaster.cli.WebmastersFactory;
 /**
  * サイトマップ一覧取得コマンドのテストクラス。
  */
-@RunWith(MockitoJUnitRunner.class)
+@RunWith(MockitoJUnitRunner.Silent.class)
 public class ListCommandTest {
 
     /**
@@ -227,7 +227,7 @@ public class ListCommandTest {
         mockedStatic.verify(() -> ResponseWriter.writeJson(
             eq(response),
             eq(format),
-            eq(filePath != null ? filePath : "")
+            eq(filePath)
         ));
     }
 

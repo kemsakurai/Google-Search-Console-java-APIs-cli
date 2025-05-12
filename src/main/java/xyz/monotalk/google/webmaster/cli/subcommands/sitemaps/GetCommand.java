@@ -3,9 +3,7 @@ package xyz.monotalk.google.webmaster.cli.subcommands.sitemaps;
 import com.google.api.services.webmasters.Webmasters;
 import com.google.api.services.webmasters.model.WmxSitemap;
 import java.io.IOException;
-import java.net.URL;
 import org.kohsuke.args4j.Option;
-import org.kohsuke.args4j.spi.URLOptionHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import xyz.monotalk.google.webmaster.cli.CmdLineArgmentException;
@@ -35,9 +33,8 @@ public class GetCommand implements Command {
      *
      * @param siteUrl サイトのURL。
      */
-    @Option(name = "-siteUrl", usage = "Site URL", metaVar = "<siteUrl>", required = true,
-            handler = URLOptionHandler.class)
-    protected URL siteUrl;
+    @Option(name = "-siteUrl", usage = "Site URL", metaVar = "<siteUrl>", required = true)
+    protected String siteUrl;
 
     /**
      * サイトマップのフィードパスを設定します。
@@ -74,10 +71,10 @@ public class GetCommand implements Command {
     @Override
     public void execute() {
         // パラメータのバリデーション
-        if (siteUrl == null) {
+        if (siteUrl == null || siteUrl.isEmpty()) {
             throw new CmdLineArgmentException("Site URL must be specified");
         }
-        if (feedpath == null) {
+        if (feedpath == null || feedpath.isEmpty()) {
             throw new CmdLineArgmentException("Feed path must be specified");
         }
         
@@ -87,7 +84,7 @@ public class GetCommand implements Command {
                 throw new CommandLineInputOutputException(new IOException("Failed to create Webmasters client"));
             }
             
-            final Webmasters.Sitemaps.Get request = webmasters.sitemaps().get(siteUrl.toString(), feedpath);
+            final Webmasters.Sitemaps.Get request = webmasters.sitemaps().get(siteUrl, feedpath);
             final WmxSitemap response = request.execute();
             ResponseWriter.writeJson(response, format, filePath);
         } catch (IOException e) {

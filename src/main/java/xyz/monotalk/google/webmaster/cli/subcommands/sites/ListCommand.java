@@ -3,7 +3,6 @@ package xyz.monotalk.google.webmaster.cli.subcommands.sites;
 import com.google.api.services.webmasters.Webmasters;
 import com.google.api.services.webmasters.model.SitesListResponse;
 import java.io.IOException;
-import java.security.GeneralSecurityException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -22,9 +21,7 @@ public class ListCommand implements Command {
     /** ロガーインスタンス。 */
     private static final Logger LOGGER = LoggerFactory.getLogger(ListCommand.class);
 
-    /**
-     * Webmasters APIクライアントを生成するファクトリー。
-     */
+    /** Webmasters APIクライアントを生成するファクトリー。 */
     private final WebmastersFactory factory;
 
     /**
@@ -33,13 +30,15 @@ public class ListCommand implements Command {
      * @param factory WebmastersFactoryインスタンス
      */
     public ListCommand(final WebmastersFactory factory) {
+        if (factory == null) {
+            throw new IllegalArgumentException("factory must not be null");
+        }
         this.factory = factory;
     }
 
     /**
      * サイト一覧を取得し、指定された形式で出力します。
      *
-     * <p>このメソッドは、Google Search Console APIを使用して、
      * ユーザーが所有するサイトのリストを取得し、指定されたフォーマットで出力します。
      *
      * @throws CommandLineInputOutputException サイト一覧の取得に失敗した場合
@@ -51,7 +50,7 @@ public class ListCommand implements Command {
         }
 
         try {
-            final Webmasters webmasters = factory.create();
+            final Webmasters webmasters = factory.createClient();
             final Webmasters.Sites.List list = webmasters.sites().list();
             final SitesListResponse response = list.execute();
             ResponseWriter.writeJson(response, Format.CONSOLE, null);
@@ -59,7 +58,7 @@ public class ListCommand implements Command {
             if (LOGGER.isInfoEnabled()) {
                 LOGGER.info("Site list retrieved successfully");
             }
-        } catch (IOException | GeneralSecurityException e) {
+        } catch (IOException e) {
             if (LOGGER.isErrorEnabled()) {
                 LOGGER.error("Failed to list sites", e);
             }

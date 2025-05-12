@@ -6,7 +6,6 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import org.apache.commons.lang3.StringUtils;
 import org.kohsuke.args4j.Option;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import xyz.monotalk.google.webmaster.cli.CmdLineArgmentException;
 import xyz.monotalk.google.webmaster.cli.Command;
@@ -42,14 +41,15 @@ public class AddCommand implements Command {
     /**
      * WebmastersFactoryインスタンス。
      */
-    @Autowired
-    private WebmastersFactory factory;
+    private final WebmastersFactory factory;
 
     /**
-     * デフォルトコンストラクタ。
+     * コンストラクタ。
+     *
+     * @param factory WebmastersFactoryインスタンス
      */
-    public AddCommand() {
-        // デフォルトコンストラクタ
+    public AddCommand(final WebmastersFactory factory) {
+        this.factory = factory;
     }
 
     /**
@@ -128,7 +128,7 @@ public class AddCommand implements Command {
      */
     @Override
     public String usage() {
-        return "Adds a new site to your Google Search Console account.";
+        return "Adds a site to Google Search Console.";
     }
 
     /**

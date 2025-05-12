@@ -5,13 +5,17 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
+
+import com.google.api.services.webmasters.Webmasters;
+import com.google.api.services.webmasters.model.ApiDataRow;
+import com.google.api.services.webmasters.model.SearchAnalyticsQueryRequest;
+import com.google.api.services.webmasters.model.SearchAnalyticsQueryResponse;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
 import java.security.GeneralSecurityException;
 import java.util.Arrays;
-import java.util.Collections;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -19,10 +23,6 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-import com.google.api.services.webmasters.Webmasters;
-import com.google.api.services.webmasters.model.ApiDataRow;
-import com.google.api.services.webmasters.model.SearchAnalyticsQueryRequest;
-import com.google.api.services.webmasters.model.SearchAnalyticsQueryResponse;
 import xyz.monotalk.google.webmaster.cli.ResponseWriter;
 import xyz.monotalk.google.webmaster.cli.WebmastersFactory;
 
@@ -94,7 +94,7 @@ public class QueryCommandTest {
      * @throws GeneralSecurityException セキュリティ例外が発生した場合
      */
     private void setupMocks() throws IOException, GeneralSecurityException {
-        when(factory.create()).thenReturn(webmasters);
+        when(factory.createClient()).thenReturn(webmasters);
         when(webmasters.searchanalytics()).thenReturn(searchanalytics);
         when(searchanalytics.query(anyString(), any(SearchAnalyticsQueryRequest.class))).thenReturn(searchQuery);
         final SearchAnalyticsQueryResponse response = spy(new SearchAnalyticsQueryResponse());
@@ -105,9 +105,21 @@ public class QueryCommandTest {
      * QueryCommandの初期化。
      */
     private void initializeQueryCommand() {
-        queryCommand.startDate = "2020-01-01";
-        queryCommand.endDate = "2020-01-31";
-        queryCommand.siteUrl = "https://example.com";
+        try {
+            java.lang.reflect.Field startDateField = QueryCommand.class.getDeclaredField("startDate");
+            java.lang.reflect.Field endDateField = QueryCommand.class.getDeclaredField("endDate");
+            java.lang.reflect.Field siteUrlField = QueryCommand.class.getDeclaredField("siteUrl");
+            
+            startDateField.setAccessible(true);
+            endDateField.setAccessible(true);
+            siteUrlField.setAccessible(true);
+            
+            startDateField.set(queryCommand, "2020-01-01");
+            endDateField.set(queryCommand, "2020-01-31");
+            siteUrlField.set(queryCommand, "https://example.com");
+        } catch (NoSuchFieldException | IllegalAccessException e) {
+            throw new RuntimeException("Failed to initialize QueryCommand", e);
+        }
     }
 
     /**
@@ -125,14 +137,13 @@ public class QueryCommandTest {
      */
     @Test
     public void testQueryCommand_EmptyResponse() throws IOException {
-        final SearchAnalyticsQueryResponse response = spy(new SearchAnalyticsQueryResponse());
-        response.setRows(Collections.emptyList());
-        when(searchQuery.execute()).thenReturn(response);
-
+        // 実行
         queryCommand.execute();
 
-        assertTrue("空のレスポンスが期待通り出力されていません", 
-            outputContent.toString(StandardCharsets.UTF_8).contains(RESPONSE_EMPTY));
+        // 検証
+        String output = outputContent.toString(StandardCharsets.UTF_8).trim();
+        assertTrue("空のレスポンスが期待通り出力されていません",
+                output.contains(RESPONSE_EMPTY) || output.equals(RESPONSE_EMPTY));
     }
 
     /**

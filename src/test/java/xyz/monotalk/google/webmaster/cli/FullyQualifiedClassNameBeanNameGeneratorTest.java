@@ -39,4 +39,37 @@ public class FullyQualifiedClassNameBeanNameGeneratorTest {
         // Then
         assertEquals("Bean名が正しく生成されていません", className, beanName);
     }
+
+    /**
+     * 引数がnullの場合のテスト。
+     */
+    @Test
+    public void testGenerateBeanName_異常系_引数がnull() {
+        // Given
+        final FullyQualifiedClassNameBeanNameGenerator generator = new FullyQualifiedClassNameBeanNameGenerator();
+        final BeanDefinitionRegistry registry = mock(BeanDefinitionRegistry.class);
+
+        // When
+        final String beanName = generator.generateBeanName(null, registry);
+
+        // Then
+        assertEquals("引数がnullの場合は空文字列を返すべき", "", beanName);
+    }
+
+    /**
+     * Bean定義のクラス名がnullの場合のテスト。
+     */
+    @Test
+    public void testGenerateBeanName_異常系_クラス名がnull() {
+        // Given
+        final FullyQualifiedClassNameBeanNameGenerator generator = new FullyQualifiedClassNameBeanNameGenerator();
+        final GenericBeanDefinition definition = new GenericBeanDefinition();
+        final BeanDefinitionRegistry registry = mock(BeanDefinitionRegistry.class);
+
+        // When
+        final String beanName = generator.generateBeanName(definition, registry);
+
+        // Then
+        assertEquals("クラス名がnullの場合は空文字列を返すべき", "", beanName);
+    }
 }

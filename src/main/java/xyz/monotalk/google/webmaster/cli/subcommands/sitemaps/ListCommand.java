@@ -3,12 +3,12 @@ package xyz.monotalk.google.webmaster.cli.subcommands.sitemaps;
 import com.google.api.services.webmasters.Webmasters;
 import com.google.api.services.webmasters.model.SitemapsListResponse;
 import java.io.IOException;
-import java.security.GeneralSecurityException;
+import org.apache.commons.lang3.StringUtils;
 import org.kohsuke.args4j.Option;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import xyz.monotalk.google.webmaster.cli.CmdLineArgmentException;
 import xyz.monotalk.google.webmaster.cli.Command;
 import xyz.monotalk.google.webmaster.cli.CommandLineInputOutputException;
 import xyz.monotalk.google.webmaster.cli.Format;
@@ -16,86 +16,87 @@ import xyz.monotalk.google.webmaster.cli.ResponseWriter;
 import xyz.monotalk.google.webmaster.cli.WebmastersFactory;
 
 /**
- * サイトマップ一覧を取得するコマンドです。
- *
- * <p>このクラスは、Google Search Console APIを使用して、
- * 指定されたサイトのサイトマップ一覧を取得します。</p>
+ * サイトマップ一覧を取得するコマンドクラス。
  */
 @Component
 public class ListCommand implements Command {
 
-    /**
-     * ロガーインスタンス。
-     */
+    /** ロガーインスタンス。 */
     private static final Logger LOGGER = LoggerFactory.getLogger(ListCommand.class);
 
-    /**
-     * WebmastersファクトリーインスタンスDI用。
-     */
-    @Autowired
-    private WebmastersFactory factory;
+    /** WebmastersFactoryインスタンス。 */
+    private final WebmastersFactory factory;
 
-    /**
-     * サイトURL。
-     */
+    /** サイトURL。 */
     @Option(name = "-siteUrl", usage = "Site URL", required = true)
-    protected String siteUrl;
+    private String siteUrl;
+
+    /** 出力フォーマット。 */
+    @Option(name = "-format", usage = "Output format")
+    private Format format = Format.CONSOLE;
+
+    /** 出力ファイルパス。 */
+    @Option(name = "-filePath", usage = "Output file path")
+    private String filePath;
 
     /**
-     * 出力フォーマット。
+     * コンストラクタ。
+     *
+     * @param factory WebmastersFactoryインスタンス
      */
-    @Option(name = "-format", usage = "Output format", required = false)
-    protected Format format = Format.CONSOLE;
-
-    /**
-     * 出力ファイルパス。
-     */
-    @Option(name = "-filePath", usage = "Output file path", required = false)
-    protected String filePath;
-
-    /**
-     * デフォルトコンストラクタ。
-     */
-    public ListCommand() {
-        // デフォルトコンストラクタ
+    public ListCommand(final WebmastersFactory factory) {
+        this.factory = factory;
     }
 
     /**
-     * サイトマップ一覧を取得し、指定された形式で出力します。
-     *
-     * @throws CommandLineInputOutputException API実行エラーが発生した場合。
+     * {@inheritDoc}
      */
     @Override
     public void execute() {
         if (LOGGER.isInfoEnabled()) {
-            LOGGER.info("Starting site {} sitemap list command.", siteUrl);
+            LOGGER.info("Retrieving sitemap list for site: {}", siteUrl);
         }
+
+        validateSiteUrl();
+        validateFormat();
+
         try {
-            final Webmasters webmasters = factory.create();
+            final Webmasters webmasters = factory.createClient();
             final Webmasters.Sitemaps.List list = webmasters.sitemaps().list(siteUrl);
             final SitemapsListResponse response = list.execute();
-            
-            // コンソール出力の場合、空の文字列をfilePathとして渡す
-            final String outputPath = (format == Format.CONSOLE && (filePath == null || filePath.isEmpty())) 
-                ? "" : filePath;
-                
-            ResponseWriter.writeJson(response, format, outputPath);
-            
+            ResponseWriter.writeJson(response, format, filePath);
+
             if (LOGGER.isInfoEnabled()) {
-                LOGGER.info("Command completed successfully.");
+                LOGGER.info("Sitemap list retrieved successfully");
             }
-        } catch (IOException | GeneralSecurityException e) {
+        } catch (IOException e) {
             if (LOGGER.isErrorEnabled()) {
-                LOGGER.error("API execution failed", e);
+                LOGGER.error("Failed to list sitemaps", e);
             }
-            throw new CommandLineInputOutputException("API execution failed: " + e.getMessage(), e);
+            throw new CommandLineInputOutputException("Failed to list sitemaps", e);
         }
     }
 
     /**
-     * コマンドの使用方法を返します。
-     *
-     * @return 使用方法の説明。
+     * サイトURLの妥当性を検証します。
+     */
+    private void validateSiteUrl() {
+        if (StringUtils.isBlank(siteUrl)) {
+            throw new CmdLineArgmentException("Site URL must be specified");
+        }
+    }
+
+    /**
+     * 出力フォーマットの妥当性を検証します。
+     */
+    private void validateFormat() {
+        if (format == Format.JSON && StringUtils.isBlank(filePath)) {
+            throw new CmdLineArgmentException("File path must be specified when using JSON format");
+        }
+    }
+
+    /**
+     * {@inheritDoc}
      */
     @Override
     public String usage() {

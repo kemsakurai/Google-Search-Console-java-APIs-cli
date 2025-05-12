@@ -5,10 +5,12 @@ import static org.mockito.Mockito.when;
 
 import com.google.api.services.webmasters.Webmasters;
 import java.io.IOException;
+import java.security.GeneralSecurityException;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.InjectMocks;
+import org.kohsuke.args4j.CmdLineException;
+import org.kohsuke.args4j.CmdLineParser;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import xyz.monotalk.google.webmaster.cli.CommandLineInputOutputException;
@@ -45,9 +47,8 @@ public class AddCommandTest {
     private Webmasters.Sites.Add add;
 
     /**
-     * AddCommandのインスタンス。
+     * テスト対象のAddCommand。
      */
-    @InjectMocks
     private AddCommand command;
 
     /**
@@ -56,23 +57,21 @@ public class AddCommandTest {
     private static final String TEST_SITE_URL = "https://example.com";
 
     /**
-     * デフォルトコンストラクタ。
-     */
-    public AddCommandTest() {
-        // デフォルトの初期化処理
-    }
-
-    /**
      * テストのセットアップを行います。
      *
      * @throws IOException 入出力例外が発生した場合。
+     * @throws GeneralSecurityException セキュリティ関連の例外が発生した場合。
+     * @throws CmdLineException コマンドライン引数の解析に失敗した場合。
      */
     @Before
-    public void setUp() throws IOException {
+    public void setUp() throws IOException, GeneralSecurityException, CmdLineException {
+        command = new AddCommand(factory);
         when(factory.createClient()).thenReturn(webmasters);
         when(webmasters.sites()).thenReturn(sites);
         when(sites.add(TEST_SITE_URL)).thenReturn(add);
-        command.setSiteUrl(TEST_SITE_URL);
+        
+        String[] args = {"-siteUrl", TEST_SITE_URL};
+        new CmdLineParser(command).parseArgument(args);
     }
 
     /**
@@ -94,13 +93,10 @@ public class AddCommandTest {
      */
     @Test
     public void testUsageReturnsExpectedDescription() {
-        // Given
-        final String expected = "Adds a site to Google Search Console.";
-
         // When
-        final String actual = command.usage();
+        String actual = command.usage();
 
         // Then
-        assertEquals("使用方法の説明が正しくありません", expected, actual);
+        assertEquals("Adds a site to Google Search Console.", actual);
     }
 }

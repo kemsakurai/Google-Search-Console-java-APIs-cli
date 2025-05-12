@@ -29,6 +29,7 @@ java {
 
 rewrite {
     activeRecipe("org.openrewrite.java.OrderImports")
+    activeRecipe("org.openrewrite.java.RemoveUnusedImports")
     setExportDatatables(true)
 }
 
@@ -106,9 +107,8 @@ test {
         includeEngines 'junit-vintage', 'junit-jupiter'
     }
     testLogging {
-        events "passed", "skipped", "failed"
+        events "skipped", "failed"
         exceptionFormat "full"
-        showStandardStreams = true
     }
     jvmArgs '--add-opens', 'java.base/java.lang=ALL-UNNAMED'
     finalizedBy jacocoTestReport // テスト完了後にカバレッジレポートを生成

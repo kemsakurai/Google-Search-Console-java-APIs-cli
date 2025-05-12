@@ -32,19 +32,28 @@ public class DeleteCommand implements Command {
      * サイトのURL。
      */
     @Option(name = "-siteUrl", usage = "Url of site", required = true)
-    private String siteUrl;
+    protected String siteUrl;
 
     /**
      * サイトマップのフィードパス。
      */
     @Option(name = "-feedPath", usage = "Url of feedPath", required = true)
-    private String feedPath;
+    protected String feedPath;
         
     /**
      * デフォルトコンストラクタ。
      */
     public DeleteCommand() {
         // デフォルトコンストラクタ
+    }
+
+    /**
+     * テスト用のコンストラクタ。
+     *
+     * @param factory WebmastersFactoryインスタンス
+     */
+    DeleteCommand(final WebmastersFactory factory) {
+        this.factory = factory;
     }
 
     /**

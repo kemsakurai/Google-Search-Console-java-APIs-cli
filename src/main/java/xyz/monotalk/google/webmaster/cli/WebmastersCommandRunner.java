@@ -52,11 +52,15 @@ public class WebmastersCommandRunner {
     /**
      * コマンドを実行します。
      *
-     * @param command 実行するコマンド
      * @param args コマンドライン引数
      * @throws CmdLineArgmentException コマンドライン引数が不正な場合
      */
-    public void run(final String command, final String... args) {
+    public void run(final String... args) {
+        if (args == null || args.length == 0) {
+            throw new CmdLineArgmentException("Command must be specified");
+        }
+
+        final String command = args[0];
         validateCommand(command);
 
         try {
@@ -106,9 +110,22 @@ public class WebmastersCommandRunner {
      * @return 完全修飾クラス名
      */
     private String buildClassName(final String command) {
-        return CONFIG_PKG + "." 
-            + command.substring(COMMAND_PREFIX.length()).replace(".", ".") 
-            + COMMAND_SUFFIX;
+        final String cmdName = command.substring(COMMAND_PREFIX.length());
+        final String[] parts = cmdName.split("\\.");
+        final StringBuilder result = new StringBuilder(CONFIG_PKG);
+        for (int i = 0; i < parts.length; i++) {
+            final String part = parts[i];
+            result.append(".");
+            // 最後の部分以外は小文字のまま
+            if (i < parts.length - 1) {
+                result.append(part.toLowerCase(java.util.Locale.ROOT));
+            } else {
+                // 最後の部分は先頭を大文字に
+                result.append(Character.toUpperCase(part.charAt(0)))
+                      .append(part.substring(1).toLowerCase(java.util.Locale.ROOT));
+            }
+        }
+        return result.append(COMMAND_SUFFIX).toString();
     }
 
     /**
@@ -139,7 +156,15 @@ public class WebmastersCommandRunner {
     private void parseArguments(final Command cmd, final String... args) {
         final CmdLineParser parser = new CmdLineParser(cmd);
         try {
-            parser.parseArgument(args);
+            // 最初の引数はコマンド名なので、それを除いた残りの引数のみを解析する
+            final int COMMAND_INDEX = 0;
+            final int COMMAND_ARGS_START = 1;
+            
+            if (args.length > COMMAND_ARGS_START) {
+                final String[] remainingArgs = new String[args.length - COMMAND_ARGS_START];
+                System.arraycopy(args, COMMAND_ARGS_START, remainingArgs, 0, args.length - COMMAND_ARGS_START);
+                parser.parseArgument(remainingArgs);
+            }
         } catch (CmdLineException e) {
             throw new CmdLineArgmentException(e.getMessage(), e);
         }

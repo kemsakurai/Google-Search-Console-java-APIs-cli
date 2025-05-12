@@ -11,7 +11,6 @@ import java.io.IOException;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import xyz.monotalk.google.webmaster.cli.CommandLineInputOutputException;
@@ -70,7 +69,6 @@ public class DeleteCommandTest {
     /**
      * テスト対象のコマンドインスタンス。
      */
-    @InjectMocks
     private DeleteCommand command;
 
     /**
@@ -79,7 +77,11 @@ public class DeleteCommandTest {
      * @throws IOException テストの準備中に発生する可能性のある例外
      */
     @Before
-    public void setup() throws IOException {
+    public void setUp() throws IOException {
+        command = new DeleteCommand(factory);
+        command.siteUrl = TEST_SITE_URL;
+        command.feedPath = TEST_FEED_PATH;
+
         when(factory.createClient()).thenReturn(webmasters);
         when(webmasters.sitemaps()).thenReturn(sitemaps);
         when(sitemaps.delete(anyString(), anyString())).thenReturn(delete);
