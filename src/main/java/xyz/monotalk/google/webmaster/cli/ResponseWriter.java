@@ -41,7 +41,7 @@ public final class ResponseWriter {
         final String jsonString = getJsonString(response);
         routeOutput(jsonString, format, path);
     }
-    
+
     /**
      * レスポンスオブジェクトをJSON文字列に変換します。
      *
@@ -63,6 +63,7 @@ public final class ResponseWriter {
             throw new CommandLineInputOutputException("JSONの変換に失敗しました: " + e.getMessage(), e);
         }
     }
+    
     /**
      * GenericJsonオブジェクトをJSON文字列に変換します。
      *
@@ -74,11 +75,11 @@ public final class ResponseWriter {
         if (json == null || json.isEmpty()) {
             return "{}";
         }
-        // toPrettyString()メソッドを呼び出し、テストケースでの例外をスローさせるために利用
+        // toString()メソッドを呼び出し、テストケースでの例外をスローさせるために利用
         try {
             return json.toPrettyString();
         } catch (IOException e) {
-            throw new CommandLineInputOutputException("JSONの変換に失敗しました: " + e.getMessage(), e);
+            throw new CommandLineInputOutputException("Failed to convert GenericJson to String: " + e.getMessage(), e);
         }
     }
 

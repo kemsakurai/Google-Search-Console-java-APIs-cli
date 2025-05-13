@@ -431,12 +431,14 @@ public class ResponseWriterTest {
     /**
      * JSON形式でレスポンスが正しく書き込まれるかをテストします。
      */
+    @SuppressWarnings("deprecation")
     @Test
     public void testWriteJson正常系() {
         // Given
         final GenericJson json = new GenericJson();
+        json.setFactory(new com.google.api.client.json.jackson2.JacksonFactory());
         json.set(JSON_KEY, JSON_VALUE);
-        
+
         // When
         final String result = TestUtils.convertToJson(json);
         
