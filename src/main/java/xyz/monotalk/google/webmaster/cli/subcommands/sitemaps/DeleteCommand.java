@@ -49,10 +49,12 @@ public class DeleteCommand implements Command {
 
     /**
      * テスト用のコンストラクタ。
+     * デフォルト（パッケージプライベート）アクセス修飾子を使用しています。
+     * このコンストラクタはテストケースからのみ呼び出されることを意図しています。
      *
      * @param factory WebmastersFactoryインスタンス
      */
-    DeleteCommand(final WebmastersFactory factory) {
+    /* default */ DeleteCommand(final WebmastersFactory factory) {
         this.factory = factory;
     }
 

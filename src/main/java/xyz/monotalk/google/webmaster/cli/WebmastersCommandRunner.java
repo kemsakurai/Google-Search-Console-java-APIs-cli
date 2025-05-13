@@ -115,7 +115,7 @@ public class WebmastersCommandRunner {
         final StringBuilder result = new StringBuilder(CONFIG_PKG);
         for (int i = 0; i < parts.length; i++) {
             final String part = parts[i];
-            result.append(".");
+            result.append('.');
             // 最後の部分以外は小文字のまま
             if (i < parts.length - 1) {
                 result.append(part.toLowerCase(java.util.Locale.ROOT));
@@ -157,12 +157,11 @@ public class WebmastersCommandRunner {
         final CmdLineParser parser = new CmdLineParser(cmd);
         try {
             // 最初の引数はコマンド名なので、それを除いた残りの引数のみを解析する
-            final int COMMAND_INDEX = 0;
-            final int COMMAND_ARGS_START = 1;
+            final int commandArgsStart = 1;
             
-            if (args.length > COMMAND_ARGS_START) {
-                final String[] remainingArgs = new String[args.length - COMMAND_ARGS_START];
-                System.arraycopy(args, COMMAND_ARGS_START, remainingArgs, 0, args.length - COMMAND_ARGS_START);
+            if (args.length > commandArgsStart) {
+                final String[] remainingArgs = new String[args.length - commandArgsStart];
+                System.arraycopy(args, commandArgsStart, remainingArgs, 0, args.length - commandArgsStart);
                 parser.parseArgument(remainingArgs);
             }
         } catch (CmdLineException e) {

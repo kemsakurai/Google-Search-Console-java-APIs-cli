@@ -99,7 +99,7 @@ public class WebmastersFactoryTest {
         when(transportFactory.createTransport()).thenReturn(null);
         
         // テスト対象のWebmastersFactory匿名サブクラスを作成
-        WebmastersFactory testFactory = new TestWebmastersFactory() {
+        final WebmastersFactory testFactory = new TestWebmastersFactory() {
             @Override
             protected NetHttpTransport createHttpTransport() throws GeneralSecurityException, IOException {
                 throw new IOException("Transport error");
@@ -122,7 +122,7 @@ public class WebmastersFactoryTest {
         when(credentialFactory.create()).thenReturn(credentials);
 
         // テスト対象のWebmastersFactory匿名サブクラスを作成
-        WebmastersFactory testFactory = new TestWebmastersFactory() {
+        final WebmastersFactory testFactory = new TestWebmastersFactory() {
             @Override
             protected GoogleCredentials createCredential() throws IOException {
                 throw new IOException("Credential error");

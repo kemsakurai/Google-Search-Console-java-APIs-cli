@@ -1,7 +1,6 @@
 package xyz.monotalk.google.webmaster.cli.subcommands.searchanalytics;
 
 import com.google.api.services.webmasters.Webmasters;
-import com.google.api.services.webmasters.model.ApiDimensionFilter;
 import com.google.api.services.webmasters.model.ApiDimensionFilterGroup;
 import com.google.api.services.webmasters.model.SearchAnalyticsQueryRequest;
 import com.google.api.services.webmasters.model.SearchAnalyticsQueryResponse;
@@ -87,15 +86,42 @@ public class QueryCommand implements Command {
      * @throws CmdLineArgmentException 引数が無効な場合
      */
     private void validateArguments() {
+        validateSiteUrl();
+        validateDates();
+        validateOutputFormat();
+    }
+    
+    /**
+     * サイトURLを検証します。
+     *
+     * @throws CmdLineArgmentException URLが指定されていない場合
+     */
+    private void validateSiteUrl() {
         if (StringUtils.isBlank(siteUrl)) {
             throw new CmdLineArgmentException("Site URL must be specified");
         }
+    }
+    
+    /**
+     * 日付を検証します。
+     *
+     * @throws CmdLineArgmentException 日付が指定されていない場合
+     */
+    private void validateDates() {
         if (StringUtils.isBlank(startDate)) {
             throw new CmdLineArgmentException("Start date must be specified");
         }
         if (StringUtils.isBlank(endDate)) {
             throw new CmdLineArgmentException("End date must be specified");
         }
+    }
+    
+    /**
+     * 出力フォーマットを検証します。
+     *
+     * @throws CmdLineArgmentException JSON形式でファイルパスが指定されていない場合
+     */
+    private void validateOutputFormat() {
         if (format == Format.JSON && StringUtils.isBlank(filePath)) {
             throw new CmdLineArgmentException("File path must be specified when using JSON format");
         }
@@ -114,7 +140,7 @@ public class QueryCommand implements Command {
                 .setDimensionFilterGroups(Collections.singletonList(
                         new ApiDimensionFilterGroup()
                                 .setGroupType("and")
-                                .setFilters(new ArrayList<ApiDimensionFilter>())));
+                                .setFilters(new ArrayList<>())));
     }
 
     /**

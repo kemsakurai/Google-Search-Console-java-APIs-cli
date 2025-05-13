@@ -25,20 +25,19 @@ public class ListCommand implements Command {
     private final WebmastersFactory factory;
 
     /**
-     * コンストラクタ。
+     * コンストラクター。
+     * 指定されたWebmastersFactoryを使用してインスタンスを初期化します。
+     * コンストラクターからの例外スローを避けるため、nullチェックはexecuteメソッドで行います。
      *
-     * @param factory WebmastersFactoryインスタンス
+     * @param factory WebmastersFactoryインスタンス（null不可）
      */
     public ListCommand(final WebmastersFactory factory) {
-        if (factory == null) {
-            throw new IllegalArgumentException("factory must not be null");
-        }
+        // SpotBugs違反を解消するため、コンストラクターからの例外スローを避ける
         this.factory = factory;
     }
 
     /**
      * サイト一覧を取得し、指定された形式で出力します。
-     *
      * ユーザーが所有するサイトのリストを取得し、指定されたフォーマットで出力します。
      *
      * @throws CommandLineInputOutputException サイト一覧の取得に失敗した場合
@@ -47,6 +46,11 @@ public class ListCommand implements Command {
     public void execute() {
         if (LOGGER.isInfoEnabled()) {
             LOGGER.info("Retrieving site list");
+        }
+        
+        // factoryがnullでないことを確認（コンストラクターでのチェックを避けるためここでチェック）
+        if (factory == null) {
+            throw new IllegalStateException("WebmastersFactory is not initialized");
         }
 
         try {

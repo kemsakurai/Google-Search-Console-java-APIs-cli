@@ -70,7 +70,7 @@ public class AddCommandTest {
         when(webmasters.sites()).thenReturn(sites);
         when(sites.add(TEST_SITE_URL)).thenReturn(add);
         
-        String[] args = {"-siteUrl", TEST_SITE_URL};
+        final String[] args = {"-siteUrl", TEST_SITE_URL};
         new CmdLineParser(command).parseArgument(args);
     }
 
@@ -94,9 +94,9 @@ public class AddCommandTest {
     @Test
     public void testUsageReturnsExpectedDescription() {
         // When
-        String actual = command.usage();
+        final String actual = command.usage();
 
         // Then
-        assertEquals("Adds a site to Google Search Console.", actual);
+        assertEquals("usage()のメッセージが期待値と一致しません。", "Adds a site to Google Search Console.", actual);
     }
 }

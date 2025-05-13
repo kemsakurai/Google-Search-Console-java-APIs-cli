@@ -70,26 +70,54 @@ public class GetCommand implements Command {
      */
     @Override
     public void execute() {
-        // パラメータのバリデーション
+        validateArguments();
+        try {
+            final Webmasters webmasters = getWebmastersClient();
+            final WmxSitemap response = fetchSitemap(webmasters);
+            ResponseWriter.writeJson(response, format, filePath);
+        } catch (IOException e) {
+            throw new CommandLineInputOutputException("API Error", e);
+        }
+    }
+    
+    /**
+     * 引数を検証します。
+     *
+     * @throws CmdLineArgmentException 引数が無効な場合。
+     */
+    private void validateArguments() {
         if (siteUrl == null || siteUrl.isEmpty()) {
             throw new CmdLineArgmentException("Site URL must be specified");
         }
         if (feedpath == null || feedpath.isEmpty()) {
             throw new CmdLineArgmentException("Feed path must be specified");
         }
-        
-        try {
-            final Webmasters webmasters = factory.createClient();
-            if (webmasters == null) {
-                throw new CommandLineInputOutputException(new IOException("Failed to create Webmasters client"));
-            }
-            
-            final Webmasters.Sitemaps.Get request = webmasters.sitemaps().get(siteUrl, feedpath);
-            final WmxSitemap response = request.execute();
-            ResponseWriter.writeJson(response, format, filePath);
-        } catch (IOException e) {
-            throw new CommandLineInputOutputException("API Error", e);
+    }
+    
+    /**
+     * Webmastersクライアントを取得します。
+     *
+     * @return Webmastersクライアント
+     * @throws CommandLineInputOutputException クライアント作成に失敗した場合。
+     */
+    private Webmasters getWebmastersClient() {
+        final Webmasters webmasters = factory.createClient();
+        if (webmasters == null) {
+            throw new CommandLineInputOutputException(new IOException("Failed to create Webmasters client"));
         }
+        return webmasters;
+    }
+    
+    /**
+     * サイトマップを取得します。
+     *
+     * @param webmasters Webmastersクライアント
+     * @return 取得したサイトマップ情報
+     * @throws IOException API呼び出しに失敗した場合。
+     */
+    private WmxSitemap fetchSitemap(final Webmasters webmasters) throws IOException {
+        final Webmasters.Sitemaps.Get request = webmasters.sitemaps().get(siteUrl, feedpath);
+        return request.execute();
     }
 
     /**

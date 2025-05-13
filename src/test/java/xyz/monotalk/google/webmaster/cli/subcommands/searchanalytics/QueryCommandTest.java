@@ -70,9 +70,11 @@ public class QueryCommandTest {
      *
      * @throws IOException モックのセットアップ中に例外が発生した場合
      * @throws GeneralSecurityException セキュリティ例外が発生した場合
+     * @throws NoSuchFieldException フィールドが存在しない場合
+     * @throws IllegalAccessException フィールドへのアクセスが許可されていない場合
      */
     @Before
-    public void setUp() throws IOException, GeneralSecurityException {
+    public void setUp() throws IOException, GeneralSecurityException,  IllegalAccessException, NoSuchFieldException {
         initializeOutputStream();
         setupMocks();
         initializeQueryCommand();
@@ -103,23 +105,24 @@ public class QueryCommandTest {
 
     /**
      * QueryCommandの初期化。
+     * @throws IllegalAccessException フィールドへのアクセスが許可されていない場合
+     * @throws NoSuchFieldException フィールドが存在しない場合
      */
-    private void initializeQueryCommand() {
-        try {
-            java.lang.reflect.Field startDateField = QueryCommand.class.getDeclaredField("startDate");
-            java.lang.reflect.Field endDateField = QueryCommand.class.getDeclaredField("endDate");
-            java.lang.reflect.Field siteUrlField = QueryCommand.class.getDeclaredField("siteUrl");
-            
-            startDateField.setAccessible(true);
-            endDateField.setAccessible(true);
-            siteUrlField.setAccessible(true);
-            
-            startDateField.set(queryCommand, "2020-01-01");
-            endDateField.set(queryCommand, "2020-01-31");
-            siteUrlField.set(queryCommand, "https://example.com");
-        } catch (NoSuchFieldException | IllegalAccessException e) {
-            throw new RuntimeException("Failed to initialize QueryCommand", e);
-        }
+    @SuppressWarnings("PMD.AvoidAccessibilityAlteration")
+    private void initializeQueryCommand() throws IllegalAccessException, NoSuchFieldException {
+        // リフレクションを使用したフィールドアクセス処理
+        final java.lang.reflect.Field startDateField = QueryCommand.class.getDeclaredField("startDate");
+        final java.lang.reflect.Field endDateField = QueryCommand.class.getDeclaredField("endDate");
+        final java.lang.reflect.Field siteUrlField = QueryCommand.class.getDeclaredField("siteUrl");
+        
+        startDateField.setAccessible(true);
+        endDateField.setAccessible(true);
+        siteUrlField.setAccessible(true);
+        
+        startDateField.set(queryCommand, "2020-01-01");
+        endDateField.set(queryCommand, "2020-01-31");
+        siteUrlField.set(queryCommand, "https://example.com");
+        
     }
 
     /**
@@ -141,9 +144,9 @@ public class QueryCommandTest {
         queryCommand.execute();
 
         // 検証
-        String output = outputContent.toString(StandardCharsets.UTF_8).trim();
+        final String output = outputContent.toString(StandardCharsets.UTF_8).trim();
         assertTrue("空のレスポンスが期待通り出力されていません",
-                output.contains(RESPONSE_EMPTY) || output.equals(RESPONSE_EMPTY));
+                RESPONSE_EMPTY.equals(output) || output.contains(RESPONSE_EMPTY));
     }
 
     /**

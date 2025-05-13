@@ -37,11 +37,6 @@ public class ListCommandTest {
     private Webmasters.Sites.List sitesList;
 
     /**
-     * 各テストの前に実行される初期化メソッド。
-     */
-
-
-    /**
      * サイト一覧の取得が正常に実行されることをテストします。
      *
      * @throws Exception テスト実行中に例外が発生した場合
@@ -68,11 +63,13 @@ public class ListCommandTest {
     }
 
     /**
-     * WebmastersFactoryがnullの場合に例外がスローされることをテストします。
+     * WebmastersFactoryがnullの場合、execute()を呼び出した時に例外がスローされることをテストします。
      */
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = IllegalStateException.class)
     public void testConstructor_異常系_factoryがnull() {
-        new ListCommand(null);
+        // コンストラクターではなくexecuteメソッド実行時に例外が発生する
+        final ListCommand command = new ListCommand(null);
+        command.execute();
     }
 
     /**
@@ -81,7 +78,7 @@ public class ListCommandTest {
      * @throws Exception テスト実行中に例外が発生した場合
      */
     @Test(expected = CommandLineInputOutputException.class)
-    public void testExecute_異常系_IOExceptionが発生() throws Exception {
+    public void testExecute_異常系_InputOutputExceptionが発生() throws Exception {
         // Given
         when(factory.createClient()).thenReturn(webmasters);
         when(webmasters.sites()).thenReturn(sites);

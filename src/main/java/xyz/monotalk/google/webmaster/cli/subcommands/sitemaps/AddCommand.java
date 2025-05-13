@@ -98,22 +98,35 @@ public class AddCommand implements Command {
 
     /**
      * {@inheritDoc}
+     *
      */
     @Override
     public String usage() {
         return "Adds a sitemap to Google Search Console.";
     }
-
+    
     /**
      * レスポンスメッセージを格納する内部クラス。
      */
     private static class Response {
+        /** レスポンスメッセージ。 */
         private final String message;
 
-        Response(final String message) {
+        /**
+         * デフォルトコンストラクタ。
+         * デフォルト（パッケージプライベート）アクセス修飾子を使用しています。
+         *
+         * @param message レスポンスメッセージ
+         */
+        /* default */ Response(final String message) {
             this.message = message;
         }
 
+        /**
+         * メッセージを取得します。
+         *
+         * @return メッセージ
+         */
         public String getMessage() {
             return message;
         }
