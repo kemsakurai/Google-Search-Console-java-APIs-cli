@@ -39,7 +39,7 @@ public class ApiInfoFetcher {
      * @throws IOException API呼び出し中にエラーが発生した場合
      */
     public ApiResponseRecord<GenericJson> fetchApiInfo() throws IOException {
-        final Webmasters client = factory.create();
+        final Webmasters client = factory.createClient();
         final HttpRequestFactory requestFactory = createRequestFactory(client);
         final HttpRequest request = requestFactory.buildGetRequest(new GenericUrl(API_DISCOVERY_URL));
         requestFactory.getInitializer().initialize(request);

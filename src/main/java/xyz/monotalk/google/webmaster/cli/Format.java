@@ -95,6 +95,6 @@ public enum Format {
      */
     @Override
     public String toString() {
-        return name().toLowerCase(Locale.ENGLISH);
+        return name();
     }
 }

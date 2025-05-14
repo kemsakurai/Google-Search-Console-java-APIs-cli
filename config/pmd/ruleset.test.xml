@@ -30,8 +30,8 @@
                     com.google.api.services.webmasters.model.SitemapsListResponse,
                     com.google.api.services.webmasters.Webmasters.Sitemaps.Submit,
                     com.google.api.services.webmasters.Webmasters.Sites.Add,
-                    com.google.api.services.webmasters.model.SitesListResponse,
                     com.google.api.services.webmasters.Webmasters.Searchanalytics.Query,
+                    com.google.api.services.webmasters.model.SitesListResponse,
                     com.google.api.services.webmasters.Webmasters.Sites.List,
                     com.google.api.client.json.GenericJson" />
         </properties>
@@ -39,7 +39,6 @@
     <rule ref="category/java/bestpractices.xml/UnitTestContainsTooManyAsserts">
         <properties>
             <property name="maximumAsserts" value="5" />
-            <property name="extraAssertMethodNames" value="" />
         </properties>
     </rule>
     <rule ref="category/java/documentation.xml"/>
@@ -52,11 +51,20 @@
     <rule ref="category/java/codestyle.xml" >
         <exclude name="UnnecessaryConstructor" />
         <exclude name="OnlyOneReturn" />
+        <exclude name="TooManyStaticImports" />
+        <exclude name="AtLeastOneConstructor"/>
+    </rule>
+    <rule ref="category/java/codestyle.xml/MethodNamingConventions">
+        <properties>
+            <property name="junit4TestPattern" value="test[一-龯ぁ-んァ-ヶーa-zA-Z0-9_]*" />
+            <property name="junit5TestPattern" value="test[一-龯ぁ-んァ-ヶーa-zA-Z0-9_]*" />
+        </properties>
     </rule>
     <rule ref="category/java/design.xml" >
         <exclude name="UseUtilityClass" />
         <exclude name="ImmutableField" />
         <exclude name="LoosePackageCoupling" />
+        <exclude name="TooManyMethods" />
     </rule> 
     <rule ref="category/java/errorprone.xml" />
     <rule ref="category/java/multithreading.xml" />

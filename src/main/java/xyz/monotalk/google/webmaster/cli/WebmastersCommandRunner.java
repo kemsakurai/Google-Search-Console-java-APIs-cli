@@ -1,251 +1,171 @@
 package xyz.monotalk.google.webmaster.cli;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
-import java.util.Arrays;
-import java.util.List;
-import java.util.StringJoiner;
-import org.apache.commons.lang3.tuple.Pair;
-import org.kohsuke.args4j.Argument;
 import org.kohsuke.args4j.CmdLineException;
 import org.kohsuke.args4j.CmdLineParser;
-import org.kohsuke.args4j.Option;
-import org.kohsuke.args4j.spi.SubCommand;
-import org.kohsuke.args4j.spi.SubCommandHandler;
-import org.kohsuke.args4j.spi.SubCommands;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.CommandLineRunner;
+import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 
 /**
- * WebmastersCommandRunnerは、コマンドライン引数を処理し、対応するコマンドを実行します。
+ * WebmastersコマンドランナークラスはコマンドラインからのGoogle Search Console APIの
+ * 操作を実行するためのエントリーポイントを提供します。
  */
 @Component
-public class WebmastersCommandRunner implements CommandLineRunner {
+public class WebmastersCommandRunner {
 
-    /** ロガーインスタンスです。 */
+    /**
+     * ロガーインスタンス。
+     */
     private static final Logger LOGGER = LoggerFactory.getLogger(WebmastersCommandRunner.class);
 
-    /** Springアプリケーションコンテキストです。 */
-    @Autowired
-    private ApplicationContext context;
-
     /**
-     * サブコマンド実装オブジェクトです。 引数によって実行するオブジェクトを切り替えます。
+     * コマンドの接頭辞。
      */
-    @Argument(handler = SubCommandHandler.class, metaVar = "subCommands")
-    @SubCommands({
-        @SubCommand(name = "webmasters.searchanalytics.query",
-                impl = xyz.monotalk.google.webmaster.cli.subcommands.searchanalytics.QueryCommand.class),
-        @SubCommand(name = "webmasters.sitemaps.list",
-                impl = xyz.monotalk.google.webmaster.cli.subcommands.sitemaps.ListCommand.class),
-        @SubCommand(name = "webmasters.sitemaps.delete",
-                impl = xyz.monotalk.google.webmaster.cli.subcommands.sitemaps.DeleteCommand.class),
-        @SubCommand(name = "webmasters.sitemaps.get",
-                impl = xyz.monotalk.google.webmaster.cli.subcommands.sitemaps.GetCommand.class),
-        @SubCommand(name = "webmasters.sitemaps.submit",
-                impl = xyz.monotalk.google.webmaster.cli.subcommands.sitemaps.SubmitCommand.class),
-        @SubCommand(name = "webmasters.sites.add",
-                impl = xyz.monotalk.google.webmaster.cli.subcommands.sites.AddCommand.class),
-        @SubCommand(name = "webmasters.sites.delete",
-                impl = xyz.monotalk.google.webmaster.cli.subcommands.sites.DeleteCommand.class),
-        @SubCommand(name = "webmasters.sites.get",
-                impl = xyz.monotalk.google.webmaster.cli.subcommands.sites.GetCommand.class),
-        @SubCommand(name = "webmasters.sites.list",
-                impl = xyz.monotalk.google.webmaster.cli.subcommands.sites.ListCommand.class),
-        @SubCommand(name = "webmasters.urlcrawlerrorscounts.query",
-                impl = xyz.monotalk.google.webmaster.cli.subcommands.urlcrawlerrorscounts.QueryCommand.class),
-        @SubCommand(name = "webmasters.urlcrawlerrorssamples.get",
-                impl = xyz.monotalk.google.webmaster.cli.subcommands.urlcrawlerrorssamples.GetCommand.class),
-        @SubCommand(name = "webmasters.urlcrawlerrorssamples.list",
-                impl = xyz.monotalk.google.webmaster.cli.subcommands.urlcrawlerrorssamples.ListCommand.class),
-        @SubCommand(name = "webmasters.urlcrawlerrorssamples.markAsFixed",
-                impl = xyz.monotalk.google.webmaster.cli.subcommands.urlcrawlerrorssamples.MarkAsFixedCommand.class),
-        @SubCommand(name = "webmasters.api.info",
-                impl = xyz.monotalk.google.webmaster.cli.subcommands.apiinfo.ApiInfoCommand.class)
-    })
-    private Command command;
-
-    /** ヘルプ表示フラグです。 */
-    @Option(name = "-?", aliases = "--help", usage = "show this help message and exit")
-    private boolean usageFlag;
+    private static final String COMMAND_PREFIX = "webmasters.";
 
     /**
-     * デフォルトコンストラクタです。
+     * 設定のパッケージ名。
      */
-    public WebmastersCommandRunner() {
-        // デフォルトコンストラクタ
-    }
+    private static final String CONFIG_PKG = "xyz.monotalk.google.webmaster.cli.subcommands";
 
     /**
-     * コマンドライン引数に基づいてコマンドを実行します。
+     * コマンドの接尾辞。
+     */
+    private static final String COMMAND_SUFFIX = "Command";
+
+    /**
+     * Spring ApplicationContext。
+     */
+    private final ApplicationContext context;
+
+    /**
+     * コンストラクタ。
      *
-     * @param args コマンドライン引数
-     * @throws Exception 実行中に例外が発生した場合
+     * @param context アプリケーションコンテキスト
      */
-    @Override
-    public void run(final String... args) throws Exception {
-        if (LOGGER.isInfoEnabled()) {
-            LOGGER.info("Starting command execution");
-        }
-
-        // コマンドライン引数を処理
-        final List<String> filteredArgs = filterApplicationArgs(args);
-        final CmdLineParser parser = new CmdLineParser(this);
-
-        // 引数が空の場合はヘルプを表示
-        if (filteredArgs.isEmpty()) {
-            displayHelp(parser);
-            return;
-        }
-
-        try {
-            // コマンドライン引数を解析
-            parser.parseArgument(filteredArgs);
-
-            // ヘルプフラグが指定されている場合はヘルプを表示
-            if (usageFlag) {
-                displayHelp(parser);
-                return;
-            }
-
-            // コマンドを実行
-            executeCommand(parser);
-        } catch (CmdLineArgmentException | CmdLineException e) {
-            displayError(parser, e);
-        }
-    }
-
-    /**
-     * "--application" を含むコマンドライン引数を除外します。
-     *
-     * @param args 元のコマンドライン引数
-     * @return フィルタリングされた引数リスト
-     */
-    private List<String> filterApplicationArgs(final String... args) {
-        return Arrays.stream(args)
-                .filter(arg -> !arg.contains("--application"))
-                .toList();
+    public WebmastersCommandRunner(final ApplicationContext context) {
+        this.context = context;
     }
 
     /**
      * コマンドを実行します。
      *
-     * @throws CmdLineException コマンドライン処理中にエラーが発生した場合
+     * @param args コマンドライン引数
+     * @throws CmdLineArgmentException コマンドライン引数が不正な場合
      */
-    private void executeCommand(final CmdLineParser parser) throws CmdLineException {
-        context.getAutowireCapableBeanFactory().autowireBean(this.command);
-
-        // nullチェックを追加
-        if (this.command == null) {
-            throw new CmdLineException(parser, "Command is not initialized.", null);
+    public void run(final String... args) {
+        if (args == null || args.length == 0) {
+            throw new CmdLineArgmentException("Command must be specified");
         }
+
+        final String command = args[0];
+        validateCommand(command);
 
         try {
-            this.command.execute();
-        } catch (CommandLineInputOutputException ioEx) {
-            handleCommandException(parser, ioEx, "I/O error");
-        } catch (CmdLineArgmentException argEx) {
-            handleCommandException(parser, argEx, "Invalid argument");
+            final Command cmd = createCommand(command);
+            parseArguments(cmd, args);
+            cmd.execute();
+        } catch (CmdLineArgmentException | CommandLineInputOutputException e) {
+            if (LOGGER.isErrorEnabled()) {
+                LOGGER.error(e.getMessage(), e);
+            }
+            throw e;
         }
     }
 
     /**
-     * コマンド実行中の例外を処理します。
+     * コマンドを検証します。
      *
-     * @param parser コマンドラインパーサー
-     * @param exception 発生した例外
-     * @param message エラーメッセージ
-     * @throws CmdLineException ラップされた例外
+     * @param command 検証するコマンド
+     * @throws CmdLineArgmentException コマンドが無効な場合
      */
-    private void handleCommandException(
-            final CmdLineParser parser, final Exception exception, final String message) throws CmdLineException {
-        if (LOGGER.isErrorEnabled()) {
-            LOGGER.error("Command execution failed due to {}: {}", message, exception.getMessage(), exception);
-        }
-        throw new CmdLineException(parser, message, exception);
-    }
-
-    /**
-     * ヘルプ情報を表示します。
-     *
-     * @param parser コマンドラインパーサー
-     */
-    private void displayHelp(final CmdLineParser parser) {
-        if (LOGGER.isErrorEnabled()) {
-            LOGGER.error(
-                """
-                --------------------------------------------------------------------------
-                %s
-                """.formatted(usage())
-            );
-            parser.printUsage(System.err);
-            LOGGER.error("---------------------------");
+    private void validateCommand(final String command) {
+        if (command == null || !command.startsWith(COMMAND_PREFIX)) {
+            throw new CmdLineArgmentException("Invalid command format. Command must start with 'webmasters.'");
         }
     }
 
     /**
-     * エラー情報を表示します。
+     * コマンドオブジェクトを生成します。
      *
-     * @param parser    コマンドラインパーサー
-     * @param exception 発生した例外
+     * @param command コマンド文字列
+     * @return 生成されたコマンドオブジェクト
+     * @throws CmdLineArgmentException コマンドの生成に失敗した場合
      */
-    private void displayError(final CmdLineParser parser, final Exception exception) {
-        if (LOGGER.isErrorEnabled()) {
-            LOGGER.error("""
-                    error occurred: %s
-                    --------------------------------------------------------------------------
-                    %s""".formatted(exception.getMessage(), usage()));
-            parser.printUsage(System.err);
-            LOGGER.error("------------");
-        }
-    }
-
-    /**
-     * 使用方法（usage）情報を生成します。
-     *
-     * @return 使用方法の文字列
-     */
-    private String usage() {
-        final Field field;
+    private Command createCommand(final String command) {
         try {
-            field = this.getClass().getDeclaredField("command");
-        } catch (NoSuchFieldException e) {
-            throw new IllegalStateException(e);
+            final String className = buildClassName(command);
+            return instantiateCommand(className);
+        } catch (ClassNotFoundException e) {
+            throw new CmdLineArgmentException("Command not found: " + command, e);
         }
+    }
 
-        final SubCommands subCommands = field.getAnnotation(SubCommands.class);
-        final StringJoiner joiner = new StringJoiner(",", "{", "}");
-        Arrays.stream(subCommands.value())
-              .forEach(e -> joiner.add(e.name()));
+    /**
+     * コマンドのクラス名を生成します。
+     *
+     * @param command コマンド文字列
+     * @return 完全修飾クラス名
+     */
+    private String buildClassName(final String command) {
+        final String cmdName = command.substring(COMMAND_PREFIX.length());
+        final String[] parts = cmdName.split("\\.");
+        final StringBuilder result = new StringBuilder(CONFIG_PKG);
+        for (int i = 0; i < parts.length; i++) {
+            final String part = parts[i];
+            result.append('.');
+            // 最後の部分以外は小文字のまま
+            if (i < parts.length - 1) {
+                result.append(part.toLowerCase(java.util.Locale.ROOT));
+            } else {
+                // 最後の部分は先頭を大文字に
+                result.append(Character.toUpperCase(part.charAt(0)))
+                      .append(part.substring(1).toLowerCase(java.util.Locale.ROOT));
+            }
+        }
+        return result.append(COMMAND_SUFFIX).toString();
+    }
 
-        final StringBuilder commandDetails = new StringBuilder();
-        Arrays.stream(subCommands.value())
-              .map(e -> {
-                  try {
-                      return Pair.of(
-                          e.name(),
-                          (Command) e.impl().getDeclaredConstructor().newInstance()
-                      );
-                  } catch (InstantiationException | IllegalAccessException 
-                           | InvocationTargetException | NoSuchMethodException ex) {
-                      throw new IllegalStateException(ex);
-                  }
-              })
-              .forEach(e -> commandDetails.append(
-                  String.format("    %s  |  %s%n", e.getLeft(), e.getRight().usage())
-              ));
-        
-        // spotbugsの以下のIssueからString.formatted()を使用した方が良さそう
-        // @see https://github.com/spotbugs/spotbugs/issues/1877
-        return """
-            usage: xyz.monotalk.google.webmaster.cli.CliApplication
-              %s              ...
-            positional arguments:
-              %s optional arguments:
-            """.formatted(joiner, commandDetails);
+    /**
+     * コマンドをインスタンス化します。
+     *
+     * @param className クラス名
+     * @return インスタンス化されたコマンド
+     * @throws ClassNotFoundException クラスが見つからない場合
+     * @throws CmdLineArgmentException インスタンス化に失敗した場合
+     */
+    private Command instantiateCommand(final String className) throws ClassNotFoundException {
+        try {
+            final Class<?> cmdClass = Class.forName(className);
+            final AutowireCapableBeanFactory factory = context.getAutowireCapableBeanFactory();
+            return (Command) factory.createBean(cmdClass);
+        } catch (ClassCastException e) {
+            throw new CmdLineArgmentException("Invalid command class: " + className, e);
+        }
+    }
+
+    /**
+     * コマンドライン引数を解析します。
+     *
+     * @param cmd コマンドオブジェクト
+     * @param args コマンドライン引数
+     * @throws CmdLineArgmentException 引数の解析に失敗した場合
+     */
+    private void parseArguments(final Command cmd, final String... args) {
+        final CmdLineParser parser = new CmdLineParser(cmd);
+        try {
+            // 最初の引数はコマンド名なので、それを除いた残りの引数のみを解析する
+            final int commandArgsStart = 1;
+            
+            if (args.length > commandArgsStart) {
+                final String[] remainingArgs = new String[args.length - commandArgsStart];
+                System.arraycopy(args, commandArgsStart, remainingArgs, 0, args.length - commandArgsStart);
+                parser.parseArgument(remainingArgs);
+            }
+        } catch (CmdLineException e) {
+            throw new CmdLineArgmentException(e.getMessage(), e);
+        }
     }
 }

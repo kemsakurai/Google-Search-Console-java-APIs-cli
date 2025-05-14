@@ -2,64 +2,129 @@ package xyz.monotalk.google.webmaster.cli.subcommands.sites;
 
 import com.google.api.services.webmasters.Webmasters;
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import org.apache.commons.lang3.StringUtils;
 import org.kohsuke.args4j.Option;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import xyz.monotalk.google.webmaster.cli.CmdLineArgmentException;
 import xyz.monotalk.google.webmaster.cli.Command;
 import xyz.monotalk.google.webmaster.cli.CommandLineInputOutputException;
 import xyz.monotalk.google.webmaster.cli.Format;
+import xyz.monotalk.google.webmaster.cli.ResponseWriter;
 import xyz.monotalk.google.webmaster.cli.WebmastersFactory;
 
 /**
- * Google Search Console APIのサイト追加コマンドです。
+ * サイトを追加するコマンドクラス。
  */
 @Component
 public class AddCommand implements Command {
 
-    /** ロガーインスタンス。 */
-    private static final Logger LOGGER = LoggerFactory.getLogger(AddCommand.class);
-
-    /** WebmastersファクトリーインスタンスDI用。 */
-    @Autowired private WebmastersFactory factory;
-
-    /** サイトURL。 */
+    /**
+     * サイトURL。
+     */
     @Option(name = "-siteUrl", usage = "Site URL", required = true)
     private String siteUrl;
 
-    /** 出力フォーマット。 */
-    @Option(name = "-format", usage = "Output format [console or json]")
+    /**
+     * 出力フォーマット。
+     */
+    @Option(name = "-format", usage = "Output format")
     private Format format = Format.CONSOLE;
 
-    /** デフォルトコンストラクタ。 */
-    public AddCommand() {
-        // デフォルトコンストラクタ
+    /**
+     * 出力ファイルパス。
+     */
+    @Option(name = "-filePath", usage = "Output file path")
+    private String filePath;
+
+    /**
+     * WebmastersFactoryインスタンス。
+     */
+    private final WebmastersFactory factory;
+
+    /**
+     * コンストラクタ。
+     *
+     * @param factory WebmastersFactoryインスタンス
+     */
+    public AddCommand(final WebmastersFactory factory) {
+        this.factory = factory;
     }
 
-    /** サイトをGoogle Search Consoleに追加します。 */
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void execute() {
+        validateArguments();
         try {
-            final Webmasters webmasters = factory.create();
-            final Webmasters.Sites.Add add = webmasters.sites().add(siteUrl);
-            add.execute();
-
-            if (format == Format.CONSOLE && LOGGER.isInfoEnabled()) {
-                LOGGER.info("Successfully added site: {}", siteUrl);
-            }
+            addSite();
         } catch (IOException e) {
-            if (LOGGER.isErrorEnabled()) {
-                LOGGER.error("Failed to add site: {}", siteUrl, e);
-            }
-            throw new CommandLineInputOutputException("Failed to add site: " + siteUrl, e);
+            throw new CommandLineInputOutputException("Failed to add site: " + e.getMessage(), e);
         }
     }
 
     /**
-     * コマンドの使用方法を返します。
+     * 引数を検証します。
+     */
+    private void validateArguments() {
+        validateSiteUrl();
+        validateFormat();
+    }
+
+    /**
+     * サイトURLを検証します。
+     */
+    private void validateSiteUrl() {
+        if (StringUtils.isBlank(siteUrl)) {
+            throw new CmdLineArgmentException("Site URL is required");
+        }
+        if (!isValidUrl(siteUrl)) {
+            throw new CmdLineArgmentException("Invalid site URL format");
+        }
+    }
+
+    /**
+     * 出力フォーマットを検証します。
+     */
+    private void validateFormat() {
+        if (format == Format.JSON && StringUtils.isBlank(filePath)) {
+            throw new CmdLineArgmentException("File path is required for JSON format");
+        }
+    }
+
+    /**
+     * URLの形式を検証します。
      *
-     * @return 使用方法の説明
+     * @param url 検証するURL
+     * @return URLが有効な場合はtrue
+     */
+    private boolean isValidUrl(final String url) {
+        try {
+            new URI(url);
+            return true;
+        } catch (URISyntaxException e) {
+            return false;
+        }
+    }
+
+    /**
+     * サイトを追加します。
+     *
+     * @throws IOException APIコール中にエラーが発生した場合
+     */
+    private void addSite() throws IOException {
+        final Webmasters service = factory.createClient();
+        service.sites().add(siteUrl).execute();
+        
+        // APIはvoidを返すため、成功メッセージを生成して返す
+        final Response response = new Response("Successfully added site: " + siteUrl);
+        ResponseWriter.writeJson(response, format, filePath);
+    }
+
+    /**
+     * {@inheritDoc}
      */
     @Override
     public String usage() {
@@ -67,20 +132,32 @@ public class AddCommand implements Command {
     }
 
     /**
-     * サイトURLを設定します。
-     *
-     * @param siteUrl 設定するサイトURL
+     * レスポンスメッセージを格納する内部クラス。
      */
-    public void setSiteUrl(final String siteUrl) {
-        this.siteUrl = siteUrl;
-    }
+    private static class Response {
+        /**
+         * レスポンスメッセージ。
+         */
+        private final String message;
 
-    /**
-     * 出力フォーマットを設定します。
-     *
-     * @param format 設定する出力フォーマット
-     */
-    public void setFormat(final Format format) {
-        this.format = format;
+        /**
+         * デフォルトコンストラクタ。
+         * デフォルトのパッケージプライベートアクセス修飾子を使用します。
+         *
+         * @param message レスポンスメッセージ
+         */
+        /* package */ Response(final String message) {
+            this.message = message;
+        }
+
+        /**
+         * レスポンスメッセージを文字列として返します。
+         *
+         * @return レスポンスメッセージ
+         */
+        @Override
+        public String toString() {
+            return message;
+        }
     }
 }

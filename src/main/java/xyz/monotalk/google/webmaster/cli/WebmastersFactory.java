@@ -1,9 +1,7 @@
 package xyz.monotalk.google.webmaster.cli;
 
 import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
-import com.google.api.client.http.HttpTransport;
 import com.google.api.client.http.javanet.NetHttpTransport;
-import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.gson.GsonFactory;
 import com.google.api.services.webmasters.Webmasters;
 import com.google.api.services.webmasters.WebmastersScopes;
@@ -18,8 +16,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 /**
- * Google Webmasters APIクライアント生成ファクトリです。
- * Java 21の機能を活用して最適化されています。
+ * Google Webmasters APIクライアントを生成するファクトリクラスです。
  */
 @Component
 public class WebmastersFactory {
@@ -38,32 +35,23 @@ public class WebmastersFactory {
     }
     
     /**
-     * Webmastersインスタンスを作成します。
+     * Google Webmasters APIクライアントを生成します。
      *
-     * @return Webmastersクライアントのインスタンス
-     * @throws IllegalStateException クライアント生成中にエラーが発生した場合
+     * @return Google Webmasters APIクライアントのインスタンス。
+     * @throws IllegalStateException クライアントの生成に失敗した場合。
      */
-    public Webmasters create() {
-        final HttpTransport httpTransport;
+    public Webmasters createClient() {
         try {
-            httpTransport = createHttpTransport();
-        } catch (final GeneralSecurityException | IOException e) {
-            throw new IllegalStateException("Failed to create HTTP transport: " + e.getMessage(),
-                    e);
+            // クライアント生成ロジック
+            return new Webmasters.Builder(
+                createHttpTransport(), 
+                getJsonFactory(), 
+                new HttpCredentialsAdapter(createCredential()))
+                    .setApplicationName("Search Console Cli")
+                    .build();
+        } catch (GeneralSecurityException | IOException e) {
+            throw new IllegalStateException("Failed to create Webmasters client", e);
         }
-
-        final GoogleCredentials credential;
-        try {
-            credential = createCredential();
-        } catch (final IOException e) {
-            throw new IllegalStateException(
-                    "Failed to create Google credentials: " + e.getMessage(), e);
-        }
-
-        // Create a new authorized API client
-        return new Webmasters.Builder(httpTransport, getJsonFactory(), new HttpCredentialsAdapter(credential))
-                .setApplicationName("Search Console Cli")
-                .build();
     }
 
     /**
@@ -82,7 +70,7 @@ public class WebmastersFactory {
      *
      * @return JsonFactoryインスタンス
      */
-    protected JsonFactory getJsonFactory() {
+    protected GsonFactory getJsonFactory() {
         return GsonFactory.getDefaultInstance();
     }
 

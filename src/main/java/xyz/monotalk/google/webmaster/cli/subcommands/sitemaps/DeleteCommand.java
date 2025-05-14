@@ -32,19 +32,30 @@ public class DeleteCommand implements Command {
      * サイトのURL。
      */
     @Option(name = "-siteUrl", usage = "Url of site", required = true)
-    private String siteUrl;
+    protected String siteUrl;
 
     /**
      * サイトマップのフィードパス。
      */
     @Option(name = "-feedPath", usage = "Url of feedPath", required = true)
-    private String feedPath;
+    protected String feedPath;
         
     /**
      * デフォルトコンストラクタ。
      */
     public DeleteCommand() {
         // デフォルトコンストラクタ
+    }
+
+    /**
+     * テスト用のコンストラクタ。
+     * デフォルト（パッケージプライベート）アクセス修飾子を使用しています。
+     * このコンストラクタはテストケースからのみ呼び出されることを意図しています。
+     *
+     * @param factory WebmastersFactoryインスタンス
+     */
+    /* default */ DeleteCommand(final WebmastersFactory factory) {
+        this.factory = factory;
     }
 
     /**
@@ -57,7 +68,7 @@ public class DeleteCommand implements Command {
         if (LOGGER.isInfoEnabled()) {
             LOGGER.info("START Delete.");
         }
-        final Webmasters webmasters = factory.create();
+        final Webmasters webmasters = factory.createClient();
         try {
             final Webmasters.Sitemaps.Delete delete = webmasters.sitemaps().delete(siteUrl, feedPath);
             delete.execute();

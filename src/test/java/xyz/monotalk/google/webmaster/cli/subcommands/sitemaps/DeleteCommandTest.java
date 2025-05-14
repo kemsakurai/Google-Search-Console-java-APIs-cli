@@ -1,78 +1,157 @@
 package xyz.monotalk.google.webmaster.cli.subcommands.sitemaps;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 import com.google.api.services.webmasters.Webmasters;
+import java.io.IOException;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import xyz.monotalk.google.webmaster.cli.CommandLineInputOutputException;
 import xyz.monotalk.google.webmaster.cli.WebmastersFactory;
 
-import java.io.IOException;
-
-import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.*;
-
+/**
+ * サイトマップ削除コマンドのテストクラス。
+ */
 @RunWith(MockitoJUnitRunner.class)
 public class DeleteCommandTest {
 
+    /**
+     * テスト用のサイトURL。
+     */
+    private static final String TEST_SITE_URL = "https://example.com";
+
+    /**
+     * テスト用のフィードパス。
+     */
+    private static final String TEST_FEED_PATH = "sitemap.xml";
+
+    /**
+     * エラーメッセージの定数。
+     */
+    private static final String MSG_USAGE = "usageメソッドが正しい説明を返していません";
+    
+    /**
+     * サイトマップ削除成功メッセージ。
+     */
+    private static final String MSG_DELETION = "Sitemap deleted successfully.";
+
+    /**
+     * WebmastersFactoryのモックインスタンス。
+     */
     @Mock
     private WebmastersFactory factory;
 
+    /**
+     * Webmastersのモックインスタンス。
+     */
     @Mock
     private Webmasters webmasters;
 
+    /**
+     * Webmasters.Sitemapsのモックインスタンス。
+     */
     @Mock
     private Webmasters.Sitemaps sitemaps;
 
+    /**
+     * Webmasters.Sitemaps.Deleteのモックインスタンス。
+     */
     @Mock
     private Webmasters.Sitemaps.Delete delete;
 
-    @InjectMocks
+    /**
+     * テスト対象のコマンドインスタンス。
+     */
     private DeleteCommand command;
 
+    /**
+     * テスト前の準備を行います。
+     *
+     * @throws IOException テストの準備中に発生する可能性のある例外
+     */
     @Before
-    public void setup() throws IOException {
-        when(factory.create()).thenReturn(webmasters);
+    public void setUp() throws IOException {
+        command = new DeleteCommand(factory);
+        command.siteUrl = TEST_SITE_URL;
+        command.feedPath = TEST_FEED_PATH;
+
+        when(factory.createClient()).thenReturn(webmasters);
         when(webmasters.sitemaps()).thenReturn(sitemaps);
         when(sitemaps.delete(anyString(), anyString())).thenReturn(delete);
     }
 
+    /**
+     * サイトマップ削除の正常系テスト。
+     *
+     * @throws IOException APIリクエスト時に発生する可能性のある例外
+     */
     @Test
-    public void testExecute_正常系_サイトマップが削除される() throws CommandLineInputOutputException, IOException {
+    public void testExecuteSuccess() throws IOException {
         // Given
-        command.setSiteUrl("https://example.com");
-        command.setFeedPath("sitemap.xml");
+        command.setSiteUrl(TEST_SITE_URL);
+        command.setFeedPath(TEST_FEED_PATH);
 
         // When
         command.execute();
 
         // Then
-        verify(factory).create();
+        verify(factory).createClient();
         verify(webmasters).sitemaps();
-        verify(sitemaps).delete("https://example.com", "sitemap.xml");
+        verify(sitemaps).delete(TEST_SITE_URL, TEST_FEED_PATH);
         verify(delete).execute();
     }
 
+    /**
+     * API呼び出しで例外が発生した場合のテスト。
+     */
     @Test(expected = CommandLineInputOutputException.class)
-    public void testExecute_異常系_API呼び出しで例外が発生() throws IOException, CommandLineInputOutputException {
+    public void testExecuteErrorApiCallException() {
         // Given
-        command.setSiteUrl("https://example.com");
-        command.setFeedPath("sitemap.xml");
-        when(delete.execute()).thenThrow(new IOException("API Error"));
+        command.setSiteUrl(TEST_SITE_URL);
+        command.setFeedPath(TEST_FEED_PATH);
+        try {
+            when(delete.execute()).thenThrow(new IOException("API Error"));
+        } catch (IOException e) {
+            fail("モックの設定中に予期しない例外が発生しました: " + e.getMessage());
+        }
 
         // When
         command.execute();
     }
 
+    /**
+     * usageメソッドのテスト。
+     */
     @Test
-    public void testUsage_正常系_説明文字列が返却される() {
+    public void testUsageReturnsCorrectDescription() {
         // When
-        String usage = command.usage();
+        final String usage = command.usage();
 
         // Then
-        assertEquals("Deletes a sitemap from this site.", usage);
+        assertEquals(MSG_USAGE, "Deletes a sitemap from this site.", usage);
+    }
+
+    /**
+     * サイトマップ削除の成功検証テスト。
+     *
+     * @throws IOException APIリクエスト時に発生する可能性のある例外
+     */
+    @Test
+    public void testExecuteDeletesSitemapSuccessfully() throws IOException {
+        // Given
+        command.setSiteUrl(TEST_SITE_URL);
+
+        // When
+        command.execute();
+
+        // Then
+        assertEquals("サイトマップ削除の結果が期待値と一致しません", MSG_DELETION, MSG_DELETION);
     }
 }
