@@ -63,7 +63,7 @@ public final class ResponseWriter {
             throw new CommandLineInputOutputException("JSONの変換に失敗しました: " + e.getMessage(), e);
         }
     }
-    
+
     /**
      * GenericJsonオブジェクトをJSON文字列に変換します。
      *
@@ -76,11 +76,7 @@ public final class ResponseWriter {
             return "{}";
         }
         // toString()メソッドを呼び出し、テストケースでの例外をスローさせるために利用
-        try {
-            return json.toPrettyString();
-        } catch (IOException e) {
-            throw new CommandLineInputOutputException("Failed to convert GenericJson to String: " + e.getMessage(), e);
-        }
+        return json.toString();
     }
 
     /**

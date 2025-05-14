@@ -41,19 +41,6 @@ public class FullyQualifiedClassNameBeanNameGeneratorTest {
     }
 
     /**
-     * 引数がnullの場合のテスト。
-     */
-    public void testGenerateBeanName_異常系_引数がnull() {
-        // Given
-        final FullyQualifiedClassNameBeanNameGenerator generator = new FullyQualifiedClassNameBeanNameGenerator();
-        final BeanDefinitionRegistry registry = mock(BeanDefinitionRegistry.class);
-
-        // When: nullを渡すとNullPointerExceptionが発生するはず
-        final String beanName = generator.generateBeanName(null, registry);
-        assertEquals("beanNameは空文字になるはず", "", beanName);
-    }
-
-    /**
      * Bean定義のクラス名がnullの場合のテスト。
      */
     @Test

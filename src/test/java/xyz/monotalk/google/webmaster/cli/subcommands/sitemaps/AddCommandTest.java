@@ -29,7 +29,7 @@ public class AddCommandTest {
     /** サイトのURLを表す定数。 */
     private static final String SITE_URL = "https://example.com";
 
-    /** サイトマップのパスを表す定数 */
+    /** サイトマップのパスを表す定数。 */
     private static final String FEED_PATH = "sitemap.xml";
 
     /** WebmastersFactoryのモックオブジェクト。 */

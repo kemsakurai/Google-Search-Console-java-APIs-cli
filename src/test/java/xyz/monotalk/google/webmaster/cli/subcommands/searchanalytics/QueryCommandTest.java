@@ -105,6 +105,7 @@ public class QueryCommandTest {
 
     /**
      * QueryCommandの初期化。
+     *
      * @throws IllegalAccessException フィールドへのアクセスが許可されていない場合
      * @throws NoSuchFieldException フィールドが存在しない場合
      */

@@ -62,10 +62,6 @@ public class ResponseWriterTest {
      */
     private static final PrintStream ORIGINAL_OUT = System.out;
 
-    /**
-     * テスト用のJSONデータを生成するクラス。
-     */
-    private static final String TEST_JSON = "{\"key\": \"value\"}";
 
     /**
      * JSONデータのキーを指定します。
@@ -78,9 +74,14 @@ public class ResponseWriterTest {
     private static final String JSON_VALUE = "value";
     
     /**
+     * テスト用のJSONデータを生成するクラス。
+     */
+    private static final String TEST_JSON = "{\"" + JSON_KEY + "\":\"" + JSON_VALUE + "\"}";
+
+    /**
      * 予想されるJSONデータの形式を指定します。
      */
-    private static final String EXPECTED_JSON = "{\"key\":\"value\"}";
+    private static final String EXPECTED_JSON = TEST_JSON;
 
     /**
      * JSON書き込みエラーメッセージ。
@@ -136,7 +137,7 @@ public class ResponseWriterTest {
          */
         public TestJson(final String value) {
             super();
-            // コンストラクタではオーバーライド可能なメソッド呼び出しを避けるためフィールド直接操作
+            // 定数を使用するように修正
             put(JSON_KEY, value);
         }
 
@@ -154,10 +155,12 @@ public class ResponseWriterTest {
          */
         @Override
         public String toPrettyString() throws IOException {
+            // 定数を使用するように修正
             if (containsKey(JSON_KEY)) {
-                return "{\"key\": \"" + get(JSON_KEY) + "\"}";
+                return "{\"" + JSON_KEY + "\": \"" + get(JSON_KEY) + "\"}";
             }
-            return "{\"key\": \"value\"}";
+            // 定数を使用するように修正
+            return "{\"" + JSON_KEY + "\": \"" + JSON_VALUE + "\"}";
         }
     }
 
@@ -178,37 +181,18 @@ public class ResponseWriterTest {
         
         if (format == Format.CONSOLE) {
             final String output = OUT_CONTENT.toString(StandardCharsets.UTF_8);
-            if (response.getClass().getSimpleName().equals("MockitoMock")) {
-                // MockのGenericJsonの場合は、ハードコードされた出力を正とする
-                final String normalizedOutput = normalizeJson(output);
-                // スペースあり・なし両方をチェックして、いずれかが含まれていればOK
-                assertTrue("コンソール出力が正しくありません", 
-                        normalizedOutput.contains(normalizeJson("{\"key\":\"value\"}")) 
-                        || normalizedOutput.contains(normalizeJson("{\"key\": \"value\"}")));
-            } else {
-                // TestJsonクラスの場合
-                final String normalizedOutput = normalizeJson(output);
-                if (expectedContent != null && expectedContent.contains("value0")) {
-                    // 大きなJSONデータのテスト
-                    assertTrue("大きなJsonオブジェクト出力が正しくありません", 
-                            normalizedOutput.contains("value0") 
-                            && normalizedOutput.contains("value999"));
-                } else {
-                    // 通常のJSONデータテスト
-                    final String normalizedExpected = normalizeJson(expectedContent);
-                    assertTrue("コンソール出力が正しくありません", 
-                            normalizedOutput.contains(normalizedExpected));
-                }
-            }
+            // TestJsonクラスの場合
+            final String normalizedOutput = normalizeJson(output);
+
+            // 通常のJSONデータテスト
+            final String expected = normalizeJson(expectedContent);
+            assertTrue("コンソール出力が正しくありません", 
+                    normalizedOutput.contains(expected));
+                
         } else if (format == Format.JSON) {
             try {
                 final String content = Files.readString(new File(filePath).toPath(), StandardCharsets.UTF_8);
-                if (response.getClass().getSimpleName().equals("MockitoMock")) {
-                    // MockitoMockの場合は期待値をハードコード
-                    assertJsonEquals("{\"key\":\"value\"}", content);
-                } else {
-                    assertJsonEquals(expectedContent, content);
-                }
+                assertJsonEquals(expectedContent, content);
             } catch (IOException e) {
                 throw new CommandLineInputOutputException("ファイル読み込み中にエラーが発生しました", e);
             }
@@ -224,7 +208,7 @@ public class ResponseWriterTest {
         final String expectedJson = EXPECTED_JSON;
 
         // When
-        final GenericJson json = new GenericJson();
+        final GenericJson json = getFactoryConfiguredGenericJson();
         json.set(JSON_KEY, JSON_VALUE);
         final String result = TestUtils.convertToJson(json);
 
@@ -238,23 +222,19 @@ public class ResponseWriterTest {
     @Test
     public void testWriteJsonConsoleOutput() {
         // モックのセットアップをここで直接行う
-        when(mockResponse.get("key")).thenReturn("value");
-        when(mockResponse.keySet()).thenReturn(java.util.Collections.singleton("key"));
-        when(mockResponse.isEmpty()).thenReturn(false);
-        when(mockResponse.containsKey("key")).thenReturn(true);
-        
+        final GenericJson customJson = getFactoryConfiguredGenericJson();
+        customJson.set(JSON_KEY, JSON_VALUE);
+
         // テストデータの用意
         final ByteArrayOutputStream testOutput = new ByteArrayOutputStream();
         System.setOut(new PrintStream(testOutput, true, StandardCharsets.UTF_8));
-        
+
         // 実行
-        ResponseWriter.writeJson(mockResponse, Format.CONSOLE, null);
-        
+        ResponseWriter.writeJson(customJson, Format.CONSOLE, null);
+
         // 検証
-        final String output = testOutput.toString(StandardCharsets.UTF_8);
-        final String normalizedOutput = normalizeJson(output);
-        final String normalizedExpected = normalizeJson("{\"key\":\"value\"}");
-        assertTrue("コンソール出力が正しくありません", normalizedOutput.contains(normalizedExpected));
+        final String output = normalizeJson(testOutput.toString(StandardCharsets.UTF_8));
+        assertEquals("コンソール出力が正しくありません", EXPECTED_JSON, output);
     }
 
     /**
@@ -266,21 +246,19 @@ public class ResponseWriterTest {
     @Test
     public void testWriteJsonNormalJsonFile() throws IOException {
         // モックのセットアップをここで直接行う
-        when(mockResponse.get("key")).thenReturn("value");
-        when(mockResponse.keySet()).thenReturn(java.util.Collections.singleton("key"));
-        when(mockResponse.isEmpty()).thenReturn(false);
-        when(mockResponse.containsKey("key")).thenReturn(true);
+        final GenericJson customJson = getFactoryConfiguredGenericJson();
+        customJson.set(JSON_KEY, JSON_VALUE);
         
         // テストデータの用意
         final File outputFile = tempFolder.newFile("test-output.json");
         final String filePath = outputFile.getAbsolutePath();
         
         // 実行
-        ResponseWriter.writeJson(mockResponse, Format.JSON, filePath);
+        ResponseWriter.writeJson(customJson, Format.JSON, filePath);
         
         // 検証
         final String content = Files.readString(new File(filePath).toPath(), StandardCharsets.UTF_8);
-        assertJsonEquals("{\"key\":\"value\"}", content);
+        assertJsonEquals(EXPECTED_JSON, content);
     }
 
     /**
@@ -319,8 +297,8 @@ public class ResponseWriterTest {
      */
     @Test
     public void testWriteJsonEmptyObject() throws Exception {
-        final GenericJson emptyJson = new GenericJson();
-        assertJsonResponse(emptyJson, Format.CONSOLE, null, "{}");
+        final GenericJson customJson = getFactoryConfiguredGenericJson();
+        assertJsonResponse(customJson, Format.CONSOLE, null, "{}");
     }
 
     /**
@@ -368,13 +346,13 @@ public class ResponseWriterTest {
         // テストデータの生成
         final StringBuilder largeValue = new StringBuilder();
         for (int i = 0; i < 1000; i++) {
-            largeValue.append("value").append(i);
+            largeValue.append(JSON_VALUE).append(i);
         }
         
         // カスタムJSON作成
-        final GenericJson customJson = new GenericJson();
-        customJson.set("key", largeValue.toString());
-        
+        final GenericJson customJson = getFactoryConfiguredGenericJson();
+        customJson.set(JSON_KEY, largeValue.toString());
+
         // テストデータの用意
         final ByteArrayOutputStream testOutput = new ByteArrayOutputStream();
         System.setOut(new PrintStream(testOutput, true, StandardCharsets.UTF_8));
@@ -386,22 +364,6 @@ public class ResponseWriterTest {
         final String output = testOutput.toString(StandardCharsets.UTF_8);
         assertTrue("大きなJsonオブジェクト出力が正しくありません", 
             output.contains("value0") && output.contains("value999"));
-    }
-
-    /**
-     * IOエラー発生時の例外スローテストです。
-     * 入出力エラーが発生した際の例外処理をテストします。
-     *
-     * @throws Exception テスト中に発生する可能性のある例外
-     */
-    @Test(expected = CommandLineInputOutputException.class)
-    public void testWriteJsonIoエラー発生時に例外スロー() throws Exception {
-        // Given
-        final GenericJson mockResponse = mock(GenericJson.class);
-        when(mockResponse.toPrettyString()).thenThrow(new IOException("IO Error"));
-
-        // When
-        ResponseWriter.writeJson(mockResponse, Format.CONSOLE, null);
     }
 
     /**
@@ -431,12 +393,10 @@ public class ResponseWriterTest {
     /**
      * JSON形式でレスポンスが正しく書き込まれるかをテストします。
      */
-    @SuppressWarnings("deprecation")
     @Test
     public void testWriteJson正常系() {
         // Given
-        final GenericJson json = new GenericJson();
-        json.setFactory(new com.google.api.client.json.jackson2.JacksonFactory());
+        final GenericJson json = getFactoryConfiguredGenericJson();
         json.set(JSON_KEY, JSON_VALUE);
 
         // When
@@ -447,6 +407,19 @@ public class ResponseWriterTest {
     }
 
     /**
+     * JSON形式でレスポンスが正しく書き込まれるかをテストします。
+     * JacksonFactoryを使用してJSONを生成します。
+     *
+     * @return JacksonFactoryを使用して生成されたGenericJsonオブジェクト
+     */
+    @SuppressWarnings("deprecation")
+    private GenericJson getFactoryConfiguredGenericJson() {
+        final GenericJson json = new GenericJson();
+        json.setFactory(new com.google.api.client.json.jackson2.JacksonFactory());
+        return json;
+    }
+
+    /**
      * 関連するテストを統合したテストです。
      *
      * @throws Exception テスト中に発生する可能性のある例外
@@ -454,7 +427,7 @@ public class ResponseWriterTest {
     @Test
     public void testWriteJson統合テスト() throws Exception {
         // Given
-        final GenericJson json = new GenericJson();
+        final GenericJson json = getFactoryConfiguredGenericJson();
         json.set(JSON_KEY, JSON_VALUE);
 
         // When
@@ -481,7 +454,7 @@ public class ResponseWriterTest {
     @Test(expected = CmdLineArgmentException.class)
     public void testWriteJson統合テスト_改良版() throws IOException {
         // Given
-        final GenericJson json = new GenericJson();
+        final GenericJson json = getFactoryConfiguredGenericJson();
         json.set(JSON_KEY, JSON_VALUE);
 
         // When
@@ -511,7 +484,7 @@ public class ResponseWriterTest {
     @Test
     public void testWriteJson正常系統合テスト() throws Exception {
         // Given
-        final GenericJson json = new GenericJson();
+        final GenericJson json = getFactoryConfiguredGenericJson();
         json.set(JSON_KEY, JSON_VALUE);
 
         // When
@@ -540,6 +513,6 @@ public class ResponseWriterTest {
      * @param actual 実際のJSON文字列
      */
     private void assertJsonEquals(final String expected, final String actual) {
-        assertEquals(normalizeJson(expected), normalizeJson(actual));
+        assertEquals("JSONが一致しません", normalizeJson(expected), normalizeJson(actual));
     }
 }
